@@ -14,14 +14,14 @@ interface Product {
   price: number
   images?: string[]
   colors?: string[]
-  stock?: boolean
+  stock?: string
   category?: string
 }
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [sortBy, setSortBy] = useState('default')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
@@ -44,7 +44,7 @@ export default function ShopPage() {
     fetchProducts()
   }, [])
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))]
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter((c): c is string => Boolean(c))))]
 
   const filteredProducts = selectedCategory === 'All'
     ? products
