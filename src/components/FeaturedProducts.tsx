@@ -12,7 +12,7 @@ const featuredProducts = [
     price: 1999,
     images: [],
     colors: ['#000000', '#FFFFFF', '#808080'],
-    stock: true,
+    stock: 'in_stock',
   },
   {
     _id: '2',
@@ -21,7 +21,7 @@ const featuredProducts = [
     price: 3499,
     images: [],
     colors: ['#1e3a5f', '#2c5f7f'],
-    stock: true,
+    stock: 'in_stock',
   },
   {
     _id: '3',
@@ -30,7 +30,7 @@ const featuredProducts = [
     price: 2499,
     images: [],
     colors: ['#FFFFFF', '#F5F5DC', '#000000'],
-    stock: true,
+    stock: 'in_stock',
   },
   {
     _id: '4',
@@ -39,10 +39,9 @@ const featuredProducts = [
     price: 4999,
     images: [],
     colors: ['#000000', '#8B4513', '#808080'],
-    stock: false,
+    stock: 'out_of_stock',
   },
 ]
-
 export default function FeaturedProducts() {
   return (
     <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
