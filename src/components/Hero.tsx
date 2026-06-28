@@ -33,7 +33,7 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#950606] text-white font-semibold rounded-full hover:bg-[#7a0505] transition-all hover:scale-105"
             >
               Shop Now
               <ArrowRight size={20} />
@@ -41,7 +41,7 @@ export default function Hero() {
             
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full border-2 border-black hover:bg-black hover:text-white transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full border-2 border-[#950606] hover:bg-[#7a0505] hover:text-white transition-all"
             >
               Our Story
             </Link>

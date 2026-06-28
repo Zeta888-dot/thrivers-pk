@@ -45,15 +45,15 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Hover Overlay with Buttons */}
           <motion.div
-            className="absolute inset-0 bg-black/20 flex items-center justify-center gap-2"
+            className="absolute inset-0 bg-[#950606]/20 flex items-center justify-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <button className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-black hover:text-white transition-colors">
+            <button className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-[#7a0505] hover:text-white transition-colors">
               View
             </button>
-            <button className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-black hover:text-white transition-colors">
+            <button className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-full hover:bg-[#7a0505] hover:text-white transition-colors">
               Choose options
             </button>
           </motion.div>
@@ -71,7 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
           {/* Discount Badge */}
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded-full">
+            <div className="absolute top-2 right-2 bg-[#950606] text-white text-xs px-2 py-1 rounded-full">
               -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
             </div>
           )}

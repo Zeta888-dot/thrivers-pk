@@ -33,7 +33,7 @@ export default function CartDrawer() {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 bg-[#950606]/50 z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -88,7 +88,7 @@ export default function CartDrawer() {
                                     e.stopPropagation()
                                     handlePrevImage(item.id, productImages.length)
                                   }}
-                                  className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-black/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                                  className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                 >
                                   <ChevronLeft size={12} />
                                 </button>
@@ -97,12 +97,12 @@ export default function CartDrawer() {
                                     e.stopPropagation()
                                     handleNextImage(item.id, productImages.length)
                                   }}
-                                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-black/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                 >
                                   <ChevronRight size={12} />
                                 </button>
                                 {/* Image Counter */}
-                                <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                                <div className="absolute bottom-1 right-1 bg-[#950606]/70 text-white text-xs px-1.5 py-0.5 rounded">
                                   {currentIndex + 1}/{productImages.length}
                                 </div>
                               </>
@@ -156,7 +156,7 @@ export default function CartDrawer() {
                 <Link 
                   href="/checkout" 
                   onClick={toggleCart}
-                  className="block w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-center"
+                  className="block w-full bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors text-center"
                 >
                   Checkout
                 </Link>

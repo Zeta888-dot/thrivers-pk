@@ -87,7 +87,7 @@ export default function ContactPage() {
           </div>
           <button 
             type="submit" 
-            className="w-full flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors"
           >
             {isSent ? 'Message Sent!' : <><Send size={18} /> Send Message</>}
           </button>

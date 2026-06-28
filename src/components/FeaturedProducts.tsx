@@ -80,7 +80,7 @@ export default function FeaturedProducts() {
       <div className="text-center mt-12">
         <motion.a
           href="/shop"
-          className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+          className="inline-flex items-center gap-2 px-8 py-3 bg-[#950606] text-white font-semibold rounded-full hover:bg-[#7a0505] transition-all hover:scale-105"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >

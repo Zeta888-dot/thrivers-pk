@@ -29,7 +29,7 @@ export default function CheckoutPage() {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-6xl mb-6">🎉</motion.div>
         <h1 className="text-3xl font-bold mb-4">Order Placed Successfully!</h1>
         <p className="text-gray-600 mb-8">Thank you for your order. We'll contact you soon.</p>
-        <a href="/shop" className="inline-block bg-black text-white px-8 py-3 rounded-lg font-semibold">Continue Shopping</a>
+        <a href="/shop" className="inline-block bg-[#950606] text-white px-8 py-3 rounded-lg font-semibold">Continue Shopping</a>
       </div>
     )
   }
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <button type="submit" className="w-full bg-black text-white py-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors">
+          <button type="submit" className="w-full bg-[#950606] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#7a0505] transition-colors">
             Complete Order
           </button>
         </motion.form>

@@ -1,38 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --primary: 350 93% 30%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 350 93% 30%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 350 93% 30%;
-    --radius: 0.5rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+@import "tailwindcss";
 
 /* Vignette Effect */
 .vignette {
@@ -44,8 +10,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(149, 6, 6, 0.15) 100%);
   z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(149, 6, 6, 0.15) 100%);
 }
 
 .vignette-dark {
@@ -57,8 +23,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
   z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 /* Hero Section with Red Gradient */
@@ -68,5 +34,11 @@
 
 /* Red accent buttons */
 .btn-primary {
-  @apply bg-[#950606] text-white hover:bg-[#7a0505] transition-colors;
+  background-color: #950606;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #7a0505;
 }

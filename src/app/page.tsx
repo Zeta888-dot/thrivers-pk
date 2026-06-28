@@ -67,7 +67,7 @@ export default function HomePage() {
                     {category}
                   </h3>
                 </div>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                <div className="absolute inset-0 bg-[#950606]/20 group-hover:bg-[#7a0505]/30 transition-colors" />
               </Link>
             ))}
           </div>

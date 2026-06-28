@@ -72,7 +72,7 @@ export default function ShopPage() {
         </button>
         <div className={`${isFilterOpen ? 'flex' : 'hidden'} md:flex flex-wrap gap-2`}>
           {categories.map((cat) => (
-            <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-black text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+            <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
               {cat}
             </button>
           ))}
@@ -88,7 +88,7 @@ export default function ShopPage() {
       {selectedCategory !== 'All' && (
         <div className="mb-6 flex items-center gap-2">
           <span className="text-sm text-gray-600">Filtering by:</span>
-          <button onClick={() => setSelectedCategory('All')} className="flex items-center gap-1 px-3 py-1 bg-black text-white text-sm rounded-full">
+          <button onClick={() => setSelectedCategory('All')} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
             {selectedCategory} <X size={14} />
           </button>
         </div>
