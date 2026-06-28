@@ -2,9 +2,31 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, ShoppingBag } from 'lucide-react'
+import { ArrowRight, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useRef } from 'react'
 
 export default function HomePage() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 320
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const categories = [
+    { name: 'T-Shirts', href: '/shop?category=t-shirts' },
+    { name: 'Hoodies', href: '/shop?category=hoodies' },
+    { name: 'Accessories', href: '/shop?category=accessories' },
+    { name: 'Jeans', href: '/shop?category=jeans' },
+    { name: 'Jackets', href: '/shop?category=jackets' },
+    { name: 'Caps', href: '/shop?category=caps' },
+  ]
+
   return (
     <div>
       {/* Hero Section */}
@@ -18,8 +40,8 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider">
-  THRIVERS
-</h1>
+              THRIVERS
+            </h1>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Link 
@@ -48,29 +70,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Categories */}
+      {/* Featured Categories - Swipeable */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-            Shop by Category
-          </h2>
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Shop by Category
+            </h2>
+            <div className="hidden md:flex gap-2">
+              <button 
+                onClick={() => scroll('left')}
+                className="p-3 rounded-full bg-white border border-gray-200 hover:bg-[#950606] hover:text-white hover:border-[#950606] transition-all shadow-sm"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button 
+                onClick={() => scroll('right')}
+                className="p-3 rounded-full bg-white border border-gray-200 hover:bg-[#950606] hover:text-white hover:border-[#950606] transition-all shadow-sm"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {['T-Shirts', 'Hoodies', 'Accessories'].map((category, index) => (
+          {/* Swipeable Container */}
+          <div 
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {categories.map((category, index) => (
               <Link 
-                key={category}
-                href={`/shop?category=${category.toLowerCase()}`}
-                className="group relative aspect-square bg-gradient-to-br from-[#950606] to-[#6b0404] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+                key={category.name}
+                href={category.href}
+                className="group relative flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] bg-gradient-to-br from-[#950606] to-[#6b0404] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 snap-start"
               >
                 <div className="absolute inset-0 flex items-center justify-center">
                   <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:scale-110 transition-transform">
-                    {category}
+                    {category.name}
                   </h3>
                 </div>
-                <div className="absolute inset-0 bg-[#950606]/20 group-hover:bg-[#7a0505]/30 transition-colors" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                
+                {/* Swipe hint on mobile */}
+                {index === categories.length - 1 && (
+                  <div className="md:hidden absolute bottom-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2">
+                    <ArrowRight size={16} className="text-white" />
+                  </div>
+                )}
               </Link>
             ))}
           </div>
+
+          {/* Mobile scroll hint */}
+          <p className="md:hidden text-center text-sm text-gray-500 mt-4">
+            ← Swipe to explore more →
+          </p>
         </div>
       </section>
 
