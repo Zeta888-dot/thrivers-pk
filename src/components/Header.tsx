@@ -15,7 +15,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
+      setIsScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -29,12 +29,16 @@ export default function Header() {
   ]
 
   return (
-    <header className={`fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm z-40 transition-all duration-300 ${isScrolled ? 'border-b border-gray-100 shadow-sm' : ''}`}>
+    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-in-out ${
+      isScrolled 
+        ? 'bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-lg py-3' 
+        : 'bg-white/10 backdrop-blur-sm border-b border-transparent py-4'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-[#950606]">
-            Thrivers
+          <Link href="/" className="text-2xl font-black text-[#950606] tracking-wider drop-shadow-sm">
+            THRIVERS
           </Link>
 
           {/* Desktop Navigation */}
@@ -43,7 +47,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-gray-700 hover:text-[#950606] transition-colors"
+                className="text-sm font-semibold text-gray-800 hover:text-[#950606] transition-colors duration-300 drop-shadow-sm"
               >
                 {item.name}
               </Link>
@@ -54,11 +58,11 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <button 
               onClick={toggleCart} 
-              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="relative p-2 rounded-full transition-colors hover:bg-white/50"
             >
-              <ShoppingBag size={20} className="text-[#950606]" />
+              <ShoppingBag size={22} className="text-[#950606]" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#950606] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#950606] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
                   {totalItems}
                 </span>
               )}
@@ -66,7 +70,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2"
+              className="md:hidden p-2 text-[#950606]"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -82,7 +86,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-gray-100"
+            className="md:hidden bg-white/95 backdrop-blur-lg border-t border-gray-200 overflow-hidden"
           >
             <nav className="px-4 py-4 space-y-3">
               {navItems.map((item) => (
