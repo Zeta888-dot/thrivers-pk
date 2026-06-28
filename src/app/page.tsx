@@ -17,9 +17,9 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6">
-              Thrivers
-            </h1>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider">
+  THRIVERS
+</h1>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <Link 

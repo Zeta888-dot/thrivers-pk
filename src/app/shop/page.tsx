@@ -60,9 +60,9 @@ export default function ShopPage() {
   if (loading) return <div className="py-20 text-center text-xl">Loading products...</div>
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop by Category</h1>
         <p className="text-gray-600">Discover our complete collection</p>
       </motion.div>
 
@@ -72,7 +72,7 @@ export default function ShopPage() {
         </button>
         <div className={`${isFilterOpen ? 'flex' : 'hidden'} md:flex flex-wrap gap-2`}>
           {categories.map((cat) => (
-            <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+            <button key={cat} onClick={() => setSelectedCategory(cat || 'All')} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
               {cat}
             </button>
           ))}

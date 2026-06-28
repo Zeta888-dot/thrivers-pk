@@ -2,15 +2,24 @@
 
 import Link from 'next/link'
 import { ShoppingBag, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cartStore'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const { items, toggleCart } = useCartStore()
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const navItems = [
     { name: 'Home', href: '/' },
@@ -20,7 +29,7 @@ export default function Header() {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm z-40 border-b border-gray-100">
+    <header className={`fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm z-40 transition-all duration-300 ${isScrolled ? 'border-b border-gray-100 shadow-sm' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
