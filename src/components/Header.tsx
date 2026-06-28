@@ -1,14 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingBag, Menu, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ShoppingBag, Menu, X, Search } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cartStore'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const { items, toggleCart } = useCartStore()
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -20,6 +23,19 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [isSearchOpen])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`
+    }
+  }
 
   const navItems = [
     { name: 'Home', href: '/' },
@@ -54,11 +70,51 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Cart & Mobile Menu */}
-          <div className="flex items-center gap-4">
+          {/* Search & Cart & Mobile Menu */}
+          <div className="flex items-center gap-2">
+            {/* Search Bar */}
+            <div className="relative flex items-center">
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.form
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 200, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleSearch}
+                    className="absolute right-10 flex items-center"
+                  >
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full focus:outline-none focus:border-[#950606] focus:ring-2 focus:ring-[#950606]/20 bg-white/95 backdrop-blur-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsSearchOpen(false)}
+                      className="absolute right-2 p-1 hover:bg-gray-100 rounded-full"
+                    >
+                      <X size={14} className="text-gray-500" />
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+              
+              <button 
+                onClick={() => setIsSearchOpen(!isSearchOpen)} 
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Search size={20} className="text-[#950606]" />
+              </button>
+            </div>
+
+            {/* Cart Button */}
             <button 
               onClick={toggleCart} 
-              className="relative p-2 rounded-full transition-colors hover:bg-white/50"
+              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <ShoppingBag size={22} className="text-[#950606]" />
               {totalItems > 0 && (
