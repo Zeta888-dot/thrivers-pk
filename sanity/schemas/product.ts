@@ -89,9 +89,42 @@ export const product = defineType({
     }),
     defineField({
       name: 'featured',
-      title: 'Featured',
+      title: 'Featured on Homepage',
       type: 'boolean',
       initialValue: false,
+      description: 'Show this product in the Featured section',
+    }),
+    defineField({
+      name: 'badges',
+      title: 'Product Badges',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'New Arrival', value: 'New Arrival' },
+          { title: 'Best Seller', value: 'Best Seller' },
+          { title: 'Sale', value: 'Sale' },
+          { title: 'Trending', value: 'Trending' },
+          { title: 'Limited Edition', value: 'Limited Edition' },
+        ],
+      },
+      description: 'Select badges to display on the product card',
+    }),
+    defineField({
+      name: 'collections',
+      title: 'Collections',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Summer Collection', value: 'Summer Collection' },
+          { title: 'Winter Collection', value: 'Winter Collection' },
+          { title: 'Streetwear', value: 'Streetwear' },
+          { title: 'Formal Wear', value: 'Formal Wear' },
+          { title: 'Accessories', value: 'Accessories' },
+        ],
+      },
+      description: 'Add product to specific marketing collections',
     }),
     defineField({
       name: 'tags',
@@ -109,16 +142,18 @@ export const product = defineType({
       price: 'price',
       compareAtPrice: 'compareAtPrice',
       stock: 'stock',
+      badges: 'badges',
       media: 'images[0]',
     },
     prepare(selection) {
-      const { title, price, compareAtPrice, stock, media } = selection
+      const { title, price, compareAtPrice, stock, badges, media } = selection
       const discount = compareAtPrice && price ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : null
       const stockLabel = stock === 'in_stock' ? '✓' : stock === 'low_stock' ? '⚠' : '✗'
+      const badgeText = badges && badges.length > 0 ? ` | ${badges.join(', ')}` : ''
       
       return {
         title,
-        subtitle: `PKR ${price}${discount ? ` (-${discount}%)` : ''} ${stockLabel}`,
+        subtitle: `PKR ${price}${discount ? ` (-${discount}%)` : ''} ${stockLabel}${badgeText}`,
         media,
       }
     },
