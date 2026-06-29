@@ -13,6 +13,8 @@ export const productsQuery = groq`
     stock,
     stockQuantity,
     featured,
+    badges,
+    collections,
     category-> {
       name,
       slug
@@ -33,6 +35,7 @@ export const productBySlugQuery = groq`
     sizes,
     stock,
     stockQuantity,
+    badges,
     category-> {
       name,
       slug
@@ -46,5 +49,25 @@ export const categoriesQuery = groq`
     name,
     slug,
     "image": image.asset->url
+  }
+`
+
+export const productsByBadgeQuery = groq`
+  *[_type == "product" && $badge in badges] {
+    _id,
+    name,
+    slug,
+    price,
+    compareAtPrice,
+    "images": images[].asset->url,
+    colors,
+    sizes,
+    stock,
+    stockQuantity,
+    badges,
+    category-> {
+      name,
+      slug
+    }
   }
 `
