@@ -3,10 +3,71 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { client } from '@/lib/sanity'
+import { categoriesQuery, productsQuery } from '@/lib/queries'
+import ProductCard from '@/components/ProductCard'
+
+interface Category {
+  _id: string
+  name: string
+  slug: string
+  image?: string
+}
+
+interface Product {
+  _id: string
+  name: string
+  slug: string
+  price: number
+  compareAtPrice?: number
+  images?: string[]
+  colors?: string[]
+  sizes?: string[]
+  stock?: string
+  featured?: boolean
+  badges?: string[]
+  category?: {
+    name: string
+    slug: string
+  }
+}
 
 export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [catsData, productsData] = await Promise.all([
+          client.fetch(categoriesQuery),
+          client.fetch(productsQuery)
+        ])
+        
+        setCategories(catsData)
+        
+        const normalizedProducts = productsData.map((p: any) => ({
+          ...p,
+          slug: p.slug.current,
+          category: p.category ? {
+            name: p.category.name,
+            slug: p.category.slug.current
+          } : undefined
+        }))
+        
+        const featured = normalizedProducts.filter((p: Product) => p.featured).slice(0, 8)
+        setFeaturedProducts(featured)
+      } catch (error) {
+        console.error("Failed to fetch data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -17,15 +78,6 @@ export default function HomePage() {
       })
     }
   }
-
-  const categories = [
-    { name: 'T-Shirts', href: '/shop?category=t-shirts' },
-    { name: 'Hoodies', href: '/shop?category=hoodies' },
-    { name: 'Accessories', href: '/shop?category=accessories' },
-    { name: 'Jeans', href: '/shop?category=jeans' },
-    { name: 'Jackets', href: '/shop?category=jackets' },
-    { name: 'Caps', href: '/shop?category=caps' },
-  ]
 
   return (
     <div>
@@ -101,16 +153,23 @@ export default function HomePage() {
           >
             {categories.map((category, index) => (
               <Link 
-                key={category.name}
-                href={category.href}
+                key={category._id}
+                href={`/shop?category=${category.slug}`}
                 className="group relative flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] bg-gradient-to-br from-[#950606] to-[#6b0404] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 snap-start"
               >
+                {category.image && (
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                )}
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:scale-110 transition-transform">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:scale-110 transition-transform drop-shadow-lg">
                     {category.name}
                   </h3>
                 </div>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
                 
                 {/* Swipe hint on mobile */}
                 {index === categories.length - 1 && (
@@ -136,11 +195,30 @@ export default function HomePage() {
             Featured Products
           </h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="aspect-[3/4] bg-gray-100 rounded-lg" />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-12 text-xl text-gray-500">Loading featured products...</div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                {featuredProducts.map((product, index) => (
+                  <motion.div 
+                    key={product._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </div>
+              
+              {featuredProducts.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  No featured products yet. Add some in Sanity!
+                </div>
+              )}
+            </>
+          )}
           
           <div className="text-center mt-12">
             <Link 
