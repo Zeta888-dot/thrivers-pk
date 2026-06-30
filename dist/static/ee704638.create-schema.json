@@ -1,0 +1,422 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "name",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "description",
+        "type": "text"
+      },
+      {
+        "name": "image",
+        "type": "image"
+      }
+    ],
+    "name": "category",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "name",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "rows": 3,
+        "name": "description",
+        "type": "text"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ]
+          }
+        ],
+        "name": "price",
+        "type": "number",
+        "title": "Current Price"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ]
+          }
+        ],
+        "description": "Show this price crossed out to display a discount",
+        "name": "compareAtPrice",
+        "type": "number",
+        "title": "Original Price (Compare At)"
+      },
+      {
+        "of": [
+          {
+            "type": "image"
+          }
+        ],
+        "name": "images",
+        "type": "array"
+      },
+      {
+        "to": [
+          {
+            "type": "category"
+          }
+        ],
+        "name": "category",
+        "type": "reference"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "colors",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "sizes",
+        "type": "array"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "In Stock",
+              "value": "in_stock"
+            },
+            {
+              "title": "Low Stock",
+              "value": "low_stock"
+            },
+            {
+              "title": "Out of Stock",
+              "value": "out_of_stock"
+            },
+            {
+              "title": "Sold Out",
+              "value": "sold_out"
+            }
+          ],
+          "layout": "radio"
+        },
+        "initialValue": "in_stock",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "in_stock",
+                  "low_stock",
+                  "out_of_stock",
+                  "sold_out"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "stock",
+        "type": "string",
+        "title": "Stock Status"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ]
+          }
+        ],
+        "description": "Number of items in stock",
+        "name": "stockQuantity",
+        "type": "number",
+        "title": "Quantity Available"
+      },
+      {
+        "initialValue": false,
+        "description": "Show this product in the Featured section",
+        "name": "featured",
+        "type": "boolean",
+        "title": "Featured on Homepage"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "New Arrival",
+              "value": "New Arrival"
+            },
+            {
+              "title": "Best Seller",
+              "value": "Best Seller"
+            },
+            {
+              "title": "Sale",
+              "value": "Sale"
+            },
+            {
+              "title": "Trending",
+              "value": "Trending"
+            },
+            {
+              "title": "Limited Edition",
+              "value": "Limited Edition"
+            }
+          ]
+        },
+        "description": "Select badges to display on the product card",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "badges",
+        "type": "array",
+        "title": "Product Badges"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Summer Collection",
+              "value": "Summer Collection"
+            },
+            {
+              "title": "Winter Collection",
+              "value": "Winter Collection"
+            },
+            {
+              "title": "Streetwear",
+              "value": "Streetwear"
+            },
+            {
+              "title": "Formal Wear",
+              "value": "Formal Wear"
+            },
+            {
+              "title": "Accessories",
+              "value": "Accessories"
+            }
+          ]
+        },
+        "description": "Add product to specific marketing collections",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "collections",
+        "type": "array"
+      },
+      {
+        "options": {
+          "layout": "tags"
+        },
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "tags",
+        "type": "array"
+      }
+    ],
+    "name": "product",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "orderId",
+        "type": "string",
+        "title": "Order ID"
+      },
+      {
+        "name": "customerName",
+        "type": "string"
+      },
+      {
+        "name": "phone",
+        "type": "string",
+        "title": "Phone Number"
+      },
+      {
+        "name": "altPhone",
+        "type": "string",
+        "title": "Alternative Phone Number"
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "title": "Email Address"
+      },
+      {
+        "name": "address",
+        "type": "text",
+        "title": "Delivery Address"
+      },
+      {
+        "name": "city",
+        "type": "string"
+      },
+      {
+        "name": "postalCode",
+        "type": "string"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "productName",
+                "type": "string"
+              },
+              {
+                "name": "quantity",
+                "type": "number"
+              },
+              {
+                "name": "price",
+                "type": "number"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "items",
+        "type": "array"
+      },
+      {
+        "name": "totalAmount",
+        "type": "number"
+      },
+      {
+        "options": {
+          "list": [
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled"
+          ],
+          "layout": "radio"
+        },
+        "initialValue": "Pending",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "options": {
+          "list": [
+            "Cash on Delivery",
+            "WhatsApp Order"
+          ],
+          "layout": "radio"
+        },
+        "name": "paymentMethod",
+        "type": "string"
+      }
+    ],
+    "name": "order",
+    "type": "document"
+  }
+]
