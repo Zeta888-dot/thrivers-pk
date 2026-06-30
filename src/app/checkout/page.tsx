@@ -20,9 +20,6 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'whatsapp'>('cod')
   const [loading, setLoading] = useState(false)
 
-  // Apna WhatsApp number yahan daalein (country code ke saath, bina + ke)
-  const BUSINESS_PHONE = "923001234567" 
-
   // Total manually calculate karo
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -44,17 +41,18 @@ export default function CheckoutPage() {
     }
 
     try {
-      // 1. Save to Sanity
-      await fetch('/api/checkout', {
+      // 1. Save to Sanity + Send Email
+      const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       })
 
-      // 2. WhatsApp Logic
-      if (paymentMethod === 'whatsapp') {
-        const message = `*New Order from Thrivers PK*%0A%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Alt Phone:* ${formData.altPhone}%0A*Email:* ${formData.email}%0A*Address:* ${formData.address}%0A*City:* ${formData.city}%0A*Postal Code:* ${formData.postalCode}%0A%0A*Items:*%0A${items.map(i => `- ${i.name} (x${i.quantity}) - PKR ${i.price}`).join('%0A')}%0A%0A*Total: PKR ${total}*`
-        window.open(`https://wa.me/${BUSINESS_PHONE}?text=${message}`, '_blank')
+      const data = await response.json()
+
+      // 2. WhatsApp Notification (agar user ne WhatsApp select kiya)
+      if (paymentMethod === 'whatsapp' && data.whatsappLink) {
+        window.open(data.whatsappLink, '_blank')
       }
 
       // Clear cart and redirect
