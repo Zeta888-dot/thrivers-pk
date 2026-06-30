@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       phone,
       address,
       items: items.map((item: any) => ({
-        _type: 'object',
+        _key: Math.random().toString(36).substr(2, 9), // Ye unique key add ki
         productName: item.name,
         quantity: item.quantity,
         price: item.price,
@@ -32,6 +32,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, orderId: order.orderId })
   } catch (error) {
+    console.error("Checkout error:", error)
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }
