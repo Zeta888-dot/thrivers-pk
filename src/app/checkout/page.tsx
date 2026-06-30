@@ -1,139 +1,101 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
-import { CreditCard, Truck, Shield } from 'lucide-react'
+import { MessageCircle, Truck } from 'lucide-react'
 
 export default function CheckoutPage() {
-  const { items } = useCartStore()
-  const [orderPlaced, setOrderPlaced] = useState(false)
-  const [formData, setFormData] = useState({
-    fullName: '', email: '', phone: '',
-    address: '', city: '', postalCode: '',
-    cardNumber: '', expiry: '', cvv: ''
-  })
+  const router = useRouter()
+  const { items, clearCart } = useCartStore()
+  const [formData, setFormData] = useState({ name: '', phone: '', address: '' })
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'whatsapp'>('cod')
+  const [loading, setLoading] = useState(false)
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal > 5000 ? 0 : 300
-  const total = subtotal + shipping
+  // Apna WhatsApp number yahan daalein (country code ke saath, bina + ke)
+  const BUSINESS_PHONE = "923001234567" 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Total manually calculate karo
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setOrderPlaced(true)
+    setLoading(true)
+
+    const orderData = {
+      customerName: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      items,
+      totalAmount: total,
+      paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'WhatsApp Order'
+    }
+
+    try {
+      // 1. Save to Sanity
+      await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      })
+
+      // 2. WhatsApp Logic
+      if (paymentMethod === 'whatsapp') {
+        const message = `*New Order from Thrivers PK*%0A%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Address:* ${formData.address}%0A%0A*Items:*%0A${items.map(i => `- ${i.name} (x${i.quantity}) - PKR ${i.price}`).join('%0A')}%0A%0A*Total: PKR ${total}*`
+        window.open(`https://wa.me/${BUSINESS_PHONE}?text=${message}`, '_blank')
+      }
+
+      // Clear cart and redirect
+      clearCart()
+      router.push('/checkout/success')
+    } catch (error) {
+      console.error("Order failed:", error)
+      alert("Order place karne mein error aaya. Dobara try karein.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (orderPlaced) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-6xl mb-6">🎉</motion.div>
-        <h1 className="text-3xl font-bold mb-4">Order Placed Successfully!</h1>
-        <p className="text-gray-600 mb-8">Thank you for your order. We'll contact you soon.</p>
-        <a href="/shop" className="inline-block bg-[#950606] text-white px-8 py-3 rounded-lg font-semibold">Continue Shopping</a>
-      </div>
-    )
-  }
-
-  if (items.length === 0) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-600 mb-4">Your cart is empty</p>
-        <a href="/shop" className="text-black underline">Go to Shop</a>
-      </div>
-    )
-  }
+  if (items.length === 0) return <div className="py-20 text-center">Cart is empty</div>
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="max-w-4xl mx-auto px-4 py-24">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Checkout Form */}
-        <motion.form onSubmit={handleSubmit} className="space-y-8">
-          {/* Contact Info */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Contact Information</h2>
-            <div className="space-y-4">
-              <input type="text" placeholder="Full Name" required 
-                value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              <input type="email" placeholder="Email" required 
-                value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              <input type="tel" placeholder="Phone" required 
-                value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-            </div>
-          </div>
-
-          {/* Shipping Address */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
-            <div className="space-y-4">
-              <input type="text" placeholder="Address" required 
-                value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              <div className="grid grid-cols-2 gap-4">
-                <input type="text" placeholder="City" required 
-                  value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-                <input type="text" placeholder="Postal Code" required 
-                  value={formData.postalCode} onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              </div>
-            </div>
-          </div>
-
-          {/* Payment */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Payment Details</h2>
-            <div className="space-y-4">
-              <input type="text" placeholder="Card Number" required 
-                value={formData.cardNumber} onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              <div className="grid grid-cols-2 gap-4">
-                <input type="text" placeholder="MM/YY" required 
-                  value={formData.expiry} onChange={(e) => setFormData({...formData, expiry: e.target.value})}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-                <input type="text" placeholder="CVV" required 
-                  value={formData.cvv} onChange={(e) => setFormData({...formData, cvv: e.target.value})}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none" />
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="w-full bg-[#950606] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#7a0505] transition-colors">
-            Complete Order
-          </button>
-        </motion.form>
-
-        {/* Order Summary */}
-        <motion.div className="bg-gray-50 p-6 rounded-xl h-fit">
-          <h2 className="text-xl font-bold mb-6">Order Summary</h2>
-          <div className="space-y-4 mb-6">
-            {items.map((item) => (
-              <div key={item.id} className="flex justify-between">
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                </div>
-                <p className="font-medium">PKR {(item.price * item.quantity).toLocaleString()}</p>
-              </div>
-            ))}
-          </div>
-          <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between"><span>Subtotal</span><span>PKR {subtotal.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Shipping</span><span>{shipping === 0 ? 'Free' : `PKR ${shipping}`}</span></div>
-            <div className="flex justify-between text-lg font-bold border-t pt-2"><span>Total</span><span>PKR {total.toLocaleString()}</span></div>
-          </div>
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <input required placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input required placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <textarea required placeholder="Delivery Address" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full p-3 border rounded-lg" rows={4} />
           
-          <div className="mt-6 space-y-3 text-sm text-gray-600">
-            <div className="flex items-center gap-2"><Truck size={16} /> Free shipping over PKR 5,000</div>
-            <div className="flex items-center gap-2"><Shield size={16} /> Secure payment</div>
-            <div className="flex items-center gap-2"><CreditCard size={16} /> Cash on delivery available</div>
+          <div className="space-y-2 pt-4">
+            <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
+              <Truck size={20} /> Cash on Delivery (COD)
+            </label>
+            <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="payment" checked={paymentMethod === 'whatsapp'} onChange={() => setPaymentMethod('whatsapp')} />
+              <MessageCircle size={20} /> Order via WhatsApp
+            </label>
           </div>
-        </motion.div>
-      </div>
+        </div>
+
+        <div className="bg-gray-50 p-6 rounded-lg h-fit">
+          <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+          {items.map((item, index) => (
+            <div key={item.id || index} className="flex justify-between py-2 border-b">
+              <span>{item.name} x {item.quantity}</span>
+              <span>PKR {item.price * item.quantity}</span>
+            </div>
+          ))}
+          <div className="flex justify-between font-bold text-lg mt-4">
+            <span>Total</span>
+            <span>PKR {total}</span>
+          </div>
+          <button type="submit" disabled={loading} className="w-full mt-6 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] disabled:opacity-50">
+            {loading ? 'Processing...' : 'Place Order'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
