@@ -8,7 +8,11 @@ export const order = defineType({
     defineField({ name: 'orderId', title: 'Order ID', type: 'string' }),
     defineField({ name: 'customerName', title: 'Customer Name', type: 'string' }),
     defineField({ name: 'phone', title: 'Phone Number', type: 'string' }),
+    defineField({ name: 'altPhone', title: 'Alternative Phone Number', type: 'string' }),
+    defineField({ name: 'email', title: 'Email Address', type: 'string' }),
     defineField({ name: 'address', title: 'Delivery Address', type: 'text' }),
+    defineField({ name: 'city', title: 'City', type: 'string' }),
+    defineField({ name: 'postalCode', title: 'Postal Code', type: 'string' }),
     defineField({
       name: 'items',
       title: 'Items',
