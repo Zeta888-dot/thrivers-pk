@@ -8,7 +8,15 @@ import { MessageCircle, Truck } from 'lucide-react'
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, clearCart } = useCartStore()
-  const [formData, setFormData] = useState({ name: '', phone: '', address: '' })
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    altPhone: '',
+    email: '',
+    address: '',
+    city: '',
+    postalCode: ''
+  })
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'whatsapp'>('cod')
   const [loading, setLoading] = useState(false)
 
@@ -25,7 +33,11 @@ export default function CheckoutPage() {
     const orderData = {
       customerName: formData.name,
       phone: formData.phone,
+      altPhone: formData.altPhone,
+      email: formData.email,
       address: formData.address,
+      city: formData.city,
+      postalCode: formData.postalCode,
       items,
       totalAmount: total,
       paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'WhatsApp Order'
@@ -41,7 +53,7 @@ export default function CheckoutPage() {
 
       // 2. WhatsApp Logic
       if (paymentMethod === 'whatsapp') {
-        const message = `*New Order from Thrivers PK*%0A%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Address:* ${formData.address}%0A%0A*Items:*%0A${items.map(i => `- ${i.name} (x${i.quantity}) - PKR ${i.price}`).join('%0A')}%0A%0A*Total: PKR ${total}*`
+        const message = `*New Order from Thrivers PK*%0A%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Alt Phone:* ${formData.altPhone}%0A*Email:* ${formData.email}%0A*Address:* ${formData.address}%0A*City:* ${formData.city}%0A*Postal Code:* ${formData.postalCode}%0A%0A*Items:*%0A${items.map(i => `- ${i.name} (x${i.quantity}) - PKR ${i.price}`).join('%0A')}%0A%0A*Total: PKR ${total}*`
         window.open(`https://wa.me/${BUSINESS_PHONE}?text=${message}`, '_blank')
       }
 
@@ -61,11 +73,15 @@ export default function CheckoutPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-24">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <input required placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
-          <input required placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 border rounded-lg" />
-          <textarea required placeholder="Delivery Address" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full p-3 border rounded-lg" rows={4} />
+          <input required placeholder="Full Name *" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input required placeholder="Phone Number *" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input placeholder="Alternative Phone Number" value={formData.altPhone} onChange={e => setFormData({...formData, altPhone: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input required placeholder="City *" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <input placeholder="Postal Code" value={formData.postalCode} onChange={e => setFormData({...formData, postalCode: e.target.value})} className="w-full p-3 border rounded-lg" />
+          <textarea required placeholder="Delivery Address *" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full p-3 border rounded-lg" rows={3} />
           
           <div className="space-y-2 pt-4">
             <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">

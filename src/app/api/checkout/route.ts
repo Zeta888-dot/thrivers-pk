@@ -12,22 +12,29 @@ const client = createClient({
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { customerName, phone, address, items, totalAmount, paymentMethod } = body
+    const { customerName, phone, altPhone, email, address, city, postalCode, items, totalAmount, paymentMethod } = body
 
     const order = await client.create({
       _type: 'order',
       orderId: `ORD-${Date.now()}`,
       customerName,
       phone,
+      altPhone,
+      email,
       address,
+      city,
+      postalCode,
       items: items.map((item: any) => ({
-        _key: Math.random().toString(36).substr(2, 9), // Ye unique key add ki
+        _key: Math.random().toString(36).substr(2, 9),
         productName: item.name,
         quantity: item.quantity,
         price: item.price,
       })),
       totalAmount,
       paymentMethod,
+      status: 'Pending',
+    }, {
+      autoGenerateArrayKeys: true,
     })
 
     return NextResponse.json({ success: true, orderId: order.orderId })
