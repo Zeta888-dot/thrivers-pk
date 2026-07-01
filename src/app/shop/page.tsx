@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
 import { motion } from 'framer-motion'
 import { Filter, X } from 'lucide-react'
@@ -16,14 +17,26 @@ interface Product {
   colors?: string[]
   stock?: string
   category?: string
+  badges?: string[]
 }
 
 export default function ShopPage() {
+  const searchParams = useSearchParams()
+  const urlCategory = searchParams.get('category')
+  const urlBadge = searchParams.get('badge')
+
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory || 'All')
+  const [selectedBadge, setSelectedBadge] = useState<string>(urlBadge || '')
   const [sortBy, setSortBy] = useState('default')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  useEffect(() => {
+    // URL change hone par state update karo
+    setSelectedCategory(urlCategory || 'All')
+    setSelectedBadge(urlBadge || '')
+  }, [urlCategory, urlBadge])
 
   useEffect(() => {
     async function fetchProducts() {
@@ -32,7 +45,8 @@ export default function ShopPage() {
         const normalized = data.map((p: any) => ({
           ...p,
           slug: p.slug.current,
-          category: p.category?.name
+          category: p.category?.name,
+          badges: p.badges || []
         }))
         setProducts(normalized)
       } catch (error) {
@@ -46,10 +60,18 @@ export default function ShopPage() {
 
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter((c): c is string => Boolean(c))))]
 
-  const filteredProducts = selectedCategory === 'All'
-    ? products
-    : products.filter(p => p.category === selectedCategory)
+  // Filtering Logic
+  let filteredProducts = products
+  
+  if (selectedCategory !== 'All') {
+    filteredProducts = filteredProducts.filter(p => p.category === selectedCategory)
+  }
+  
+  if (selectedBadge) {
+    filteredProducts = filteredProducts.filter(p => p.badges && p.badges.includes(selectedBadge))
+  }
 
+  // Sorting Logic
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price
     if (sortBy === 'price-high') return b.price - a.price
@@ -62,7 +84,9 @@ export default function ShopPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop by Category</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          {selectedBadge ? `${selectedBadge} Collection` : selectedCategory !== 'All' ? `${selectedCategory}` : 'Shop All'}
+        </h1>
         <p className="text-gray-600">Discover our complete collection</p>
       </motion.div>
 
@@ -70,13 +94,28 @@ export default function ShopPage() {
         <button className="md:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg" onClick={() => setIsFilterOpen(!isFilterOpen)}>
           <Filter size={20} /> Filters
         </button>
+        
         <div className={`${isFilterOpen ? 'flex' : 'hidden'} md:flex flex-wrap gap-2`}>
           {categories.map((cat) => (
-            <button key={cat} onClick={() => setSelectedCategory(cat || 'All')} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+            <button 
+              key={cat} 
+              onClick={() => { setSelectedCategory(cat || 'All'); setSelectedBadge('') }} 
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat && !selectedBadge ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            >
               {cat}
             </button>
           ))}
+          {['New Arrival', 'Best Seller', 'Sale'].map(badge => (
+            <button 
+              key={badge} 
+              onClick={() => { setSelectedBadge(badge); setSelectedCategory('All') }} 
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedBadge === badge ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            >
+              {badge}
+            </button>
+          ))}
         </div>
+
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
           <option value="default">Sort by: Featured</option>
           <option value="price-low">Price: Low to High</option>
@@ -85,11 +124,11 @@ export default function ShopPage() {
         </select>
       </div>
 
-      {selectedCategory !== 'All' && (
+      {(selectedCategory !== 'All' || selectedBadge) && (
         <div className="mb-6 flex items-center gap-2">
-          <span className="text-sm text-gray-600">Filtering by:</span>
-          <button onClick={() => setSelectedCategory('All')} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
-            {selectedCategory} <X size={14} />
+          <span className="text-sm text-gray-600">Active Filter:</span>
+          <button onClick={() => { setSelectedCategory('All'); setSelectedBadge('') }} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
+            {selectedBadge || selectedCategory} <X size={14} />
           </button>
         </div>
       )}
