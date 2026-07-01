@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
 import { motion } from 'framer-motion'
@@ -20,7 +20,8 @@ interface Product {
   badges?: string[]
 }
 
-export default function ShopPage() {
+// Actual Shop Content Component
+function ShopContent() {
   const searchParams = useSearchParams()
   const urlCategory = searchParams.get('category')
   const urlBadge = searchParams.get('badge')
@@ -33,7 +34,6 @@ export default function ShopPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   useEffect(() => {
-    // URL change hone par state update karo
     setSelectedCategory(urlCategory || 'All')
     setSelectedBadge(urlBadge || '')
   }, [urlCategory, urlBadge])
@@ -60,7 +60,6 @@ export default function ShopPage() {
 
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category).filter((c): c is string => Boolean(c))))]
 
-  // Filtering Logic
   let filteredProducts = products
   
   if (selectedCategory !== 'All') {
@@ -71,7 +70,6 @@ export default function ShopPage() {
     filteredProducts = filteredProducts.filter(p => p.badges && p.badges.includes(selectedBadge))
   }
 
-  // Sorting Logic
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price
     if (sortBy === 'price-high') return b.price - a.price
@@ -144,5 +142,14 @@ export default function ShopPage() {
       {sortedProducts.length === 0 && <div className="text-center py-16 text-gray-500 text-lg">No products found</div>}
       <div className="mt-8 text-center text-sm text-gray-600">Showing {sortedProducts.length} products</div>
     </div>
+  )
+}
+
+// Main Page Component with Suspense
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="py-20 text-center text-xl">Loading...</div>}>
+      <ShopContent />
+    </Suspense>
   )
 }
