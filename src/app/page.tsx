@@ -143,44 +143,42 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-<section className="min-h-[45vh] md:min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-[#950606] py-12 md:py-0">
-  <div className="absolute inset-0 bg-gradient-to-br from-[#950606] via-[#6b0404] to-[#4a0202]" />
-  
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
-      <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 tracking-wider">
-        THRIVERS
-      </h1>
-      
-      <div className="flex flex-col sm:flex-row gap-3 justify-center mt-5">
-        <Link 
-          href="/shop"
-          className="inline-flex items-center justify-center gap-2 bg-white text-[#950606] px-5 py-2.5 rounded-full font-semibold text-sm sm:text-base hover:bg-gray-100 transition-all active:scale-95"
-        >
-          <ShoppingBag size={18} />
-          Shop Now
-        </Link>
-        <Link 
-          href="/about"
-          className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border-2 border-white px-5 py-2.5 rounded-full font-semibold text-sm sm:text-base hover:bg-white/20 transition-all active:scale-95 backdrop-blur-sm"
-        >
-          Learn More
-          <ArrowRight size={18} />
-        </Link>
-      </div>
-    </motion.div>
-  </div>
+      <section className="min-h-[45vh] md:min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-[#950606] py-12 md:py-0">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 tracking-wider">
+              THRIVERS
+            </h1>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-5">
+              <Link 
+                href="/shop"
+                className="inline-flex items-center justify-center gap-2 bg-white text-[#950606] px-5 py-2.5 rounded-full font-semibold text-sm sm:text-base hover:bg-gray-100 transition-all active:scale-95"
+              >
+                <ShoppingBag size={18} />
+                Shop Now
+              </Link>
+              <Link 
+                href="/about"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border-2 border-white px-5 py-2.5 rounded-full font-semibold text-sm sm:text-base hover:bg-white/20 transition-all active:scale-95 backdrop-blur-sm"
+              >
+                Learn More
+                <ArrowRight size={18} />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
 
-  <div className="hidden md:block absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-    <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
-      <div className="w-1 h-3 bg-white/50 rounded-full" />
-    </div>
-  </div>
-</section>
+        <div className="hidden md:block absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
+            <div className="w-1 h-3 bg-white/50 rounded-full" />
+          </div>
+        </div>
+      </section>
 
       {/* Featured Categories - Swipeable */}
       <section className="py-20 bg-gray-50">
