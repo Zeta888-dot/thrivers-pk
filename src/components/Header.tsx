@@ -45,15 +45,15 @@ export default function Header() {
   ]
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-in-out ${
+    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
       isScrolled 
-        ? 'bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-lg py-3' 
-        : 'bg-white/10 backdrop-blur-sm border-b border-transparent py-4'
+        ? 'bg-white border-b border-gray-200 shadow-md py-3' 
+        : 'bg-white py-4'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-black text-[#950606] tracking-wider drop-shadow-sm">
+          <Link href="/" className="text-2xl font-black text-[#950606] tracking-wider">
             THRIVERS
           </Link>
 
@@ -63,7 +63,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-semibold text-gray-800 hover:text-[#950606] transition-colors duration-300 drop-shadow-sm"
+                className="text-sm font-semibold text-gray-800 hover:text-[#950606] transition-colors"
               >
                 {item.name}
               </Link>
@@ -90,7 +90,7 @@ export default function Header() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search products..."
-                      className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full focus:outline-none focus:border-[#950606] focus:ring-2 focus:ring-[#950606]/20 bg-white/95 backdrop-blur-sm"
+                      className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full focus:outline-none focus:border-[#950606] focus:ring-2 focus:ring-[#950606]/20 bg-white"
                     />
                     <button
                       type="button"
@@ -142,7 +142,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white/95 backdrop-blur-lg border-t border-gray-200 overflow-hidden"
+            className="md:hidden bg-white border-t border-gray-200 overflow-hidden"
           >
             <nav className="px-4 py-4 space-y-3">
               {navItems.map((item) => (

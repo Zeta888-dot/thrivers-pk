@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Mail, MapPin, Phone } from 'lucide-react'
-import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa'
+import { FaInstagram, FaTiktok, FaWhatsapp } from 'react-icons/fa'
 
 export default function Footer() {
   return (
@@ -32,15 +32,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-red-100">
               <li className="flex items-center gap-2">
                 <MapPin size={16} />
-                <span>Main Bazaar, Chitral</span>
+                <span>Hayat Market, New Bazar, Chitral</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={16} />
-                <span>+92 300 1234567</span>
+                <span>+92 343 9766306</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} />
-                <span>hello@thrivers.pk</span>
+                <span>zahidazam714@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -49,14 +49,14 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Follow Us</h4>
             <div className="flex gap-4">
-              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="Facebook">
-                <FaFacebookF size={18} />
-              </a>
-              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="Instagram">
+              <a href="https://www.instagram.com/thrivers.pk" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="Instagram">
                 <FaInstagram size={18} />
               </a>
-              <a href="#" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="Twitter">
-                <FaTwitter size={18} />
+              <a href="https://www.tiktok.com/@thrivers.pkk" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="TikTok">
+                <FaTiktok size={18} />
+              </a>
+              <a href="https://wa.me/923439766306" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors" title="WhatsApp">
+                <FaWhatsapp size={18} />
               </a>
             </div>
             <p className="text-xs text-red-200 mt-3">

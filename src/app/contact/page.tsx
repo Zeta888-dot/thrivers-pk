@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Phone, Mail, Send } from 'lucide-react'
+import { FaInstagram, FaTiktok, FaWhatsapp } from 'react-icons/fa'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
@@ -29,21 +30,40 @@ export default function ContactPage() {
             <div className="p-3 bg-gray-100 rounded-full"><MapPin className="w-6 h-6" /></div>
             <div>
               <h3 className="font-bold text-lg">Visit Us</h3>
-              <p className="text-gray-600">Main Bazaar, Chitral, Pakistan</p>
+              <p className="text-gray-600">Hayat Market, New Bazar, Chitral, Pakistan</p>
             </div>
           </div>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-gray-100 rounded-full"><Phone className="w-6 h-6" /></div>
             <div>
               <h3 className="font-bold text-lg">Call Us</h3>
-              <p className="text-gray-600">+92 300 1234567</p>
+              <p className="text-gray-600">+92 343 9766306</p>
             </div>
           </div>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-gray-100 rounded-full"><Mail className="w-6 h-6" /></div>
             <div>
               <h3 className="font-bold text-lg">Email Us</h3>
-              <p className="text-gray-600">hello@thrivers.pk</p>
+              <p className="text-gray-600">zahidazam714@gmail.com</p>
+            </div>
+          </div>
+
+          {/* Social Media Links */}
+          <div className="pt-8 border-t border-gray-200">
+            <h3 className="font-bold text-lg mb-4">Follow Us on Social Media</h3>
+            <div className="flex gap-4">
+              <a href="https://www.instagram.com/thrivers.pk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity">
+                <FaInstagram size={20} />
+                <span>Instagram</span>
+              </a>
+              <a href="https://www.tiktok.com/@thrivers.pkk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:opacity-90 transition-opacity">
+                <FaTiktok size={20} />
+                <span>TikTok</span>
+              </a>
+              <a href="https://wa.me/923439766306" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:opacity-90 transition-opacity">
+                <FaWhatsapp size={20} />
+                <span>WhatsApp</span>
+              </a>
             </div>
           </div>
         </motion.div>
@@ -62,7 +82,7 @@ export default function ContactPage() {
               required 
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
             />
           </div>
           <div>
@@ -72,7 +92,7 @@ export default function ContactPage() {
               required 
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
             />
           </div>
           <div>
@@ -82,7 +102,7 @@ export default function ContactPage() {
               rows={4}
               value={formData.message}
               onChange={(e) => setFormData({...formData, message: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
             />
           </div>
           <button 
