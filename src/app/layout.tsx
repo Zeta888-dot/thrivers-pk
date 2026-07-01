@@ -21,12 +21,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Header />
-        <main className="pt-16 min-h-screen">
+        {/* Yahan se pt-16 hata diya hai taake homepage par white gap na aaye */}
+        <main className="min-h-screen">
           {children}
         </main>
         <Footer />
         <CartDrawer />
       </body>
     </html>
-  );
+  )
 }
