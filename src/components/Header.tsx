@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingBag, Menu, X, Search } from 'lucide-react'
+import { ShoppingBag, Menu, X, Search, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cartStore'
@@ -17,9 +17,7 @@ export default function Header() {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -39,126 +37,152 @@ export default function Header() {
 
   const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/shop' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]
 
+  // Color classes based on scroll state
+  const textColor = isScrolled ? 'text-[#950606]' : 'text-white'
+  const hoverBg = isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-white border-b border-gray-200 shadow-md py-3' 
-        : 'bg-white py-4'
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="text-2xl font-black text-[#950606] tracking-wider">
-            THRIVERS
-          </Link>
+    <>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white shadow-md py-3' 
+          : 'bg-transparent py-5'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className={`text-2xl font-black tracking-wider transition-colors ${textColor}`}>
+              THRIVERS
+            </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-semibold text-gray-800 hover:text-[#950606] transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+              {/* Shop Dropdown */}
+              <div className="relative group">
+                <button className={`flex items-center gap-1 text-sm font-semibold transition-colors ${textColor}`}>
+                  Shop <ChevronDown size={16} />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 border border-gray-100">
+                  <Link href="/shop" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">All Products</Link>
+                  <Link href="/shop?badge=New%20Arrival" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">New Arrivals</Link>
+                  <Link href="/shop?badge=Best%20Seller" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">Best Sellers</Link>
+                  <Link href="/shop?badge=Sale" className="block px-4 py-2 text-sm text-[#950606] font-semibold hover:bg-gray-50">Sale</Link>
+                </div>
+              </div>
 
-          {/* Search & Cart & Mobile Menu */}
-          <div className="flex items-center gap-2">
-            {/* Search Bar */}
-            <div className="relative flex items-center">
-              <AnimatePresence>
-                {isSearchOpen && (
-                  <motion.form
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 200, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    onSubmit={handleSearch}
-                    className="absolute right-10 flex items-center"
-                  >
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products..."
-                      className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full focus:outline-none focus:border-[#950606] focus:ring-2 focus:ring-[#950606]/20 bg-white"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setIsSearchOpen(false)}
-                      className="absolute right-2 p-1 hover:bg-gray-100 rounded-full"
-                    >
-                      <X size={14} className="text-gray-500" />
-                    </button>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-              
-              <button 
-                onClick={() => setIsSearchOpen(!isSearchOpen)} 
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <Search size={20} className="text-[#950606]" />
-              </button>
-            </div>
-
-            {/* Cart Button */}
-            <button 
-              onClick={toggleCart} 
-              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ShoppingBag size={22} className="text-[#950606]" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#950606] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 text-[#950606]"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-gray-200 overflow-hidden"
-          >
-            <nav className="px-4 py-4 space-y-3">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block text-base font-medium text-gray-700 hover:text-[#950606]"
-                  onClick={() => setIsMenuOpen(false)}
+                  className={`text-sm font-semibold transition-colors ${isScrolled ? 'text-gray-800 hover:text-[#950606]' : 'text-white hover:text-gray-200'}`}
                 >
                   {item.name}
                 </Link>
               ))}
             </nav>
-          </motion.div>
+
+            {/* Icons */}
+            <div className="flex items-center gap-1">
+              {/* Search */}
+              <div className="relative flex items-center">
+                <AnimatePresence>
+                  {isSearchOpen && (
+                    <motion.form
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: 220, opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      onSubmit={handleSearch}
+                      className="absolute right-10 flex items-center"
+                    >
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search..."
+                        className={`w-full px-4 py-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#950606]/20 ${isScrolled ? 'bg-white border border-gray-200' : 'bg-white/90 backdrop-blur-sm border border-white/30'}`}
+                      />
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+                <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
+                  <Search size={22} />
+                </button>
+              </div>
+
+              {/* Cart */}
+              <button onClick={toggleCart} className={`relative p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
+                <ShoppingBag size={22} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#950606] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu Trigger */}
+              <button onClick={() => setIsMenuOpen(true)} className={`md:hidden p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
+                <Menu size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Slide-Up Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            
+            {/* Slide Up Panel */}
+            <motion.div
+              initial={{ y: '100%' }} 
+              animate={{ y: 0 }} 
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-6 pb-10 max-h-[85vh] overflow-y-auto shadow-2xl"
+            >
+              <div className="flex justify-center mb-6">
+                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+              </div>
+              
+              <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+
+              <nav className="space-y-5 mt-4">
+                <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="block text-xl font-bold text-gray-900 border-b border-gray-100 pb-4">
+                  Shop By Category
+                </Link>
+                <Link href="/shop?badge=New%20Arrival" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">
+                  New Arrivals
+                </Link>
+                <Link href="/shop?badge=Sale" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-[#950606] font-bold">
+                  Sale - Upto 50% OFF
+                </Link>
+                <div className="border-t border-gray-100 pt-4 space-y-5">
+                  <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">Home</Link>
+                  <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">About</Link>
+                  <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">Contact</Link>
+                </div>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   )
 }
