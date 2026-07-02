@@ -8,6 +8,7 @@ import { client } from '@/lib/sanity'
 import { productBySlugQuery } from '@/lib/queries'
 import { useCartStore } from '@/store/cartStore'
 import Image from 'next/image'
+import { PortableText } from 'next-sanity'
 
 export default function ProductPage() {
   const params = useParams()
@@ -148,8 +149,32 @@ export default function ProductPage() {
         {/* Details Section */}
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-          <p className="text-2xl text-gray-700 mb-6">PKR {product.price.toLocaleString()}</p>
-          <p className="text-gray-600 mb-8">{product.description}</p>
+          <p className="text-2xl text-gray-700 mb-2">PKR {product.price.toLocaleString()}</p>
+          
+          {/* Stock Status */}
+          {product.stock === 'in_stock' && (
+            <p className="text-green-600 text-sm mb-6">✓ In Stock</p>
+          )}
+          
+          {/* Sizes */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold mb-3">Size</h3>
+              <div className="flex gap-3">
+                {product.sizes.map((size: string) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`w-12 h-12 rounded-lg border text-sm font-medium transition-all ${
+                      selectedSize === size ? 'bg-[#950606] text-white border-[#950606]' : 'border-gray-300 text-gray-700 hover:border-[#950606]'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Colors */}
           {product.colors && product.colors.length > 0 && (
@@ -161,7 +186,7 @@ export default function ProductPage() {
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                      selectedColor === color ? 'border-black scale-110' : 'border-gray-300'
+                      selectedColor === color ? 'border-[#950606] scale-110' : 'border-gray-300'
                     }`}
                     style={{ backgroundColor: color.toLowerCase() }}
                     title={color}
@@ -171,28 +196,8 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Sizes */}
-          {product.sizes && product.sizes.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-sm font-semibold mb-3">Size</h3>
-              <div className="flex gap-3">
-                {product.sizes.map((size: string) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-10 h-10 rounded-lg border text-sm font-medium transition-all ${
-                      selectedSize === size ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:border-black'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Quantity & Add to Cart */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center border border-gray-300 rounded-lg">
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
                 <Minus size={16} />
@@ -203,16 +208,44 @@ export default function ProductPage() {
               </button>
             </div>
             
-           <button 
-  onClick={handleAddToCart}
-  disabled={!product.stock}
-  className="flex-1 flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400"
->
-  {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
-</button>
+            <button 
+              onClick={handleAddToCart}
+              disabled={!product.stock || product.stock === 'out_of_stock' || product.stock === 'sold_out'}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400"
+            >
+              {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
+            </button>
           </div>
 
-          {!product.stock && <p className="text-red-500 mt-4 text-sm">Out of stock</p>}
+          {/* Product Description - At the Bottom */}
+          {product.description && (
+            <div className="border-t border-gray-200 pt-8">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase tracking-wide">
+                Product Description
+              </h3>
+              <div className="prose prose-sm max-w-none text-gray-600">
+                <PortableText 
+                  value={product.description}
+                  components={{
+                    block: {
+                      h2: ({children}) => <h2 className="text-lg font-bold text-gray-900 mt-4 mb-2">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-base font-semibold text-gray-900 mt-3 mb-1">{children}</h3>,
+                      normal: ({children}) => <p className="mb-2">{children}</p>,
+                    },
+                    list: {
+                      bullet: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                      number: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                    },
+                    marks: {
+                      strong: ({children}) => <strong className="font-bold text-gray-900">{children}</strong>,
+                      em: ({children}) => <em className="italic">{children}</em>,
+                      underline: ({children}) => <span className="underline">{children}</span>,
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

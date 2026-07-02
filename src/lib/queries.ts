@@ -1,48 +1,5 @@
 import { groq } from 'next-sanity'
 
-export const productsQuery = groq`
-  *[_type == "product"] {
-    _id,
-    name,
-    slug,
-    price,
-    compareAtPrice,
-    "images": images[].asset->url,
-    colors,
-    sizes,
-    stock,
-    stockQuantity,
-    featured,
-    badges,
-    collections,
-    category-> {
-      name,
-      slug
-    }
-  }
-`
-
-export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug][0] {
-    _id,
-    name,
-    slug,
-    price,
-    compareAtPrice,
-    description,
-    "images": images[].asset->url,
-    colors,
-    sizes,
-    stock,
-    stockQuantity,
-    badges,
-    category-> {
-      name,
-      slug
-    }
-  }
-`
-
 export const categoriesQuery = groq`
   *[_type == "category"] {
     _id,
@@ -52,22 +9,90 @@ export const categoriesQuery = groq`
   }
 `
 
-export const productsByBadgeQuery = groq`
-  *[_type == "product" && $badge in badges] {
+export const productsQuery = groq`
+  *[_type == "product"] | order(name asc) {
     _id,
     name,
     slug,
+    description,
     price,
     compareAtPrice,
-    "images": images[].asset->url,
+    images,
+    category -> {
+      name,
+      "slug": slug.current
+    },
     colors,
     sizes,
     stock,
     stockQuantity,
-    badges,
-    category-> {
+    featured,
+    badges
+  }
+`
+
+export const productBySlugQuery = groq`
+  *[_type == "product" && slug.current == $slug][0] {
+    _id,
+    name,
+    slug,
+    description,
+    price,
+    compareAtPrice,
+    images,
+    category -> {
       name,
-      slug
-    }
+      "slug": slug.current
+    },
+    colors,
+    sizes,
+    stock,
+    stockQuantity,
+    featured,
+    badges
+  }
+`
+
+export const productsByBadgeQuery = groq`
+  *[_type == "product" && badges match $badge] | order(name asc) {
+    _id,
+    name,
+    slug,
+    description,
+    price,
+    compareAtPrice,
+    images,
+    category -> {
+      name,
+      "slug": slug.current
+    },
+    colors,
+    sizes,
+    stock,
+    stockQuantity,
+    featured,
+    badges
+  }
+`
+
+export const featuredProductsQuery = groq`
+  *[_type == "product" && featured == true] | order(name asc)[0...8] {
+    _id,
+    name,
+    slug,
+    description,
+    price,
+    compareAtPrice,
+    images,
+    category -> {
+      name,
+      "slug": slug.current
+    },
+    colors,
+    sizes,
+    stock,
+    stockQuantity,
+    featured,
+    badges
   }
 `

@@ -23,9 +23,29 @@ export const product = defineType({
     }),
     defineField({
       name: 'description',
-      title: 'Description',
-      type: 'text',
-      rows: 3,
+      title: 'Product Description',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'Heading', value: 'h2' },
+            { title: 'Subheading', value: 'h3' },
+          ],
+          lists: [
+            { title: 'Bullet', value: 'bullet' },
+            { title: 'Number', value: 'number' },
+          ],
+          marks: {
+            decorators: [
+              { title: 'Strong', value: 'strong' },
+              { title: 'Emphasis', value: 'em' },
+              { title: 'Underline', value: 'underline' },
+            ],
+          },
+        },
+      ],
     }),
     defineField({
       name: 'price',
