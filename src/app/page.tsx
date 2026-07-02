@@ -151,8 +151,8 @@ export default function HomePage() {
       alt="Thrivers Hero"
       className="w-full h-full object-cover object-top"
     />
-    {/* Red Overlay */}
-    <div className="absolute inset-0 bg-gradient-to-b from-[#950606]/80 via-[#950606]/50 to-[#950606]/90" />
+    {/* Light Overlay - Image clear dikhegi */}
+    <div className="absolute inset-0 bg-gradient-to-b from-[#950606]/20 via-transparent to-[#950606]/40" />
   </div>
   
   {/* Content */}
