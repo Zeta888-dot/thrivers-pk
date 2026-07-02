@@ -122,22 +122,23 @@ export default function ProductPage() {
                 )}
               </div>
               
-              {/* Thumbnails */}
-              {product.images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {product.images.map((img: string, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImage(idx)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === idx ? 'border-[#950606] ring-2 ring-[#950606]/20' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <Image src={img} alt="" width={80} height={80} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+            {/* Dots Indicator */}
+{product.images.length > 1 && (
+  <div className="flex justify-center gap-2 py-4">
+    {product.images.map((img: string, idx: number) => (
+      <button
+        key={idx}
+        onClick={() => setSelectedImage(idx)}
+        className={`transition-all duration-300 rounded-full ${
+          selectedImage === idx
+            ? 'w-8 h-3 bg-[#950606]'
+            : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
+        }`}
+        aria-label={`Go to image ${idx + 1}`}
+      />
+    ))}
+  </div>
+)}
             </>
           ) : (
             <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
