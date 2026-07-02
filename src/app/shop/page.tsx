@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
 import { motion } from 'framer-motion'
 import { Filter, X } from 'lucide-react'
@@ -24,23 +24,26 @@ interface Product {
   badges?: string[]
 }
 
-// Actual Shop Content Component
 function ShopContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const urlCategory = searchParams.get('category')
   const urlBadge = searchParams.get('badge')
+  const urlSearch = searchParams.get('search') || ''
 
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory || 'All')
   const [selectedBadge, setSelectedBadge] = useState<string>(urlBadge || '')
+  const [activeSearch, setActiveSearch] = useState(urlSearch)
   const [sortBy, setSortBy] = useState('default')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   useEffect(() => {
     setSelectedCategory(urlCategory || 'All')
     setSelectedBadge(urlBadge || '')
-  }, [urlCategory, urlBadge])
+    setActiveSearch(urlSearch)
+  }, [urlCategory, urlBadge, urlSearch])
 
   useEffect(() => {
     async function fetchProducts() {
@@ -65,25 +68,31 @@ function ShopContent() {
     fetchProducts()
   }, [])
 
-  // Get unique categories (using name)
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category?.name).filter((c): c is string => Boolean(c))))]
 
   // Filtering Logic
   let filteredProducts = products
 
-  if (selectedCategory && selectedCategory !== 'All') {
-    filteredProducts = filteredProducts.filter(p => 
-      p.category?.name?.toLowerCase() === selectedCategory.toLowerCase()
+  // 1. Search takes priority (case-insensitive name match)
+  if (activeSearch) {
+    filteredProducts = filteredProducts.filter(p =>
+      p.name.toLowerCase().includes(activeSearch.toLowerCase())
     )
+  } else {
+    // 2. Category & Badge filters (only when not searching)
+    if (selectedCategory !== 'All') {
+      filteredProducts = filteredProducts.filter(p =>
+        p.category?.name?.toLowerCase() === selectedCategory.toLowerCase()
+      )
+    }
+    if (selectedBadge) {
+      filteredProducts = filteredProducts.filter(p =>
+        p.badges && p.badges.includes(selectedBadge)
+      )
+    }
   }
 
-  if (selectedBadge) {
-    filteredProducts = filteredProducts.filter(p => 
-      p.badges && p.badges.includes(selectedBadge)
-    )
-  }
-
-  // Sorting Logic
+  // Sorting
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price
     if (sortBy === 'price-high') return b.price - a.price
@@ -91,24 +100,32 @@ function ShopContent() {
     return 0
   })
 
+  const clearSearch = () => {
+    setActiveSearch('')
+    router.push('/shop')
+  }
+
   if (loading) return <div className="py-20 text-center text-xl">Loading products...</div>
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          {selectedBadge ? `${selectedBadge} Collection` : selectedCategory !== 'All' ? selectedCategory : 'Shop All'}
+          {activeSearch ? `Search: "${activeSearch}"` : selectedBadge ? `${selectedBadge} Collection` : selectedCategory !== 'All' ? selectedCategory : 'Shop All'}
         </h1>
-        <p className="text-gray-600">Discover our complete collection</p>
+        <p className="text-gray-600">
+          {activeSearch ? `Found ${sortedProducts.length} results for "${activeSearch}"` : 'Discover our complete collection'}
+        </p>
       </motion.div>
 
+      {/* Filters & Sort */}
       <div className="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-center justify-between">
         <button className="md:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg" onClick={() => setIsFilterOpen(!isFilterOpen)}>
           <Filter size={20} /> Filters
         </button>
-        
+
         <div className={`${isFilterOpen ? 'flex' : 'hidden'} md:flex flex-wrap gap-2`}>
-          {categories.map((cat) => (
+          {!activeSearch && categories.map((cat) => (
             <button 
               key={cat} 
               onClick={() => { setSelectedCategory(cat || 'All'); setSelectedBadge('') }} 
@@ -117,7 +134,7 @@ function ShopContent() {
               {cat}
             </button>
           ))}
-          {['New Arrival', 'Best Seller', 'Sale'].map(badge => (
+          {!activeSearch && ['New Arrival', 'Best Seller', 'Sale'].map(badge => (
             <button 
               key={badge} 
               onClick={() => { setSelectedBadge(badge); setSelectedCategory('All') }} 
@@ -136,7 +153,18 @@ function ShopContent() {
         </select>
       </div>
 
-      {(selectedCategory !== 'All' || selectedBadge) && (
+      {/* Active Search Pill */}
+      {activeSearch && (
+        <div className="mb-6 flex items-center gap-2">
+          <span className="text-sm text-gray-600">Searching for:</span>
+          <button onClick={clearSearch} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
+            "{activeSearch}" <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Active Category/Badge Pill */}
+      {!activeSearch && (selectedCategory !== 'All' || selectedBadge) && (
         <div className="mb-6 flex items-center gap-2">
           <span className="text-sm text-gray-600">Active Filter:</span>
           <button onClick={() => { setSelectedCategory('All'); setSelectedBadge('') }} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
@@ -145,6 +173,7 @@ function ShopContent() {
         </div>
       )}
 
+      {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
         {sortedProducts.map((product, index) => (
           <motion.div key={product._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }}>
@@ -159,7 +188,6 @@ function ShopContent() {
   )
 }
 
-// Main Page Component with Suspense
 export default function ShopPage() {
   return (
     <Suspense fallback={<div className="py-20 text-center text-xl">Loading...</div>}>

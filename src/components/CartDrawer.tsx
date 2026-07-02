@@ -12,6 +12,8 @@ export default function CartDrawer() {
   const [currentImages, setCurrentImages] = useState<{[key: string]: number}>({})
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const deliveryCharge = 300
+  const grandTotal = subtotal + deliveryCharge
 
   const handleNextImage = (itemId: string, totalImages: number) => {
     setCurrentImages(prev => ({
@@ -49,11 +51,11 @@ export default function CartDrawer() {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-bold flex items-center gap-2">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-[#950606]">
                 <ShoppingBag size={20} /> Your Cart
               </h2>
-              <button onClick={toggleCart} className="p-2 hover:bg-gray-100 rounded-full">
+              <button onClick={toggleCart} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -88,7 +90,7 @@ export default function CartDrawer() {
                                     e.stopPropagation()
                                     handlePrevImage(item.id, productImages.length)
                                   }}
-                                  className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                                  className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/80 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                 >
                                   <ChevronLeft size={12} />
                                 </button>
@@ -97,12 +99,12 @@ export default function CartDrawer() {
                                     e.stopPropagation()
                                     handleNextImage(item.id, productImages.length)
                                   }}
-                                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/50 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-[#950606]/80 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                 >
                                   <ChevronRight size={12} />
                                 </button>
                                 {/* Image Counter */}
-                                <div className="absolute bottom-1 right-1 bg-[#950606]/70 text-white text-xs px-1.5 py-0.5 rounded">
+                                <div className="absolute bottom-1 right-1 bg-[#950606]/90 text-white text-xs px-1.5 py-0.5 rounded">
                                   {currentIndex + 1}/{productImages.length}
                                 </div>
                               </>
@@ -117,27 +119,36 @@ export default function CartDrawer() {
 
                       {/* Product Info */}
                       <div className="flex-1">
-                        <h3 className="font-medium">{item.name}</h3>
+                        <h3 className="font-semibold text-gray-900">{item.name}</h3>
                         <p className="text-sm text-gray-500">
                           {item.color && <span>Color: {item.color} </span>}
                           {item.size && <span>| Size: {item.size}</span>}
                         </p>
                         <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center border rounded">
-                            <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-1 px-2">
+                          <div className="flex items-center border border-[#950606]/30 rounded-lg">
+                            <button 
+                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} 
+                              className="p-1.5 px-3 hover:bg-[#950606]/10 transition-colors text-[#950606]"
+                            >
                               <Minus size={14} />
                             </button>
-                            <span className="px-2 text-sm">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 px-2">
+                            <span className="px-3 text-sm font-medium">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                              className="p-1.5 px-3 hover:bg-[#950606]/10 transition-colors text-[#950606]"
+                            >
                               <Plus size={14} />
                             </button>
                           </div>
-                          <p className="font-semibold">PKR {(item.price * item.quantity).toLocaleString()}</p>
+                          <p className="font-bold text-[#950606]">PKR {(item.price * item.quantity).toLocaleString()}</p>
                         </div>
                       </div>
                       
                       {/* Remove Button */}
-                      <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-red-500">
+                      <button 
+                        onClick={() => removeItem(item.id)} 
+                        className="text-gray-400 hover:text-[#950606] transition-colors self-start"
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -148,18 +159,34 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="border-t p-6 space-y-4">
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Subtotal</span>
-                  <span>PKR {subtotal.toLocaleString()}</span>
+              <div className="border-t border-gray-200 p-6 space-y-4 bg-gray-50">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal</span>
+                    <span>PKR {subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Delivery Charges</span>
+                    <span>PKR {deliveryCharge.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-[#950606] pt-2 border-t border-gray-200">
+                    <span>Total</span>
+                    <span>PKR {grandTotal.toLocaleString()}</span>
+                  </div>
                 </div>
                 <Link 
                   href="/checkout" 
                   onClick={toggleCart}
-                  className="block w-full bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors text-center"
+                  className="block w-full bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors text-center shadow-lg"
                 >
                   Checkout
                 </Link>
+                <button 
+                  onClick={toggleCart}
+                  className="block w-full bg-white text-[#950606] border-2 border-[#950606] py-3 rounded-lg font-semibold hover:bg-[#950606]/5 transition-colors"
+                >
+                  Continue Shopping
+                </button>
               </div>
             )}
           </motion.div>
