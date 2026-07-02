@@ -203,13 +203,13 @@ export default function ProductPage() {
               </button>
             </div>
             
-            <button 
-              onClick={handleAddToCart}
-              disabled={!product.stock}
-              className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400"
-            >
-              {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
-            </button>
+           <button 
+  onClick={handleAddToCart}
+  disabled={!product.stock}
+  className="flex-1 flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400"
+>
+  {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
+</button>
           </div>
 
           {!product.stock && <p className="text-red-500 mt-4 text-sm">Out of stock</p>}
