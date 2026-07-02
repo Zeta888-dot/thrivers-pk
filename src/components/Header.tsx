@@ -82,12 +82,12 @@ export default function Header() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-          {/* Logo */}
-<Link href="/" className={`text-2xl font-theater tracking-wider transition-colors ${
-  isScrolled ? 'text-[#950606]' : 'text-white'
-}`}>
-  THRIVERS
-</Link>
+            {/* Logo */}
+            <Link href="/" className={`text-2xl font-theater tracking-wider transition-colors ${
+              isScrolled ? 'text-[#950606]' : 'text-white'
+            }`}>
+              THRIVERS
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
@@ -103,7 +103,7 @@ export default function Header() {
                   {categories.map((category) => (
                     <Link 
                       key={category._id}
-                      href={`/shop?category=${category.slug}`}
+                      href={`/shop?category=${encodeURIComponent(category.name)}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]"
                     >
                       {category.name}
@@ -214,7 +214,7 @@ export default function Header() {
                 {categories.map((category) => (
                   <Link 
                     key={category._id}
-                    href={`/shop?category=${category.slug}`}
+                    href={`/shop?category=${encodeURIComponent(category.name)}`}
                     onClick={() => setIsMenuOpen(false)} 
                     className="block text-base font-medium text-gray-700 hover:text-[#950606]"
                   >

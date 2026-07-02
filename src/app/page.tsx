@@ -53,7 +53,6 @@ export default function HomePage() {
           client.fetch(productsByBadgeQuery, { badge: 'Sale' }),
         ])
         
-        // ✅ FIX: Categories ko normalize karo (slug object ko string banao)
         const normalizedCategories = catsData.map((cat: any) => ({
           _id: cat._id,
           name: cat.name,
@@ -223,7 +222,7 @@ export default function HomePage() {
             {categories.map((category, index) => (
               <Link 
                 key={category._id}
-                href={`/shop?category=${category.slug}`}
+                href={`/shop?category=${encodeURIComponent(category.name)}`}
                 className="group relative flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] bg-gradient-to-br from-[#950606] to-[#6b0404] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 snap-start"
               >
                 {category.image && (
