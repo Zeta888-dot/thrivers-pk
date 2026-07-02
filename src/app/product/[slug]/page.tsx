@@ -118,27 +118,25 @@ export default function ProductPage() {
                     <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
                       {selectedImage + 1}/{product.images.length}
                     </div>
+                    
+                    {/* Dots Indicator - Overlay on Image */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full">
+                      {product.images.map((_: string, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImage(idx)}
+                          className={`transition-all duration-300 rounded-full ${
+                            selectedImage === idx
+                              ? 'w-8 h-2 bg-white'
+                              : 'w-2 h-2 bg-white/60 hover:bg-white/90'
+                          }`}
+                          aria-label={`Go to image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
                   </>
                 )}
               </div>
-              
-            {/* Dots Indicator */}
-{product.images.length > 1 && (
-  <div className="flex justify-center gap-2 py-4">
-    {product.images.map((img: string, idx: number) => (
-      <button
-        key={idx}
-        onClick={() => setSelectedImage(idx)}
-        className={`transition-all duration-300 rounded-full ${
-          selectedImage === idx
-            ? 'w-8 h-3 bg-[#950606]'
-            : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
-        }`}
-        aria-label={`Go to image ${idx + 1}`}
-      />
-    ))}
-  </div>
-)}
             </>
           ) : (
             <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
