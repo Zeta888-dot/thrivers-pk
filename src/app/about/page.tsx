@@ -11,9 +11,9 @@ export default function AboutPage() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Our Story</h1>
+        <h1 className="text-4xl md:text-5xl font-theater font-bold text-[#950606] mb-4">Our Story</h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           Thrivers was born out of a passion for premium streetwear and a love for our roots.
         </p>
@@ -27,11 +27,11 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }} 
             viewport={{ once: true }} 
             transition={{ delay: index * 0.1 }} 
-            className="p-6 bg-gray-50 rounded-xl text-center"
+            className="p-8 bg-gray-50 rounded-xl text-center border border-gray-100 hover:border-[#950606]/20 hover:shadow-lg transition-all"
           >
-            <item.icon className="w-10 h-10 mx-auto mb-4 text-black" />
-            <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-            <p className="text-gray-600 text-sm">{item.desc}</p>
+            <item.icon className="w-12 h-12 mx-auto mb-4 text-[#950606]" />
+            <h3 className="text-xl font-bold mb-3 text-gray-900">{item.title}</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
           </motion.div>
         ))}
       </div>

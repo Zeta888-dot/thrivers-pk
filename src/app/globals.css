@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Custom Font: Theater Bold */
+@font-face {
+  font-family: 'Theater';
+  src: url('/fonts/Theater_Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Vignette Effect */
 .vignette {
   position: relative;
@@ -42,6 +51,12 @@
 .btn-primary:hover {
   background-color: #7a0505;
 }
+
+/* Theater Font Utility */
+.font-theater {
+  font-family: 'Theater', sans-serif;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

@@ -20,8 +20,9 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'whatsapp'>('cod')
   const [loading, setLoading] = useState(false)
 
-  // Total manually calculate karo
+  const deliveryCharge = 300
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const grandTotal = total + deliveryCharge
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +37,9 @@ export default function CheckoutPage() {
       city: formData.city,
       postalCode: formData.postalCode,
       items,
-      totalAmount: total,
+      subtotal: total,
+      deliveryCharge: deliveryCharge,
+      totalAmount: grandTotal,
       paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'WhatsApp Order'
     }
 
@@ -101,9 +104,19 @@ export default function CheckoutPage() {
               <span>PKR {item.price * item.quantity}</span>
             </div>
           ))}
+          
+          <div className="flex justify-between py-2 text-sm text-gray-600 mt-2">
+            <span>Subtotal</span>
+            <span>PKR {total.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between py-2 text-sm text-gray-600 border-b">
+            <span>Delivery Charges</span>
+            <span>PKR {deliveryCharge.toLocaleString()}</span>
+          </div>
+          
           <div className="flex justify-between font-bold text-lg mt-4">
             <span>Total</span>
-            <span>PKR {total}</span>
+            <span>PKR {grandTotal.toLocaleString()}</span>
           </div>
           <button type="submit" disabled={loading} className="w-full mt-6 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] disabled:opacity-50">
             {loading ? 'Processing...' : 'Place Order'}

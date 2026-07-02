@@ -40,22 +40,23 @@ export default function ProductPage() {
     fetchProduct()
   }, [slug])
 
-  const handleAddToCart = () => {
-    if (!product) return
-    
-    addItem({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      quantity: quantity,
-      color: selectedColor,
-      size: selectedSize,
-    })
-    
-    setIsAdded(true)
-    setTimeout(() => setIsAdded(false), 2000)
-    toggleCart()
-  }
+const handleAddToCart = () => {
+  if (!product) return
+  
+  addItem({
+    id: product._id,
+    name: product.name,
+    price: product.price,
+    quantity: quantity,
+    color: selectedColor,
+    size: selectedSize,
+    images: product.images || [], // ✅ Images add kar di
+  })
+  
+  setIsAdded(true)
+  setTimeout(() => setIsAdded(false), 2000)
+  toggleCart()
+}
 
   if (loading) return <div className="py-20 text-center text-xl">Loading product...</div>
   if (!product) return <div className="py-20 text-center text-xl">Product not found</div>

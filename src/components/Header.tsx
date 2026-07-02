@@ -11,7 +11,7 @@ import { categoriesQuery } from '@/lib/queries'
 interface Category {
   _id: string
   name: string
-  slug: { current: string }
+  slug: string
 }
 
 export default function Header() {
@@ -37,12 +37,18 @@ export default function Header() {
     }
   }, [isSearchOpen])
 
-  // Fetch categories
+  // Fetch categories with normalized slugs
   useEffect(() => {
     async function fetchCategories() {
       try {
         const data = await client.fetch(categoriesQuery)
-        setCategories(data)
+        // Normalize slugs - handle both string and object cases
+        const normalized = data.map((cat: any) => ({
+          _id: cat._id,
+          name: cat.name,
+          slug: cat.slug?.current || cat.slug || ''
+        }))
+        setCategories(normalized)
       } catch (error) {
         console.error("Failed to fetch categories:", error)
       }
@@ -69,15 +75,15 @@ export default function Header() {
 
   return (
     <>
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-  isScrolled 
-    ? 'bg-white shadow-sm border-b border-gray-100 py-3' 
-    : 'bg-transparent py-5 border-b border-transparent'
-}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white shadow-sm border-b border-gray-100 py-3' 
+          : 'bg-transparent py-5 border-b border-transparent'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className={`text-2xl font-black tracking-wider transition-colors ${textColor}`}>
+            <Link href="/" className="text-2xl font-theater tracking-wider text-[#950606]">
               THRIVERS
             </Link>
 
@@ -95,7 +101,7 @@ export default function Header() {
                   {categories.map((category) => (
                     <Link 
                       key={category._id}
-                      href={`/shop?category=${category.slug.current}`}
+                      href={`/shop?category=${category.slug}`}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]"
                     >
                       {category.name}
@@ -206,7 +212,7 @@ export default function Header() {
                 {categories.map((category) => (
                   <Link 
                     key={category._id}
-                    href={`/shop?category=${category.slug.current}`}
+                    href={`/shop?category=${category.slug}`}
                     onClick={() => setIsMenuOpen(false)} 
                     className="block text-base font-medium text-gray-700 hover:text-[#950606]"
                   >

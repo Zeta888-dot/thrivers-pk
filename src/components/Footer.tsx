@@ -7,13 +7,13 @@ export default function Footer() {
     <footer className="bg-[#950606] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="col-span-1 md:col-span-1">
-            <h3 className="text-2xl font-bold mb-4">Thrivers</h3>
-            <p className="text-red-100 text-sm">
-              Premium streetwear from the heart of Chitral. Quality meets culture.
-            </p>
-          </div>
+         {/* Brand */}
+<div className="col-span-1 md:col-span-1">
+  <h3 className="text-2xl font-theater mb-4">Thrivers</h3>
+  <p className="text-red-100 text-sm">
+    Premium streetwear from the heart of Chitral. Quality meets culture.
+  </p>
+</div>
 
           {/* Quick Links */}
           <div>

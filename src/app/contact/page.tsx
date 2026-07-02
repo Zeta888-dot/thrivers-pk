@@ -48,24 +48,39 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Social Media Links */}
-          <div className="pt-8 border-t border-gray-200">
-            <h3 className="font-bold text-lg mb-4">Follow Us on Social Media</h3>
-            <div className="flex gap-4">
-              <a href="https://www.instagram.com/thrivers.pk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity">
-                <FaInstagram size={20} />
-                <span>Instagram</span>
-              </a>
-              <a href="https://www.tiktok.com/@thrivers.pkk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:opacity-90 transition-opacity">
-                <FaTiktok size={20} />
-                <span>TikTok</span>
-              </a>
-              <a href="https://wa.me/923439766306" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:opacity-90 transition-opacity">
-                <FaWhatsapp size={20} />
-                <span>WhatsApp</span>
-              </a>
-            </div>
-          </div>
+         {/* Social Media Links */}
+<div className="pt-8 border-t border-gray-200">
+  <h3 className="font-bold text-lg mb-4">Follow Us on Social Media</h3>
+  <div className="flex flex-wrap gap-3">
+    <a 
+      href="https://www.instagram.com/thrivers.pk" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+    >
+      <FaInstagram size={20} />
+      <span>Instagram</span>
+    </a>
+    <a 
+      href="https://www.tiktok.com/@thrivers.pkk" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+    >
+      <FaTiktok size={20} />
+      <span>TikTok</span>
+    </a>
+    <a 
+      href="https://wa.me/923439766306" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+    >
+      <FaWhatsapp size={20} />
+      <span>WhatsApp</span>
+    </a>
+  </div>
+</div>
         </motion.div>
 
         {/* Contact Form */}
