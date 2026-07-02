@@ -53,7 +53,14 @@ export default function HomePage() {
           client.fetch(productsByBadgeQuery, { badge: 'Sale' }),
         ])
         
-        setCategories(catsData)
+        // ✅ FIX: Categories ko normalize karo (slug object ko string banao)
+        const normalizedCategories = catsData.map((cat: any) => ({
+          _id: cat._id,
+          name: cat.name,
+          slug: cat.slug?.current || cat.slug || '',
+          image: cat.image
+        }))
+        setCategories(normalizedCategories)
         
         const normalizedProducts = productsData.map((p: any) => ({
           ...p,
