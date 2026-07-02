@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Minus, Plus, ShoppingBag, Check } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { client } from '@/lib/sanity'
@@ -19,6 +19,8 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [isAdded, setIsAdded] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
   
   const { addItem, toggleCart } = useCartStore()
 
@@ -40,35 +42,54 @@ export default function ProductPage() {
     fetchProduct()
   }, [slug])
 
-const handleAddToCart = () => {
-  if (!product) return
-  
-  addItem({
-    id: product._id,
-    name: product.name,
-    price: product.price,
-    quantity: quantity,
-    color: selectedColor,
-    size: selectedSize,
-    images: product.images || [], // ✅ Images add kar di
-  })
-  
-  setIsAdded(true)
-  setTimeout(() => setIsAdded(false), 2000)
-  toggleCart()
-}
+  const handleAddToCart = () => {
+    if (!product) return
+    
+    addItem({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      color: selectedColor,
+      size: selectedSize,
+      images: product.images || [],
+    })
+    
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 2000)
+    toggleCart()
+  }
 
   if (loading) return <div className="py-20 text-center text-xl">Loading product...</div>
   if (!product) return <div className="py-20 text-center text-xl">Product not found</div>
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Images Section */}
+        {/* Images Section with Swipe */}
         <div className="space-y-4">
           {product.images && product.images.length > 0 ? (
             <>
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              {/* Main Image with Swipe */}
+              <div 
+                className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative"
+                onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+                onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
+                onTouchEnd={() => {
+                  if (!touchStart || !touchEnd) return
+                  const distance = touchStart - touchEnd
+                  const isLeftSwipe = distance > 50
+                  const isRightSwipe = distance < -50
+                  if (isLeftSwipe && selectedImage < product.images.length - 1) {
+                    setSelectedImage(selectedImage + 1)
+                  }
+                  if (isRightSwipe && selectedImage > 0) {
+                    setSelectedImage(selectedImage - 1)
+                  }
+                  setTouchStart(0)
+                  setTouchEnd(0)
+                }}
+              >
                 <Image
                   src={product.images[selectedImage]}
                   alt={product.name}
@@ -76,15 +97,40 @@ const handleAddToCart = () => {
                   height={600}
                   className="w-full h-full object-cover"
                 />
+                
+                {/* Navigation Arrows */}
+                {product.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => selectedImage > 0 && setSelectedImage(selectedImage - 1)}
+                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity ${selectedImage === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    >
+                      <ChevronLeft size={20} className="text-gray-800" />
+                    </button>
+                    <button
+                      onClick={() => selectedImage < product.images.length - 1 && setSelectedImage(selectedImage + 1)}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity ${selectedImage === product.images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    >
+                      <ChevronRight size={20} className="text-gray-800" />
+                    </button>
+                    
+                    {/* Image Counter */}
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                      {selectedImage + 1}/{product.images.length}
+                    </div>
+                  </>
+                )}
               </div>
+              
+              {/* Thumbnails */}
               {product.images.length > 1 && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-2">
                   {product.images.map((img: string, idx: number) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
-                      className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                        selectedImage === idx ? 'border-black' : 'border-gray-200'
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === idx ? 'border-[#950606] ring-2 ring-[#950606]/20' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <Image src={img} alt="" width={80} height={80} className="w-full h-full object-cover" />
