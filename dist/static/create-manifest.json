@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-06-30T10:40:44.170Z",
+  "createdAt": "2026-07-02T18:28:51.676Z",
   "studioVersion": "5.31.1",
   "version": 3,
   "workspaces": [
@@ -13,7 +13,7 @@
       },
       "name": "default",
       "projectId": "l9jivley",
-      "schema": "ee704638.create-schema.json",
+      "schema": "2fb43ca3.create-schema.json",
       "title": "Thrivers PK",
       "tools": "ef87c8fe.create-tools.json"
     }

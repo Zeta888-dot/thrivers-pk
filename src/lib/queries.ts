@@ -17,7 +17,7 @@ export const productsQuery = groq`
     description,
     price,
     compareAtPrice,
-    images,
+    "images": images[].asset->url,
     category -> {
       name,
       "slug": slug.current
@@ -39,7 +39,7 @@ export const productBySlugQuery = groq`
     description,
     price,
     compareAtPrice,
-    images,
+    "images": images[].asset->url,
     category -> {
       name,
       "slug": slug.current
@@ -61,7 +61,7 @@ export const productsByBadgeQuery = groq`
     description,
     price,
     compareAtPrice,
-    images,
+    "images": images[].asset->url,
     category -> {
       name,
       "slug": slug.current
@@ -83,7 +83,7 @@ export const featuredProductsQuery = groq`
     description,
     price,
     compareAtPrice,
-    images,
+    "images": images[].asset->url,
     category -> {
       name,
       "slug": slug.current
