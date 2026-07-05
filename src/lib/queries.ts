@@ -96,3 +96,24 @@ export const featuredProductsQuery = groq`
     badges
   }
 `
+export const heroQuery = groq`
+  *[_type == "hero"][0] {
+    _id,
+    title,
+    subtitle,
+    "desktopImage": {
+      "url": desktopImage.asset->url,
+      "alt": desktopImage.alt
+    },
+    "mobileImage": {
+      "url": mobileImage.asset->url,
+      "alt": mobileImage.alt
+    },
+    primaryButtonText,
+    primaryButtonLink,
+    secondaryButtonText,
+    secondaryButtonLink,
+    overlayColor,
+    overlayOpacity
+  }
+`

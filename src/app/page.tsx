@@ -5,8 +5,22 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import { client } from '@/lib/sanity'
-import { categoriesQuery, productsQuery, productsByBadgeQuery } from '@/lib/queries'
+import { categoriesQuery, productsQuery, productsByBadgeQuery, heroQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
+import Image from 'next/image'
+
+interface Hero {
+  title: string
+  subtitle: string
+  desktopImage: { url: string; alt: string }
+  mobileImage: { url: string; alt: string }
+  primaryButtonText: string
+  primaryButtonLink: string
+  secondaryButtonText: string
+  secondaryButtonLink: string
+  overlayColor: string
+  overlayOpacity: number
+}
 
 interface Category {
   _id: string
@@ -35,6 +49,7 @@ interface Product {
 
 export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [hero, setHero] = useState<Hero | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
   const [newArrivals, setNewArrivals] = useState<Product[]>([])
@@ -45,13 +60,16 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [catsData, productsData, newArrivalsData, bestSellersData, saleData] = await Promise.all([
+        const [heroData, catsData, productsData, newArrivalsData, bestSellersData, saleData] = await Promise.all([
+          client.fetch(heroQuery),
           client.fetch(categoriesQuery),
           client.fetch(productsQuery),
           client.fetch(productsByBadgeQuery, { badge: 'New Arrival' }),
           client.fetch(productsByBadgeQuery, { badge: 'Best Seller' }),
           client.fetch(productsByBadgeQuery, { badge: 'Sale' }),
         ])
+        
+        setHero(heroData)
         
         const normalizedCategories = catsData.map((cat: any) => ({
           _id: cat._id,
@@ -148,49 +166,81 @@ export default function HomePage() {
 
   return (
     <div>
-     {/* Hero Section */}
-<section className="relative min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden bg-[#950606]">
-  {/* Background Image */}
-  <div className="absolute inset-0 z-0">
-    <img 
-      src="/hero-bg.jpg" 
-      alt="Thrivers Hero"
-      className="w-full h-full object-cover object-top"
-    />
-    {/* Light Overlay - Image clear dikhegi */}
-    <div className="absolute inset-0 bg-gradient-to-b from-[#950606]/20 via-transparent to-[#950606]/40" />
-  </div>
-  
-  {/* Content */}
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
-      <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-theater text-white mb-6 tracking-wider drop-shadow-lg">
-        THRIVERS
-      </h1>
-      
-      <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-        <Link 
-          href="/shop"
-          className="inline-flex items-center justify-center gap-2 bg-white text-[#950606] px-8 py-3 rounded-full font-bold text-base hover:bg-gray-100 transition-all active:scale-95 shadow-xl"
-        >
-          <ShoppingBag size={20} />
-          Shop Now
-        </Link>
-        <Link 
-          href="/about"
-          className="inline-flex items-center justify-center gap-2 bg-transparent text-white border-2 border-white px-8 py-3 rounded-full font-bold text-base hover:bg-white hover:text-[#950606] transition-all active:scale-95 shadow-xl"
-        >
-          Learn More
-          <ArrowRight size={20} />
-        </Link>
-      </div>
-    </motion.div>
-  </div>
-</section>
+      {/* Dynamic Hero Section */}
+      {hero ? (
+        <section className="relative min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden bg-[#950606]">
+          {/* Desktop Image */}
+          <div className="absolute inset-0 z-0 hidden md:block">
+            <Image
+              src={hero.desktopImage.url}
+              alt={hero.desktopImage.alt || hero.title}
+              fill
+              className="object-cover object-center"
+              priority
+            />
+          </div>
+          
+          {/* Mobile Image */}
+          <div className="absolute inset-0 z-0 md:hidden">
+            <Image
+              src={hero.mobileImage.url}
+              alt={hero.mobileImage.alt || hero.title}
+              fill
+              className="object-cover object-center"
+              priority
+            />
+          </div>
+
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 z-10"
+            style={{
+              background: `linear-gradient(to bottom, ${hero.overlayColor}${Math.round(hero.overlayOpacity * 100).toString(16).padStart(2, '0')} 0%, transparent 50%, ${hero.overlayColor}${Math.round(hero.overlayOpacity * 200).toString(16).padStart(2, '0')} 100%)`
+            }}
+          />
+          
+          {/* Content */}
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-theater text-white mb-6 tracking-wider drop-shadow-lg">
+                {hero.title}
+              </h1>
+              
+              {hero.subtitle && (
+                <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  {hero.subtitle}
+                </p>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                <Link 
+                  href={hero.primaryButtonLink}
+                  className="inline-flex items-center justify-center gap-2 bg-white text-[#950606] px-8 py-3 rounded-full font-medium text-base hover:bg-gray-100 transition-all active:scale-95 shadow-xl"
+                >
+                  <ShoppingBag size={20} />
+                  {hero.primaryButtonText}
+                </Link>
+                <Link 
+                  href={hero.secondaryButtonLink}
+                  className="inline-flex items-center justify-center gap-2 bg-transparent text-white border-2 border-white px-8 py-3 rounded-full font-medium text-base hover:bg-white hover:text-[#950606] transition-all active:scale-95 shadow-xl"
+                >
+                  {hero.secondaryButtonText}
+                  <ArrowRight size={20} />
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      ) : (
+        <div className="min-h-[80vh] bg-[#950606] flex items-center justify-center">
+          <p className="text-white text-xl">Loading...</p>
+        </div>
+      )}
+
       {/* Featured Categories - Swipeable */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
