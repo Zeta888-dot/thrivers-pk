@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+/* Tailwind v4 Theme Configuration */
+@theme {
+  --font-sans: 'Lemon Milk', sans-serif;
+  --font-theater: 'Theater', sans-serif;
+}
+
+/* Lemon Milk Font Family */
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('/fonts/LEMONMILK-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('/fonts/LEMONMILK-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('/fonts/LEMONMILK-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('/fonts/LEMONMILK-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Custom Font: Theater Bold */
 @font-face {
   font-family: 'Theater';
@@ -7,6 +46,41 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+}
+
+/* Base Styles */
+body {
+  font-family: 'Lemon Milk', sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Classes */
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-theater {
+  font-family: 'Theater', sans-serif;
+}
+
+/* Heading Styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lemon Milk', sans-serif;
+  font-weight: 700;
 }
 
 /* Vignette Effect */
@@ -52,11 +126,6 @@
   background-color: #7a0505;
 }
 
-/* Theater Font Utility */
-.font-theater {
-  font-family: 'Theater', sans-serif;
-}
-
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -66,4 +135,21 @@
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Selection Color */
+::selection {
+  background-color: #950606;
+  color: white;
+}
+
+/* Focus Outline */
+:focus-visible {
+  outline: 2px solid #950606;
+  outline-offset: 2px;
 }
