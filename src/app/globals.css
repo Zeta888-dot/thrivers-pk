@@ -1,4 +1,15 @@
 @import "tailwindcss";
+/* Force Lemon Milk everywhere */
+*, *::before, *::after {
+  font-family: 'Lemon Milk', sans-serif !important;
+}
+
+body {
+  font-family: 'Lemon Milk', sans-serif !important;
+  font-weight: 400;
+  font-size: 14px; /* Outfitbydk jaisa base size */
+  line-height: 1.5;
+}
 
 /* Tailwind v4 Theme Configuration */
 @theme {
