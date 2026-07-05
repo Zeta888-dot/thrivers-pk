@@ -1,15 +1,4 @@
 @import "tailwindcss";
-/* Force Lemon Milk everywhere */
-*, *::before, *::after {
-  font-family: 'Lemon Milk', sans-serif !important;
-}
-
-body {
-  font-family: 'Lemon Milk', sans-serif !important;
-  font-weight: 400;
-  font-size: 14px; /* Outfitbydk jaisa base size */
-  line-height: 1.5;
-}
 
 /* Tailwind v4 Theme Configuration */
 @theme {
@@ -59,46 +48,38 @@ body {
   font-display: swap;
 }
 
-/* Base Styles */
+/* Base Styles - Outfitbydk style */
 body {
   font-family: 'Lemon Milk', sans-serif;
   font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Typography Classes */
-.font-light {
-  font-weight: 300;
-}
+.font-light { font-weight: 300; }
+.font-regular { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
 
-.font-regular {
-  font-weight: 400;
-}
-
-.font-medium {
-  font-weight: 500;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-
+/* Theater Font for Logo Only */
 .font-theater {
-  font-family: 'Theater', sans-serif;
+  font-family: 'Theater', sans-serif !important;
 }
 
 /* Heading Styles */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Lemon Milk', sans-serif;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 /* Vignette Effect */
-.vignette {
-  position: relative;
-}
-
+.vignette { position: relative; }
 .vignette::before {
   content: '';
   position: absolute;
@@ -108,10 +89,7 @@ h1, h2, h3, h4, h5, h6 {
   background: radial-gradient(ellipse at center, transparent 0%, rgba(149, 6, 6, 0.15) 100%);
 }
 
-.vignette-dark {
-  position: relative;
-}
-
+.vignette-dark { position: relative; }
 .vignette-dark::before {
   content: '';
   position: absolute;
@@ -132,26 +110,17 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
   transition: background-color 0.2s;
 }
+.btn-primary:hover { background-color: #7a0505; }
 
-.btn-primary:hover {
-  background-color: #7a0505;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 /* Smooth Scroll */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 /* Custom Selection Color */
 ::selection {
