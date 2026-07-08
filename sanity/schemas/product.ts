@@ -156,26 +156,4 @@ export const product = defineType({
       },
     }),
   ],
-  preview: {
-    select: {
-      title: 'name',
-      price: 'price',
-      compareAtPrice: 'compareAtPrice',
-      stock: 'stock',
-      badges: 'badges',
-      media: 'images[0]',
-    },
-    prepare(selection) {
-      const { title, price, compareAtPrice, stock, badges, media } = selection
-      const discount = compareAtPrice && price ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : null
-      const stockLabel = stock === 'in_stock' ? '✓' : stock === 'low_stock' ? '⚠' : '✗'
-      const badgeText = badges && badges.length > 0 ? ` | ${badges.join(', ')}` : ''
-      
-      return {
-        title,
-        subtitle: `PKR ${price}${discount ? ` (-${discount}%)` : ''} ${stockLabel}${badgeText}`,
-        media,
-      }
-    },
-  },
 })

@@ -39,57 +39,6 @@
         "type": "slug"
       },
       {
-        "name": "description",
-        "type": "text"
-      },
-      {
-        "name": "image",
-        "type": "image"
-      }
-    ],
-    "name": "category",
-    "type": "document"
-  },
-  {
-    "fields": [
-      {
-        "validation": [
-          {
-            "level": "error",
-            "rules": [
-              {
-                "flag": "presence",
-                "constraint": "required"
-              }
-            ]
-          }
-        ],
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "options": {
-          "source": "name",
-          "maxLength": 96
-        },
-        "validation": [
-          {
-            "level": "error",
-            "rules": [
-              {
-                "flag": "custom"
-              },
-              {
-                "flag": "presence",
-                "constraint": "required"
-              }
-            ]
-          }
-        ],
-        "name": "slug",
-        "type": "slug"
-      },
-      {
         "of": [
           {
             "lists": [
@@ -415,6 +364,57 @@
   {
     "fields": [
       {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "name",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "description",
+        "type": "text"
+      },
+      {
+        "name": "image",
+        "type": "image"
+      }
+    ],
+    "name": "category",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
         "name": "orderId",
         "type": "string",
         "title": "Order ID"
@@ -507,5 +507,135 @@
     ],
     "name": "order",
     "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Main Title"
+      },
+      {
+        "rows": 2,
+        "name": "subtitle",
+        "type": "text"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "message": "Desktop image is required"
+          }
+        ],
+        "description": "Recommended: 1920x1080px or wider",
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "Alt Text"
+          }
+        ],
+        "name": "desktopImage",
+        "type": "image",
+        "title": "Desktop Image (Landscape)"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "message": "Mobile image is required"
+          }
+        ],
+        "description": "Recommended: 1080x1920px or taller",
+        "fields": [
+          {
+            "name": "alt",
+            "type": "string",
+            "title": "Alt Text"
+          }
+        ],
+        "name": "mobileImage",
+        "type": "image",
+        "title": "Mobile Image (Portrait)"
+      },
+      {
+        "initialValue": "Shop Now",
+        "name": "primaryButtonText",
+        "type": "string"
+      },
+      {
+        "initialValue": "/shop",
+        "name": "primaryButtonLink",
+        "type": "string"
+      },
+      {
+        "initialValue": "Learn More",
+        "name": "secondaryButtonText",
+        "type": "string"
+      },
+      {
+        "initialValue": "/about",
+        "name": "secondaryButtonLink",
+        "type": "string"
+      },
+      {
+        "initialValue": "#950606",
+        "description": "Hex color for gradient overlay",
+        "name": "overlayColor",
+        "type": "string"
+      },
+      {
+        "initialValue": 0.4,
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              },
+              {
+                "flag": "max",
+                "constraint": 1
+              }
+            ]
+          }
+        ],
+        "name": "overlayOpacity",
+        "type": "number"
+      }
+    ],
+    "name": "hero",
+    "type": "document",
+    "title": "Hero Section"
   }
 ]

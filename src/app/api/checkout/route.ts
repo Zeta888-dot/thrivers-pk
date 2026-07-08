@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     })
 
     // 2. WhatsApp Notification
-    const WHATSAPP_NUMBER = "923453944210" // Tumhara number
+    const WHATSAPP_NUMBER = "923439766306" // Thrivers official WhatsApp
     const whatsappMessage = `*🛍️ NEW ORDER - Thrivers PK*%0A%0A*Order ID:* ${order.orderId}%0A*Customer:* ${customerName}%0A*Phone:* ${phone}%0A${altPhone ? `*Alt Phone:* ${altPhone}%0A` : ''}*City:* ${city}%0A*Address:* ${address}%0A%0A*Items:*%0A${items.map((i: any) => `- ${i.name} (x${i.quantity}) - PKR ${i.price * i.quantity}`).join('%0A')}%0A%0A*Total: PKR ${totalAmount}*%0A*Payment:* ${paymentMethod}`
     
     // WhatsApp link generate karo (ye backend mein open nahi hoga, frontend par handle hoga)
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: 'Thrivers PK <orders@resend.dev>',
-      to: ['zahidazam714@gmail.com'],
+      to: ['sheikhinsaan07@gmail.com'],
       subject: `New Order ${order.orderId} - PKR ${totalAmount}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
