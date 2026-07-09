@@ -45,10 +45,8 @@ export async function POST(request: Request) {
     // 2. WhatsApp Notification
     const WHATSAPP_NUMBER = "923439766306" // Thrivers official WhatsApp
     const whatsappMessage = `*🛍️ NEW ORDER - Thrivers PK*%0A%0A*Order ID:* ${order.orderId}%0A*Customer:* ${customerName}%0A*Phone:* ${phone}%0A${altPhone ? `*Alt Phone:* ${altPhone}%0A` : ''}*City:* ${city}%0A*Address:* ${address}%0A%0A*Items:*%0A${items.map((i: any) => `- ${i.name} (x${i.quantity}) - PKR ${i.price * i.quantity}`).join('%0A')}%0A%0A*Total: PKR ${totalAmount}*%0A*Payment:* ${paymentMethod}`
-    
-    // WhatsApp link generate karo (ye backend mein open nahi hoga, frontend par handle hoga)
 
-    // 3. Email Notification
+    // 3. Admin Email Notification (to Thrivers)
     const itemsList = items.map((item: any) => `
       <div style="border-bottom: 1px solid #eee; padding: 10px 0; display: flex; gap: 15px;">
         ${item.images?.[0] ? `<img src="${item.images[0]}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />` : ''}
@@ -99,6 +97,63 @@ export async function POST(request: Request) {
         </div>
       `,
     })
+
+    // 4. Customer Confirmation Email (if customer provided email)
+    if (email) {
+      await resend.emails.send({
+        from: 'Thrivers PK <orders@resend.dev>',
+        to: [email],
+        subject: `Order Confirmed! ${order.orderId} - Thrivers PK`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="text-align: center; padding: 30px 0; background: #950606; color: white; border-radius: 10px 10px 0 0;">
+              <h1 style="margin: 0; font-size: 28px;">🎉 Thank You for Your Order!</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">Your order has been confirmed</p>
+            </div>
+            
+            <div style="padding: 30px; background: #fff; border: 1px solid #eee;">
+              <p style="font-size: 16px; color: #333;">Hi <strong>${customerName}</strong>,</p>
+              <p style="font-size: 16px; color: #333;">Thank you for shopping with <strong>Thrivers PK</strong>! We've received your order and will process it shortly.</p>
+              
+              <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h2 style="color: #950606; margin-top: 0;">Order Summary</h2>
+                <p style="margin: 5px 0;"><strong>Order ID:</strong> ${order.orderId}</p>
+                <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${paymentMethod}</p>
+                <p style="margin: 5px 0;"><strong>Total Amount:</strong> <span style="color: #950606; font-size: 18px; font-weight: bold;">PKR ${totalAmount}</span></p>
+              </div>
+
+              <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h2 style="color: #950606; margin-top: 0;">Items Ordered</h2>
+                ${itemsList}
+              </div>
+
+              <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h2 style="color: #950606; margin-top: 0;">Delivery Details</h2>
+                <p style="margin: 5px 0;"><strong>Name:</strong> ${customerName}</p>
+                <p style="margin: 5px 0;"><strong>Phone:</strong> ${phone}</p>
+                <p style="margin: 5px 0;"><strong>Address:</strong> ${address}, ${city} ${postalCode ? `- ${postalCode}` : ''}</p>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0; padding: 20px; background: #fff3f3; border-radius: 10px; border-left: 4px solid #950606;">
+                <p style="margin: 0; font-size: 15px; color: #333;">
+                  📞 <strong>Need Help?</strong><br/>
+                  Contact us at <a href="mailto:sheikhinsaan07@gmail.com" style="color: #950606;">sheikhinsaan07@gmail.com</a><br/>
+                  or WhatsApp: <a href="https://wa.me/923439766306" style="color: #950606;">+92 343 9766306</a>
+                </p>
+              </div>
+
+              <p style="text-align: center; color: #666; font-size: 14px; margin-top: 30px;">
+                We'll notify you once your order is shipped. Thank you for choosing Thrivers PK! 🛍️
+              </p>
+            </div>
+            
+            <div style="text-align: center; padding: 20px; background: #f9f9f9; color: #666; font-size: 12px; border-radius: 0 0 10px 10px;">
+              <p style="margin: 0;">© 2026 Thrivers PK | Hayat Market, New Bazar, Chitral</p>
+            </div>
+          </div>
+        `,
+      })
+    }
 
     return NextResponse.json({ 
       success: true, 
