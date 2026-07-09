@@ -73,7 +73,7 @@ export default function ProductPage() {
             <>
               {/* Main Image with Swipe */}
               <div 
-                className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative"
+                className="aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-lg overflow-hidden relative"
                 onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
                 onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
                 onTouchEnd={() => {
@@ -140,7 +140,7 @@ export default function ProductPage() {
               </div>
             </>
           ) : (
-            <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-lg flex items-center justify-center">
               <span className="text-gray-400">No Image</span>
             </div>
           )}
