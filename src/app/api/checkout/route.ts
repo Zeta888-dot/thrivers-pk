@@ -33,6 +33,8 @@ export async function POST(request: Request) {
         productName: item.name,
         quantity: item.quantity,
         price: item.price,
+        size: item.size || '',
+        color: item.color || '',
         image: item.images?.[0] || '',
       })),
       totalAmount,
@@ -43,8 +45,8 @@ export async function POST(request: Request) {
     })
 
     // 2. WhatsApp Notification
-    const WHATSAPP_NUMBER = "923439766306" // Thrivers official WhatsApp
-    const whatsappMessage = `*🛍️ NEW ORDER - Thrivers PK*%0A%0A*Order ID:* ${order.orderId}%0A*Customer:* ${customerName}%0A*Phone:* ${phone}%0A${altPhone ? `*Alt Phone:* ${altPhone}%0A` : ''}*City:* ${city}%0A*Address:* ${address}%0A%0A*Items:*%0A${items.map((i: any) => `- ${i.name} (x${i.quantity}) - PKR ${i.price * i.quantity}`).join('%0A')}%0A%0A*Total: PKR ${totalAmount}*%0A*Payment:* ${paymentMethod}`
+    const WHATSAPP_NUMBER = "923439766306"
+    const whatsappMessage = `*🛍️ NEW ORDER - Thrivers PK*%0A%0A*Order ID:* ${order.orderId}%0A*Customer:* ${customerName}%0A*Phone:* ${phone}%0A${altPhone ? `*Alt Phone:* ${altPhone}%0A` : ''}*City:* ${city}%0A*Address:* ${address}%0A%0A*Items:*%0A${items.map((i: any) => `- ${i.name} (x${i.quantity})%0A  Size: ${i.size || 'N/A'} | Color: ${i.color || 'N/A'}%0A  Price: PKR ${i.price * i.quantity}`).join('%0A')}%0A%0A*Total: PKR ${totalAmount}*%0A*Payment:* ${paymentMethod}`
 
     // 3. Admin Email Notification (to Thrivers)
     const itemsList = items.map((item: any) => `
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
         <div>
           <strong>${item.name}</strong><br/>
           Quantity: ${item.quantity} × PKR ${item.price}<br/>
+          ${item.size ? `<span style="color: #666;">Size: ${item.size}</span> | ` : ''}${item.color ? `<span style="color: #666;">Color: ${item.color}</span>` : ''}<br/>
           <strong>Total: PKR ${item.price * item.quantity}</strong>
         </div>
       </div>

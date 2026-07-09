@@ -105,21 +105,21 @@ function ShopContent() {
     router.push('/shop')
   }
 
-  if (loading) return <div className="py-20 text-center text-xl">Loading products...</div>
+  if (loading) return <div className="py-12 text-center text-xl">Loading products...</div>
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-      <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pt-16 md:pt-20">
+      <motion.div className="mb-4 md:mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
           {activeSearch ? `Search: "${activeSearch}"` : selectedBadge ? `${selectedBadge} Collection` : selectedCategory !== 'All' ? selectedCategory : 'Shop All'}
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm md:text-base text-gray-600">
           {activeSearch ? `Found ${sortedProducts.length} results for "${activeSearch}"` : 'Discover our complete collection'}
         </p>
       </motion.div>
 
       {/* Filters & Sort */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-3 mb-4 md:mb-6 items-start md:items-center justify-between">
         <button className="md:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg" onClick={() => setIsFilterOpen(!isFilterOpen)}>
           <Filter size={20} /> Filters
         </button>
@@ -155,7 +155,7 @@ function ShopContent() {
 
       {/* Active Search Pill */}
       {activeSearch && (
-        <div className="mb-6 flex items-center gap-2">
+        <div className="mb-3 md:mb-4 flex items-center gap-2">
           <span className="text-sm text-gray-600">Searching for:</span>
           <button onClick={clearSearch} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
             "{activeSearch}" <X size={14} />
@@ -165,7 +165,7 @@ function ShopContent() {
 
       {/* Active Category/Badge Pill */}
       {!activeSearch && (selectedCategory !== 'All' || selectedBadge) && (
-        <div className="mb-6 flex items-center gap-2">
+        <div className="mb-3 md:mb-4 flex items-center gap-2">
           <span className="text-sm text-gray-600">Active Filter:</span>
           <button onClick={() => { setSelectedCategory('All'); setSelectedBadge('') }} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
             {selectedBadge || selectedCategory} <X size={14} />
@@ -182,15 +182,15 @@ function ShopContent() {
         ))}
       </div>
 
-      {sortedProducts.length === 0 && <div className="text-center py-16 text-gray-500 text-lg">No products found</div>}
-      <div className="mt-8 text-center text-sm text-gray-600">Showing {sortedProducts.length} products</div>
+      {sortedProducts.length === 0 && <div className="text-center py-12 text-gray-500 text-lg">No products found</div>}
+      <div className="mt-6 text-center text-sm text-gray-600">Showing {sortedProducts.length} products</div>
     </div>
   )
 }
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-xl">Loading...</div>}>
+    <Suspense fallback={<div className="py-12 text-center text-xl">Loading...</div>}>
       <ShopContent />
     </Suspense>
   )
