@@ -59,6 +59,14 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   useEffect(() => {
     async function fetchData() {
@@ -115,21 +123,8 @@ export default function HomePage() {
     fetchData()
   }, [])
 
-  // Auto-advance carousel every 5 seconds
-  useEffect(() => {
-    if (!hero || (!hero.desktopImages && !hero.mobileImages)) return
-    
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => {
-        const maxSlides = typeof window !== 'undefined' && window.innerWidth < 768 
-          ? (hero.mobileImages?.length || 1)
-          : (hero.desktopImages?.length || 1)
-        return (prev + 1) % maxSlides
-      })
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [hero])
+  const activeImages = isMobile ? hero?.mobileImages : hero?.desktopImages
+  const maxSlides = activeImages?.length || 1
 
   // Touch handlers for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -158,21 +153,9 @@ export default function HomePage() {
     setTouchEndX(0)
   }
 
-  const nextSlide = () => {
-    if (!hero) return
-    const maxSlides = hero.desktopImages?.length || 1
-    setCurrentSlide((prev) => (prev + 1) % maxSlides)
-  }
-
-  const prevSlide = () => {
-    if (!hero) return
-    const maxSlides = hero.desktopImages?.length || 1
-    setCurrentSlide((prev) => (prev - 1 + maxSlides) % maxSlides)
-  }
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index)
-  }
+  const nextSlide = () => { if (maxSlides <= 1) return; setCurrentSlide(p => (p + 1) % maxSlides) }
+  const prevSlide = () => { if (maxSlides <= 1) return; setCurrentSlide(p => (p - 1 + maxSlides) % maxSlides) }
+  const goToSlide = (index: number) => { setCurrentSlide(index) }
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -239,7 +222,7 @@ export default function HomePage() {
           {/* Desktop Images Carousel */}
           <div className="absolute inset-0 z-0 hidden md:block">
             <AnimatePresence mode="wait">
-              {hero.desktopImages && hero.desktopImages.length > 0 && (
+              {hero.desktopImages && hero.desktopImages[currentSlide] && (
                 <motion.div
                   key={`desktop-${currentSlide}`}
                   initial={{ opacity: 0 }}
@@ -263,7 +246,7 @@ export default function HomePage() {
           {/* Mobile Images Carousel */}
           <div className="absolute inset-0 z-0 md:hidden">
             <AnimatePresence mode="wait">
-              {hero.mobileImages && hero.mobileImages.length > 0 && (
+              {hero.mobileImages && hero.mobileImages[currentSlide] && (
                 <motion.div
                   key={`mobile-${currentSlide}`}
                   initial={{ opacity: 0 }}
@@ -292,19 +275,19 @@ export default function HomePage() {
             }}
           />
           
-          {/* Navigation Arrows - Desktop */}
-          {hero.desktopImages && hero.desktopImages.length > 1 && (
+          {/* Navigation Arrows - Mobile & Desktop */}
+          {maxSlides > 1 && (
             <>
               <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 hidden md:block p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
                 aria-label="Previous slide"
               >
                 <ChevronLeft size={24} className="text-white" />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 hidden md:block p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
                 aria-label="Next slide"
               >
                 <ChevronRight size={24} className="text-white" />
@@ -313,30 +296,18 @@ export default function HomePage() {
           )}
 
           {/* Dots Indicator */}
-          {((hero.desktopImages && hero.desktopImages.length > 1) || (hero.mobileImages && hero.mobileImages.length > 1)) && (
+          {maxSlides > 1 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2">
-              {typeof window !== 'undefined' && window.innerWidth < 768
-                ? hero.mobileImages?.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentSlide ? 'bg-white w-6' : 'bg-white/50'
-                      }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))
-                : hero.desktopImages?.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentSlide ? 'bg-white w-6' : 'bg-white/50'
-                      }`}
-                      aria-label={`Go to slide ${index + 1}`}
-                    />
-                  ))
-              }
+              {activeImages?.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentSlide ? 'bg-white w-6' : 'bg-white/50'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
           )}
           
