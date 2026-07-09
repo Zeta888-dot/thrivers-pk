@@ -18,38 +18,44 @@ export const hero = defineType({
       rows: 2,
     }),
     defineField({
-      name: 'desktopImage',
-      title: 'Desktop Image (Landscape)',
-      description: 'Recommended: 1920x1080px or wider',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-      fields: [
+      name: 'desktopImages',
+      title: 'Desktop Images (Landscape - Multiple)',
+      description: 'Add multiple images for carousel. Recommended: 1920x1080px',
+      type: 'array',
+      of: [
         {
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+            },
+          ],
         },
       ],
-      validation: (rule) => rule.required().error('Desktop image is required'),
+      validation: (rule) => rule.required().min(1).error('At least one desktop image is required'),
     }),
     defineField({
-      name: 'mobileImage',
-      title: 'Mobile Image (Portrait)',
-      description: 'Recommended: 1080x1920px or taller',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-      fields: [
+      name: 'mobileImages',
+      title: 'Mobile Images (Portrait - Multiple)',
+      description: 'Add multiple images for mobile carousel. Recommended: 1080x1920px',
+      type: 'array',
+      of: [
         {
-          name: 'alt',
-          title: 'Alt Text',
-          type: 'string',
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+            },
+          ],
         },
       ],
-      validation: (rule) => rule.required().error('Mobile image is required'),
+      validation: (rule) => rule.required().min(1).error('At least one mobile image is required'),
     }),
     defineField({
       name: 'primaryButtonText',
@@ -82,18 +88,18 @@ export const hero = defineType({
       initialValue: '#950606',
       description: 'Hex color for gradient overlay',
     }),
-   defineField({
-  name: 'overlayOpacity',
-  title: 'Overlay Opacity',
-  type: 'number',
-  initialValue: 0.4,
-  validation: (rule) => rule.min(0).max(1),
-}),
+    defineField({
+      name: 'overlayOpacity',
+      title: 'Overlay Opacity',
+      type: 'number',
+      initialValue: 0.4,
+      validation: (rule) => rule.min(0).max(1),
+    }),
   ],
   preview: {
     select: {
       title: 'title',
-      media: 'desktopImage',
+      media: 'desktopImages.0',
     },
   },
 })

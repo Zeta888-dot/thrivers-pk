@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useState, useEffect } from 'react'
 import { client } from '@/lib/sanity'
@@ -12,8 +12,8 @@ import Image from 'next/image'
 interface Hero {
   title: string
   subtitle: string
-  desktopImage: { url: string; alt: string }
-  mobileImage: { url: string; alt: string }
+  desktopImages: { url: string; alt: string }[]
+  mobileImages: { url: string; alt: string }[]
   primaryButtonText: string
   primaryButtonLink: string
   secondaryButtonText: string
@@ -56,6 +56,9 @@ export default function HomePage() {
   const [bestSellers, setBestSellers] = useState<Product[]>([])
   const [saleProducts, setSaleProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [touchStartX, setTouchStartX] = useState(0)
+  const [touchEndX, setTouchEndX] = useState(0)
 
   useEffect(() => {
     async function fetchData() {
@@ -112,6 +115,65 @@ export default function HomePage() {
     fetchData()
   }, [])
 
+  // Auto-advance carousel every 5 seconds
+  useEffect(() => {
+    if (!hero || (!hero.desktopImages && !hero.mobileImages)) return
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => {
+        const maxSlides = typeof window !== 'undefined' && window.innerWidth < 768 
+          ? (hero.mobileImages?.length || 1)
+          : (hero.desktopImages?.length || 1)
+        return (prev + 1) % maxSlides
+      })
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [hero])
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return
+    
+    const distance = touchStartX - touchEndX
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+    
+    if (isLeftSwipe) {
+      nextSlide()
+    }
+    if (isRightSwipe) {
+      prevSlide()
+    }
+    
+    setTouchStartX(0)
+    setTouchEndX(0)
+  }
+
+  const nextSlide = () => {
+    if (!hero) return
+    const maxSlides = hero.desktopImages?.length || 1
+    setCurrentSlide((prev) => (prev + 1) % maxSlides)
+  }
+
+  const prevSlide = () => {
+    if (!hero) return
+    const maxSlides = hero.desktopImages?.length || 1
+    setCurrentSlide((prev) => (prev - 1 + maxSlides) % maxSlides)
+  }
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index)
+  }
+
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const scrollAmount = 320
@@ -166,29 +228,60 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Dynamic Hero Section */}
+      {/* Dynamic Hero Section with Carousel */}
       {hero ? (
-        <section className="relative min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden bg-[#950606]">
-          {/* Desktop Image */}
+        <section 
+          className="relative min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden bg-[#950606]"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Desktop Images Carousel */}
           <div className="absolute inset-0 z-0 hidden md:block">
-            <Image
-              src={hero.desktopImage.url}
-              alt={hero.desktopImage.alt || hero.title}
-              fill
-              className="object-cover object-center"
-              priority
-            />
+            <AnimatePresence mode="wait">
+              {hero.desktopImages && hero.desktopImages.length > 0 && (
+                <motion.div
+                  key={`desktop-${currentSlide}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative w-full h-full"
+                >
+                  <Image
+                    src={hero.desktopImages[currentSlide].url}
+                    alt={hero.desktopImages[currentSlide].alt || hero.title}
+                    fill
+                    className="object-cover object-center"
+                    priority
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           
-          {/* Mobile Image */}
+          {/* Mobile Images Carousel */}
           <div className="absolute inset-0 z-0 md:hidden">
-            <Image
-              src={hero.mobileImage.url}
-              alt={hero.mobileImage.alt || hero.title}
-              fill
-              className="object-cover object-center"
-              priority
-            />
+            <AnimatePresence mode="wait">
+              {hero.mobileImages && hero.mobileImages.length > 0 && (
+                <motion.div
+                  key={`mobile-${currentSlide}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative w-full h-full"
+                >
+                  <Image
+                    src={hero.mobileImages[currentSlide].url}
+                    alt={hero.mobileImages[currentSlide].alt || hero.title}
+                    fill
+                    className="object-cover object-center"
+                    priority
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Overlay */}
@@ -198,6 +291,54 @@ export default function HomePage() {
               background: `linear-gradient(to bottom, ${hero.overlayColor}${Math.round(hero.overlayOpacity * 100).toString(16).padStart(2, '0')} 0%, transparent 50%, ${hero.overlayColor}${Math.round(hero.overlayOpacity * 200).toString(16).padStart(2, '0')} 100%)`
             }}
           />
+          
+          {/* Navigation Arrows - Desktop */}
+          {hero.desktopImages && hero.desktopImages.length > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 hidden md:block p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft size={24} className="text-white" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 hidden md:block p-3 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full transition-all"
+                aria-label="Next slide"
+              >
+                <ChevronRight size={24} className="text-white" />
+              </button>
+            </>
+          )}
+
+          {/* Dots Indicator */}
+          {((hero.desktopImages && hero.desktopImages.length > 1) || (hero.mobileImages && hero.mobileImages.length > 1)) && (
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+              {typeof window !== 'undefined' && window.innerWidth < 768
+                ? hero.mobileImages?.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentSlide ? 'bg-white w-6' : 'bg-white/50'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))
+                : hero.desktopImages?.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentSlide ? 'bg-white w-6' : 'bg-white/50'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))
+              }
+            </div>
+          )}
           
           {/* Content */}
           <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">

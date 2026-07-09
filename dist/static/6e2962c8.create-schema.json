@@ -532,9 +532,6 @@
         "type": "text"
       },
       {
-        "options": {
-          "hotspot": true
-        },
         "validation": [
           {
             "level": "error",
@@ -542,27 +539,36 @@
               {
                 "flag": "presence",
                 "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
               }
             ],
-            "message": "Desktop image is required"
+            "message": "At least one desktop image is required"
           }
         ],
-        "description": "Recommended: 1920x1080px or wider",
-        "fields": [
+        "description": "Add multiple images for carousel. Recommended: 1920x1080px",
+        "of": [
           {
-            "name": "alt",
-            "type": "string",
-            "title": "Alt Text"
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alt Text"
+              }
+            ],
+            "type": "image"
           }
         ],
-        "name": "desktopImage",
-        "type": "image",
-        "title": "Desktop Image (Landscape)"
+        "name": "desktopImages",
+        "type": "array",
+        "title": "Desktop Images (Landscape - Multiple)"
       },
       {
-        "options": {
-          "hotspot": true
-        },
         "validation": [
           {
             "level": "error",
@@ -570,22 +576,34 @@
               {
                 "flag": "presence",
                 "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
               }
             ],
-            "message": "Mobile image is required"
+            "message": "At least one mobile image is required"
           }
         ],
-        "description": "Recommended: 1080x1920px or taller",
-        "fields": [
+        "description": "Add multiple images for mobile carousel. Recommended: 1080x1920px",
+        "of": [
           {
-            "name": "alt",
-            "type": "string",
-            "title": "Alt Text"
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alt Text"
+              }
+            ],
+            "type": "image"
           }
         ],
-        "name": "mobileImage",
-        "type": "image",
-        "title": "Mobile Image (Portrait)"
+        "name": "mobileImages",
+        "type": "array",
+        "title": "Mobile Images (Portrait - Multiple)"
       },
       {
         "initialValue": "Shop Now",

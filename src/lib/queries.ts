@@ -101,13 +101,13 @@ export const heroQuery = groq`
     _id,
     title,
     subtitle,
-    "desktopImage": {
-      "url": desktopImage.asset->url,
-      "alt": desktopImage.alt
+    "desktopImages": desktopImages[] {
+      "url": asset->url,
+      "alt": alt
     },
-    "mobileImage": {
-      "url": mobileImage.asset->url,
-      "alt": mobileImage.alt
+    "mobileImages": mobileImages[] {
+      "url": asset->url,
+      "alt": alt
     },
     primaryButtonText,
     primaryButtonLink,
