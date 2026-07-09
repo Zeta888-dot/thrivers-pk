@@ -66,7 +66,7 @@ export default function ProductCard({ product }: { product: Product }) {
   if (!product.images || product.images.length === 0) {
     return (
       <Link href={`/product/${product.slug}`}>
-        <div className="relative aspect-[1/1] bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+        <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
           <span className="text-gray-400 text-sm">No Image</span>
         </div>
         <h3 className="font-medium text-gray-900">{product.name}</h3>
@@ -85,9 +85,9 @@ export default function ProductCard({ product }: { product: Product }) {
         transition={{ duration: 0.2 }}
       >
         {/* Product Image Container */}
-        <div 
-          ref={carouselRef}
-          className="relative aspect-[1/1] overflow-hidden bg-gray-100 rounded-lg mb-3 cursor-pointer"
+       <div 
+  ref={carouselRef}
+  className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg mb-3 cursor-pointer"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
