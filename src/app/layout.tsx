@@ -72,11 +72,16 @@ export const metadata: Metadata = {
     images: ["https://thrivers.pk/og-image.jpg"],
     creator: "@thriverspk",
   },
-  category: "Fashion & Clothing",
-  icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
-  },
+icons: {
+  icon: [
+    { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+    { url: "/icon.svg", type: "image/svg+xml" },
+  ],
+  apple: [
+    { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+  ],
+  shortcut: "/favicon.png",
+},
   manifest: "/manifest.json",
   themeColor: "#950606",
   applicationName: "Thrivers PK",
