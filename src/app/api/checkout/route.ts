@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { customerName, phone, altPhone, email, address, city, postalCode, items, totalAmount, paymentMethod } = body
 
-    console.log("Order received. Customer email:", email) // Debugging ke liye
+    console.log("Order received. Customer email:", email)
 
     // 1. Save to Sanity
     const order = await client.create({
@@ -59,12 +59,12 @@ export async function POST(request: Request) {
           Quantity: ${item.quantity} × PKR ${item.price}<br/>
           ${item.size ? `<span style="color: #666;">Size: ${item.size}</span> | ` : ''}${item.color ? `<span style="color: #666;">Color: ${item.color}</span>` : ''}<br/>
           <strong>Total: PKR ${item.price * item.quantity}</strong>
-        </a>
+        </div>
       </div>
     `).join('')
 
     await resend.emails.send({
-      from: 'Thrivers PK <onboarding@resend.dev>', // ✅ Yahan change kiya hai
+      from: 'Thrivers PK <sheikhinsaan07@gmail.com>',
       to: ['sheikhinsaan07@gmail.com'],
       subject: `New Order ${order.orderId} - PKR ${totalAmount}`,
       html: `
@@ -101,10 +101,10 @@ export async function POST(request: Request) {
 
     // 4. Customer Confirmation Email (if customer provided email)
     if (email && email.trim() !== '') {
-      console.log("Sending confirmation email to:", email) // ✅ Debugging ke liye
+      console.log("Sending confirmation email to:", email)
       
       await resend.emails.send({
-        from: 'Thrivers PK <onboarding@resend.dev>', // ✅ Yahan bhi change kiya hai
+        from: 'Thrivers PK <sheikhinsaan07@gmail.com>',
         to: [email],
         subject: `Order Confirmed! ${order.orderId} - Thrivers PK`,
         html: `
