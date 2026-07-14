@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -72,16 +73,17 @@ export const metadata: Metadata = {
     images: ["https://thrivers.pk/og-image.jpg"],
     creator: "@thriverspk",
   },
-icons: {
-  icon: [
-    { url: "/favicon.png", sizes: "180x180", type: "image/png" },
-    { url: "/icon.svg", type: "image/svg+xml" },
-  ],
-  apple: [
-    { url: "/favicon.png", sizes: "180x180", type: "image/png" },
-  ],
-  shortcut: "/favicon.png",
-},
+  category: "Fashion & Clothing",
+  icons: {
+    icon: [
+      { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/favicon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
+  },
   manifest: "/manifest.json",
   themeColor: "#950606",
   applicationName: "Thrivers PK",
@@ -94,7 +96,6 @@ export const viewport: Viewport = {
   themeColor: "#950606",
 };
 
-// JSON-LD Structured Data for Organization
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "ClothingStore",
@@ -130,7 +131,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        {/* JSON-LD Structured Data */}
         <Script
           id="organization-schema"
           type="application/ld+json"
@@ -139,8 +139,6 @@ export default function RootLayout({
             __html: JSON.stringify(organizationSchema),
           }}
         />
-
-        {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -148,15 +146,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link rel="preconnect" href="https://cdn.sanity.io" />
-
-        {/* Google Site Verification - Replace with your actual code */}
-        {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" /> */}
       </head>
       <body className={`${inter.className} antialiased`}>
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />
         <CartDrawer />
+        <FloatingWhatsApp />
       </body>
     </html>
   );
