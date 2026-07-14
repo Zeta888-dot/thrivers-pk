@@ -17,6 +17,8 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { customerName, phone, altPhone, email, address, city, postalCode, items, totalAmount, paymentMethod } = body
 
+    console.log("Order received. Customer email:", email) // Debugging ke liye
+
     // 1. Save to Sanity
     const order = await client.create({
       _type: 'order',
@@ -57,24 +59,22 @@ export async function POST(request: Request) {
           Quantity: ${item.quantity} × PKR ${item.price}<br/>
           ${item.size ? `<span style="color: #666;">Size: ${item.size}</span> | ` : ''}${item.color ? `<span style="color: #666;">Color: ${item.color}</span>` : ''}<br/>
           <strong>Total: PKR ${item.price * item.quantity}</strong>
-        </div>
+        </a>
       </div>
     `).join('')
 
     await resend.emails.send({
-      from: 'Thrivers PK <orders@resend.dev>',
+      from: 'Thrivers PK <onboarding@resend.dev>', // ✅ Yahan change kiya hai
       to: ['sheikhinsaan07@gmail.com'],
       subject: `New Order ${order.orderId} - PKR ${totalAmount}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #950606;">🛍️ New Order Received!</h1>
-          
           <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <h2>Order Details</h2>
             <p><strong>Order ID:</strong> ${order.orderId}</p>
             <p><strong>Payment Method:</strong> ${paymentMethod}</p>
           </div>
-
           <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <h2>Customer Information</h2>
             <p><strong>Name:</strong> ${customerName}</p>
@@ -85,7 +85,6 @@ export async function POST(request: Request) {
             <p><strong>Address:</strong> ${address}</p>
             ${postalCode ? `<p><strong>Postal Code:</strong> ${postalCode}</p>` : ''}
           </div>
-
           <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <h2>Items Ordered</h2>
             ${itemsList}
@@ -93,7 +92,6 @@ export async function POST(request: Request) {
               Total: PKR ${totalAmount}
             </div>
           </div>
-
           <p style="text-align: center; color: #666; margin-top: 30px;">
             This order was placed on Thrivers PK
           </p>
@@ -102,9 +100,11 @@ export async function POST(request: Request) {
     })
 
     // 4. Customer Confirmation Email (if customer provided email)
-    if (email) {
+    if (email && email.trim() !== '') {
+      console.log("Sending confirmation email to:", email) // ✅ Debugging ke liye
+      
       await resend.emails.send({
-        from: 'Thrivers PK <orders@resend.dev>',
+        from: 'Thrivers PK <onboarding@resend.dev>', // ✅ Yahan bhi change kiya hai
         to: [email],
         subject: `Order Confirmed! ${order.orderId} - Thrivers PK`,
         html: `
@@ -113,7 +113,6 @@ export async function POST(request: Request) {
               <h1 style="margin: 0; font-size: 28px;">🎉 Thank You for Your Order!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.9;">Your order has been confirmed</p>
             </div>
-            
             <div style="padding: 30px; background: #fff; border: 1px solid #eee;">
               <p style="font-size: 16px; color: #333;">Hi <strong>${customerName}</strong>,</p>
               <p style="font-size: 16px; color: #333;">Thank you for shopping with <strong>Thrivers PK</strong>! We've received your order and will process it shortly.</p>
@@ -149,13 +148,14 @@ export async function POST(request: Request) {
                 We'll notify you once your order is shipped. Thank you for choosing Thrivers PK! 🛍️
               </p>
             </div>
-            
             <div style="text-align: center; padding: 20px; background: #f9f9f9; color: #666; font-size: 12px; border-radius: 0 0 10px 10px;">
               <p style="margin: 0;">© 2026 Thrivers PK | Hayat Market, New Bazar, Chitral</p>
             </div>
           </div>
         `,
       })
+    } else {
+      console.log("No customer email provided, skipping confirmation email.")
     }
 
     return NextResponse.json({ 
