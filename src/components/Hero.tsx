@@ -20,13 +20,13 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* THRIVERS - Font Applied & Spacing Reduced */}
-         <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-2 tracking-tight font-archivo-black">
-  THRIVERS
-</h1>
+          {/* THRIVERS - Font Applied & Spacing CRUSHED */}
+          <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-0 leading-none tracking-tight font-archivo-black">
+            THRIVERS
+          </h1>
           
-          {/* Not Survivors - Top margin removed to bring closer */}
-          <p className="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium tracking-wide mt-0">
+          {/* Not Survivors - Brought as close as possible */}
+          <p className="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium tracking-wide mt-1">
             Not Survivors
           </p>
 
