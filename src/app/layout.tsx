@@ -1,11 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Archivo_Black } from "next/font/google";
+// import { Inter, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
+import { Inter, Archivo_Black, Space_Grotesk } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+});
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -137,7 +143,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.className} ${archivoBlack.variable} scroll-smooth`}
+     className={`${inter.className} ${archivoBlack.variable} ${spaceGrotesk.variable} scroll-smooth`}
     >
       <head>
         <Script
