@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,6 +9,13 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// ArchivoBlack Font - Global Level Par
+const archivoBlack = localFont({
+  src: "../../public/fonts/ArchivoBlack-Regular.ttf",
+  variable: "--font-archivo-black",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -129,7 +137,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html
+      lang="en"
+      className={`${inter.className} ${archivoBlack.variable} scroll-smooth`}
+    >
       <head>
         <Script
           id="organization-schema"

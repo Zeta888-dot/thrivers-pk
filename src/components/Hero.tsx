@@ -3,12 +3,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import localFont from 'next/font/local'
-
-const archivoBlack = localFont({
-  src: '/fonts/ArchivoBlack-Regular.ttf',
-  variable: '--font-archivo-black',
-})
 
 export default function Hero() {
   return (
@@ -26,15 +20,12 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* THRIVERS Text with New Font & Tight Spacing */}
           <h1 
-            className="text-6xl md:text-8xl font-bold text-gray-900 mb-1 tracking-tight" 
-            style={{ fontFamily: 'var(--font-archivo-black)' }}
+            className="text-6xl md:text-8xl font-bold text-gray-900 mb-1 tracking-tight font-archivo-black"
           >
             THRIVERS
           </h1>
           
-          {/* Not Survivors Text with Reduced Top Margin */}
           <p className="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium tracking-wide">
             Not Survivors
           </p>
