@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import localFont from "next/font/local";
+import { Inter, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,10 +9,10 @@ import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const archivoBlack = localFont({
-  src: "./fonts/ArchivoBlack-Regular.ttf",  // ✅ Ye path ab sahi hai
+const archivoBlack = Archivo_Black({
+  weight: "400",
+  subsets: ["latin"],
   variable: "--font-archivo-black",
-  display: "swap",
 });
 
 export const metadata: Metadata = {

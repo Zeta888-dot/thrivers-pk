@@ -22,6 +22,10 @@
   font-family: 'ArchivoBlack', sans-serif;
 }
 
+/* Archivo Black Font Utility */
+.font-archivo-black {
+  font-family: var(--font-archivo-black), sans-serif;
+}
 /* Vignette Effect */
 .vignette {
   position: relative;

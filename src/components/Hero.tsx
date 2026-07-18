@@ -21,9 +21,9 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
         >
           {/* THRIVERS - Font Applied & Spacing Reduced */}
-          <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-2 tracking-tight font-archivo-black">
-            THRIVERS
-          </h1>
+         <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-2 tracking-tight font-archivo-black">
+  THRIVERS
+</h1>
           
           {/* Not Survivors - Top margin removed to bring closer */}
           <p className="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium tracking-wide mt-0">
