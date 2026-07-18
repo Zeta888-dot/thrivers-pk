@@ -3,6 +3,12 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import localFont from 'next/font/local'
+
+const archivoBlack = localFont({
+  src: '/fonts/ArchivoBlack-Regular.ttf',
+  variable: '--font-archivo-black',
+})
 
 export default function Hero() {
   return (
@@ -20,17 +26,20 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-            Premium Streetwear
-            <br />
-            <span className="text-gray-600">From Chitral</span>
+          {/* THRIVERS Text with New Font & Tight Spacing */}
+          <h1 
+            className="text-6xl md:text-8xl font-bold text-gray-900 mb-1 tracking-tight" 
+            style={{ fontFamily: 'var(--font-archivo-black)' }}
+          >
+            THRIVERS
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Discover our exclusive collection of modern fashion, crafted with quality and style
+          {/* Not Survivors Text with Reduced Top Margin */}
+          <p className="text-2xl md:text-3xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium tracking-wide">
+            Not Survivors
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <Link
               href="/shop"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#950606] text-white font-semibold rounded-full hover:bg-[#7a0505] transition-all hover:scale-105"
