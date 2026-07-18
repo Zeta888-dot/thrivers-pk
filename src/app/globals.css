@@ -21,9 +21,7 @@
 .font-archivo-black {
   font-family: 'ArchivoBlack', sans-serif;
 }
-.font-heading {
-  font-family: var(--font-space-grotesk), sans-serif;
-}
+
 /* Archivo Black Font Utility */
 .font-archivo-black {
   font-family: var(--font-archivo-black), sans-serif;

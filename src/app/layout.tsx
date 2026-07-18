@@ -143,7 +143,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-     className={`${inter.className} ${archivoBlack.variable} ${spaceGrotesk.variable} scroll-smooth`}
+      className={`${inter.className} ${archivoBlack.variable} scroll-smooth`}
     >
       <head>
         <Script
