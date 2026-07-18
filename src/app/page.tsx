@@ -82,13 +82,24 @@ export default function HomePage() {
         
         setHero(heroData)
         
-        const normalizedCategories = catsData.map((cat: any) => ({
-          _id: cat._id,
-          name: cat.name,
-          slug: cat.slug?.current || cat.slug || '',
-          image: cat.image
-        }))
-        setCategories(normalizedCategories)
+const CATEGORY_ORDER = ['T-Shirts', 'Crochet Shirts', 'Trousers', 'Formals', ]
+
+const normalizedCategories = catsData.map((cat: any) => ({
+  _id: cat._id,
+  name: cat.name,
+  slug: cat.slug?.current || cat.slug || '',
+  image: cat.image
+}))
+
+normalizedCategories.sort((a: Category, b: Category) => {
+  const aIndex = CATEGORY_ORDER.findIndex(o => o.toLowerCase() === a.name.toLowerCase())
+  const bIndex = CATEGORY_ORDER.findIndex(o => o.toLowerCase() === b.name.toLowerCase())
+  const aRank = aIndex === -1 ? CATEGORY_ORDER.length : aIndex
+  const bRank = bIndex === -1 ? CATEGORY_ORDER.length : bIndex
+  return aRank - bRank
+})
+
+setCategories(normalizedCategories)
         
         const normalizedProducts = productsData.map((p: any) => ({
           ...p,
