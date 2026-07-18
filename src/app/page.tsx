@@ -318,12 +318,12 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-theater text-white mb-6 tracking-wider drop-shadow-lg">
+             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-archivo-black text-white mb-1 tracking-wider drop-shadow-lg">
                 {hero.title}
               </h1>
               
               {hero.subtitle && (
-                <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md mt-0">
                   {hero.subtitle}
                 </p>
               )}
