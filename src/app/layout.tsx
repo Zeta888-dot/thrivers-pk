@@ -10,9 +10,8 @@ import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// ArchivoBlack Font - Global Level Par
 const archivoBlack = localFont({
-  src: "../../public/fonts/ArchivoBlack-Regular.ttf",
+  src: "./fonts/ArchivoBlack-Regular.ttf",  // ✅ Ye path ab sahi hai
   variable: "--font-archivo-black",
   display: "swap",
 });
