@@ -63,15 +63,15 @@ export async function POST(request: Request) {
       </div>
     `).join('')
 
-    // Send Admin Email with proper error handling
+    // Send Admin Email with verified domain
     try {
       const adminEmail = await resend.emails.send({
-        from: 'Thrivers PK <sheikhinsaan07@gmail.com>',
+        from: 'Thrivers PK <orders@thrivers.pk>', // ✅ UPDATED: Verified Domain
         to: ['sheikhinsaan07@gmail.com'],
         subject: `New Order ${order.orderId} - PKR ${totalAmount}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #950606;">️ New Order Received!</h1>
+            <h1 style="color: #950606;">🛍️ New Order Received!</h1>
             <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
               <h2>Order Details</h2>
               <p><strong>Order ID:</strong> ${order.orderId}</p>
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       
       try {
         const customerEmail = await resend.emails.send({
-          from: 'Thrivers PK <sheikhinsaan07@gmail.com>',
+          from: 'Thrivers PK <orders@thrivers.pk>', // ✅ UPDATED: Verified Domain
           to: [email],
           subject: `Order Confirmed! ${order.orderId} - Thrivers PK`,
           html: `
