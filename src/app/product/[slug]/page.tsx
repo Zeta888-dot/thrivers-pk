@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Minus, Plus, ShoppingBag, Check, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { client } from '@/lib/sanity'
@@ -22,9 +22,10 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
-  
+
   const { addItem, toggleCart } = useCartStore()
   const isSoldOut = product?.stock === 'out_of_stock' || product?.stock === 'sold_out'
+  const unavailableSizes: string[] = product?.unavailableSizes || []
 
   useEffect(() => {
     async function fetchProduct() {
@@ -33,7 +34,12 @@ export default function ProductPage() {
         if (data) {
           setProduct(data)
           if (data.colors?.length) setSelectedColor(data.colors[0])
-          if (data.sizes?.length) setSelectedSize(data.sizes[0])
+          if (data.sizes?.length) {
+            const firstAvailable = data.sizes.find(
+              (s: string) => !(data.unavailableSizes || []).includes(s)
+            )
+            setSelectedSize(firstAvailable || data.sizes[0])
+          }
         }
       } catch (error) {
         console.error("Failed to fetch product:", error)
@@ -46,7 +52,7 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product || isSoldOut) return
-    
+
     addItem({
       id: product._id,
       name: product.name,
@@ -56,27 +62,10 @@ export default function ProductPage() {
       size: selectedSize,
       images: product.images || [],
     })
-    
+
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 2000)
     toggleCart()
-  }
-
-  const handleBuyNow = () => {
-    if (!product || isSoldOut) return
-    
-    addItem({
-      id: product._id,
-      name: product.name,
-      price: product.price,
-      quantity: quantity,
-      color: selectedColor,
-      size: selectedSize,
-      images: product.images || [],
-    })
-    
-    // Direct checkout par le jao
-    window.location.href = '/checkout'
   }
 
   if (loading) return <div className="py-20 text-center text-xl">Loading product...</div>
@@ -86,11 +75,10 @@ export default function ProductPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Images Section with Swipe */}
-        <div className="space-y-4 relative">
+        <div className="space-y-4">
           {product.images && product.images.length > 0 ? (
             <>
-              {/* Main Image with Swipe */}
-              <div 
+              <div
                 className="aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-lg overflow-hidden relative"
                 onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
                 onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
@@ -116,49 +104,10 @@ export default function ProductPage() {
                   height={600}
                   className={`w-full h-full object-cover ${isSoldOut ? 'grayscale-[40%]' : ''}`}
                 />
-                
+
                 {/* Sold Out Dark Overlay */}
                 {isSoldOut && (
                   <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
-                )}
-                
-                {/* Navigation Arrows */}
-                {product.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => selectedImage > 0 && setSelectedImage(selectedImage - 1)}
-                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-                    >
-                      <ChevronLeft size={20} className="text-gray-800" />
-                    </button>
-                    <button
-                      onClick={() => selectedImage < product.images.length - 1 && setSelectedImage(selectedImage + 1)}
-                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === product.images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-                    >
-                      <ChevronRight size={20} className="text-gray-800" />
-                    </button>
-                    
-                    {/* Image Counter */}
-                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full z-20">
-                      {selectedImage + 1}/{product.images.length}
-                    </div>
-                    
-                    {/* Dots Indicator - Overlay on Image */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full z-20">
-                      {product.images.map((_: string, idx: number) => (
-                        <button
-                          key={idx}
-                          onClick={() => setSelectedImage(idx)}
-                          className={`transition-all duration-300 rounded-full ${
-                            selectedImage === idx
-                              ? 'w-8 h-2 bg-white'
-                              : 'w-2 h-2 bg-white/60 hover:bg-white/90'
-                          }`}
-                          aria-label={`Go to image ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
                 )}
 
                 {/* Premium Stock Badge */}
@@ -184,6 +133,45 @@ export default function ProductPage() {
                     </span>
                   </div>
                 ) : null}
+
+                {/* Navigation Arrows */}
+                {product.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => selectedImage > 0 && setSelectedImage(selectedImage - 1)}
+                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    >
+                      <ChevronLeft size={20} className="text-gray-800" />
+                    </button>
+                    <button
+                      onClick={() => selectedImage < product.images.length - 1 && setSelectedImage(selectedImage + 1)}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === product.images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                    >
+                      <ChevronRight size={20} className="text-gray-800" />
+                    </button>
+
+                    {/* Image Counter */}
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full z-20">
+                      {selectedImage + 1}/{product.images.length}
+                    </div>
+
+                    {/* Dots Indicator */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full z-20">
+                      {product.images.map((_: string, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImage(idx)}
+                          className={`transition-all duration-300 rounded-full ${
+                            selectedImage === idx
+                              ? 'w-8 h-2 bg-white'
+                              : 'w-2 h-2 bg-white/60 hover:bg-white/90'
+                          }`}
+                          aria-label={`Go to image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </>
           ) : (
@@ -197,23 +185,35 @@ export default function ProductPage() {
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
           <p className="text-2xl text-gray-700 mb-6">PKR {product.price.toLocaleString()}</p>
-          
+
           {/* Sizes */}
           {product.sizes && product.sizes.length > 0 && (
             <div className="mb-6">
               <h3 className="text-sm font-semibold mb-3">Size</h3>
-              <div className="flex gap-3">
-                {product.sizes.map((size: string) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 rounded-lg border text-sm font-medium transition-all ${
-                      selectedSize === size ? 'bg-[#950606] text-white border-[#950606]' : 'border-gray-300 text-gray-700 hover:border-[#950606]'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="flex gap-3 flex-wrap">
+                {product.sizes.map((size: string) => {
+                  const unavailable = unavailableSizes.includes(size)
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => !unavailable && setSelectedSize(size)}
+                      disabled={unavailable}
+                      title={unavailable ? `${size} - Out of Stock` : `Select ${size}`}
+                      className={`relative w-12 h-12 rounded-lg border text-sm font-medium transition-all ${
+                        unavailable
+                          ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                          : selectedSize === size
+                            ? 'bg-[#950606] text-white border-[#950606]'
+                            : 'border-gray-300 text-gray-700 hover:border-[#950606]'
+                      }`}
+                    >
+                      {size}
+                      {unavailable && (
+                        <span className="absolute left-1/2 top-1/2 h-0.5 w-10 -translate-x-1/2 -translate-y-1/2 -rotate-12 rounded-full bg-gray-400" />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -238,48 +238,35 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Quantity & Action Buttons */}
-          <div className="space-y-3 mb-8">
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border border-gray-300 rounded-lg">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
-                  <Minus size={16} />
-                </button>
-                <span className="px-4 font-medium">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-gray-100">
-                  <Plus size={16} />
-                </button>
-              </div>
+          {/* Quantity & Add to Cart - Original Layout */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center border border-gray-300 rounded-lg">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
+                <Minus size={16} />
+              </button>
+              <span className="px-4 font-medium">{quantity}</span>
+              <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-gray-100">
+                <Plus size={16} />
+              </button>
             </div>
 
-            {/* Add to Cart Button */}
-            <button 
+            <button
               onClick={handleAddToCart}
               disabled={isSoldOut}
-              className="w-full flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
             </button>
-
-            {/* Buy It Now Button */}
-            <button 
-              onClick={handleBuyNow}
-              disabled={isSoldOut}
-              className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              <Zap size={20} /> Buy It Now
-            </button>
           </div>
 
-          {/* Product Description - At the Bottom */}
+          {/* Product Description */}
           {product.description && (
             <div className="border-t border-gray-200 pt-8">
               <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase tracking-wide">
                 Product Description
               </h3>
               <div className="prose prose-sm max-w-none text-gray-600">
-                <PortableText 
+                <PortableText
                   value={product.description}
                   components={{
                     block: {
