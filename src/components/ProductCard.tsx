@@ -166,24 +166,24 @@ export default function ProductCard({ product }: { product: Product }) {
             </>
           )}
 
-          {/* Stock Badge - Premium Glass Style */}
+          {/* Stock Badge - Bottom Left, Compact */}
           {isSoldOut ? (
-            <div className="absolute top-3 left-3 z-20">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-lg">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            <div className="absolute bottom-3 left-3 z-20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                <span className="w-1 h-1 rounded-full bg-red-500"></span>
                 Sold Out
               </span>
             </div>
           ) : product.stock === 'low_stock' ? (
-            <div className="absolute top-3 left-3 z-20">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-lg">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            <div className="absolute bottom-3 left-3 z-20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                <span className="w-1 h-1 rounded-full bg-white animate-pulse"></span>
                 Low Stock
               </span>
             </div>
           ) : null}
 
-          {/* Discount Badge */}
+          {/* Discount Badge - Top Right */}
           {product.compareAtPrice && product.compareAtPrice > product.price && (
             <div className="absolute top-3 right-3 bg-[#950606] text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg">
               -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%

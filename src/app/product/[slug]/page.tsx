@@ -110,25 +110,25 @@ export default function ProductPage() {
                   <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
                 )}
 
-                {/* Premium Stock Badge */}
+                {/* Stock Badge - Bottom Left, Compact */}
                 {isSoldOut ? (
-                  <div className="absolute top-4 left-4 z-20">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                  <div className="absolute bottom-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                      <span className="w-1 h-1 rounded-full bg-red-500"></span>
                       Sold Out
                     </span>
                   </div>
                 ) : product.stock === 'low_stock' ? (
-                  <div className="absolute top-4 left-4 z-20">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                  <div className="absolute bottom-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                      <span className="w-1 h-1 rounded-full bg-white animate-pulse"></span>
                       Low Stock
                     </span>
                   </div>
                 ) : product.stock === 'in_stock' ? (
-                  <div className="absolute top-4 left-4 z-20">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                  <div className="absolute bottom-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/90 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
+                      <span className="w-1 h-1 rounded-full bg-white"></span>
                       In Stock
                     </span>
                   </div>
@@ -238,7 +238,7 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Quantity & Add to Cart - Original Layout */}
+          {/* Quantity & Add to Cart */}
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center border border-gray-300 rounded-lg">
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
