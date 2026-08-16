@@ -24,6 +24,7 @@ export const productsQuery = groq`
     },
     colors,
     sizes,
+    unavailableSizes,
     stock,
     stockQuantity,
     featured,
@@ -46,6 +47,7 @@ export const productBySlugQuery = groq`
     },
     colors,
     sizes,
+    unavailableSizes,
     stock,
     stockQuantity,
     featured,
@@ -68,6 +70,7 @@ export const productsByBadgeQuery = groq`
     },
     colors,
     sizes,
+    unavailableSizes,
     stock,
     stockQuantity,
     featured,
@@ -90,12 +93,14 @@ export const featuredProductsQuery = groq`
     },
     colors,
     sizes,
+    unavailableSizes,
     stock,
     stockQuantity,
     featured,
     badges
   }
 `
+
 export const heroQuery = groq`
   *[_type == "hero"][0] {
     _id,

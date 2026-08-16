@@ -85,6 +85,22 @@ export const product = defineType({
       of: [{ type: 'string' }],
     }),
     defineField({
+      name: 'unavailableSizes',
+      title: 'Out of Stock Sizes',
+      description: 'Jo sizes khatam hain wo yahan select karo - website par line ke sath dikhenge',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'S', value: 'S' },
+          { title: 'M', value: 'M' },
+          { title: 'L', value: 'L' },
+          { title: 'XL', value: 'XL' },
+          { title: 'XXL', value: 'XXL' },
+        ],
+      },
+    }),
+    defineField({
       name: 'stock',
       title: 'Stock Status',
       type: 'string',
