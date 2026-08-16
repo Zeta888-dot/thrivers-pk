@@ -23,6 +23,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const [touchEnd, setTouchEnd] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
   const hasMultipleImages = product.images && product.images.length > 1
+  const isSoldOut = product.stock === 'out_of_stock' || product.stock === 'sold_out'
 
   const nextImage = () => {
     if (hasMultipleImages) {
@@ -85,9 +86,9 @@ export default function ProductCard({ product }: { product: Product }) {
         transition={{ duration: 0.2 }}
       >
         {/* Product Image Container */}
-       <div 
-  ref={carouselRef}
-  className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg mb-3 cursor-pointer"
+        <div 
+          ref={carouselRef}
+          className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg mb-3 cursor-pointer"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -106,11 +107,16 @@ export default function ProductCard({ product }: { product: Product }) {
                 src={product.images[currentImageIndex]}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className={`object-cover ${isSoldOut ? 'grayscale-[40%]' : ''}`}
                 draggable={false}
               />
             </motion.div>
           </AnimatePresence>
+
+          {/* Sold Out Dark Overlay */}
+          {isSoldOut && (
+            <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
+          )}
 
           {/* Navigation Arrows - Desktop Only, Transparent */}
           {hasMultipleImages && (
@@ -121,7 +127,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   e.stopPropagation()
                   prevImage()
                 }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 hidden md:block"
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 hidden md:block"
                 aria-label="Previous image"
               >
                 <ChevronLeft size={20} className="text-white" />
@@ -132,14 +138,14 @@ export default function ProductCard({ product }: { product: Product }) {
                   e.stopPropagation()
                   nextImage()
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 hidden md:block"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 hidden md:block"
                 aria-label="Next image"
               >
                 <ChevronRight size={20} className="text-white" />
               </button>
 
               {/* Dots Indicator - Clean & Minimal */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
                 {product.images.map((_, index) => (
                   <button
                     key={index}
@@ -160,20 +166,26 @@ export default function ProductCard({ product }: { product: Product }) {
             </>
           )}
 
-          {/* Stock Badge */}
-          {product.stock === 'out_of_stock' || product.stock === 'sold_out' ? (
-            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded font-semibold">
-              Sold Out
+          {/* Stock Badge - Premium Glass Style */}
+          {isSoldOut ? (
+            <div className="absolute top-3 left-3 z-20">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                Sold Out
+              </span>
             </div>
           ) : product.stock === 'low_stock' ? (
-            <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded font-semibold">
-              Low Stock
+            <div className="absolute top-3 left-3 z-20">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                Low Stock
+              </span>
             </div>
           ) : null}
 
           {/* Discount Badge */}
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <div className="absolute top-2 right-2 bg-[#950606] text-white text-xs px-2.5 py-1 rounded-full font-bold">
+            <div className="absolute top-3 right-3 bg-[#950606] text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg">
               -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
             </div>
           )}

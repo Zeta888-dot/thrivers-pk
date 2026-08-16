@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Minus, Plus, ShoppingBag, Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, Check, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { client } from '@/lib/sanity'
@@ -24,6 +24,7 @@ export default function ProductPage() {
   const [touchEnd, setTouchEnd] = useState(0)
   
   const { addItem, toggleCart } = useCartStore()
+  const isSoldOut = product?.stock === 'out_of_stock' || product?.stock === 'sold_out'
 
   useEffect(() => {
     async function fetchProduct() {
@@ -44,7 +45,7 @@ export default function ProductPage() {
   }, [slug])
 
   const handleAddToCart = () => {
-    if (!product) return
+    if (!product || isSoldOut) return
     
     addItem({
       id: product._id,
@@ -61,6 +62,23 @@ export default function ProductPage() {
     toggleCart()
   }
 
+  const handleBuyNow = () => {
+    if (!product || isSoldOut) return
+    
+    addItem({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      color: selectedColor,
+      size: selectedSize,
+      images: product.images || [],
+    })
+    
+    // Direct checkout par le jao
+    window.location.href = '/checkout'
+  }
+
   if (loading) return <div className="py-20 text-center text-xl">Loading product...</div>
   if (!product) return <div className="py-20 text-center text-xl">Product not found</div>
 
@@ -68,7 +86,7 @@ export default function ProductPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Images Section with Swipe */}
-        <div className="space-y-4">
+        <div className="space-y-4 relative">
           {product.images && product.images.length > 0 ? (
             <>
               {/* Main Image with Swipe */}
@@ -96,32 +114,37 @@ export default function ProductPage() {
                   alt={product.name}
                   width={600}
                   height={600}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${isSoldOut ? 'grayscale-[40%]' : ''}`}
                 />
+                
+                {/* Sold Out Dark Overlay */}
+                {isSoldOut && (
+                  <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
+                )}
                 
                 {/* Navigation Arrows */}
                 {product.images.length > 1 && (
                   <>
                     <button
                       onClick={() => selectedImage > 0 && setSelectedImage(selectedImage - 1)}
-                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity ${selectedImage === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                     >
                       <ChevronLeft size={20} className="text-gray-800" />
                     </button>
                     <button
                       onClick={() => selectedImage < product.images.length - 1 && setSelectedImage(selectedImage + 1)}
-                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity ${selectedImage === product.images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-opacity z-20 ${selectedImage === product.images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                     >
                       <ChevronRight size={20} className="text-gray-800" />
                     </button>
                     
                     {/* Image Counter */}
-                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full z-20">
                       {selectedImage + 1}/{product.images.length}
                     </div>
                     
                     {/* Dots Indicator - Overlay on Image */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full z-20">
                       {product.images.map((_: string, idx: number) => (
                         <button
                           key={idx}
@@ -137,6 +160,30 @@ export default function ProductPage() {
                     </div>
                   </>
                 )}
+
+                {/* Premium Stock Badge */}
+                {isSoldOut ? (
+                  <div className="absolute top-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                      Sold Out
+                    </span>
+                  </div>
+                ) : product.stock === 'low_stock' ? (
+                  <div className="absolute top-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                      Low Stock
+                    </span>
+                  </div>
+                ) : product.stock === 'in_stock' ? (
+                  <div className="absolute top-4 left-4 z-20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                      In Stock
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </>
           ) : (
@@ -149,12 +196,7 @@ export default function ProductPage() {
         {/* Details Section */}
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-          <p className="text-2xl text-gray-700 mb-2">PKR {product.price.toLocaleString()}</p>
-          
-          {/* Stock Status */}
-          {product.stock === 'in_stock' && (
-            <p className="text-green-600 text-sm mb-6">✓ In Stock</p>
-          )}
+          <p className="text-2xl text-gray-700 mb-6">PKR {product.price.toLocaleString()}</p>
           
           {/* Sizes */}
           {product.sizes && product.sizes.length > 0 && (
@@ -196,24 +238,37 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Quantity & Add to Cart */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center border border-gray-300 rounded-lg">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
-                <Minus size={16} />
-              </button>
-              <span className="px-4 font-medium">{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-gray-100">
-                <Plus size={16} />
-              </button>
+          {/* Quantity & Action Buttons */}
+          <div className="space-y-3 mb-8">
+            {/* Quantity Selector */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center border border-gray-300 rounded-lg">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-gray-100">
+                  <Minus size={16} />
+                </button>
+                <span className="px-4 font-medium">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-gray-100">
+                  <Plus size={16} />
+                </button>
+              </div>
             </div>
-            
+
+            {/* Add to Cart Button */}
             <button 
               onClick={handleAddToCart}
-              disabled={!product.stock || product.stock === 'out_of_stock' || product.stock === 'sold_out'}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400"
+              disabled={isSoldOut}
+              className="w-full flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isAdded ? <><Check size={20} /> Added!</> : <><ShoppingBag size={20} /> Add to Cart</>}
+            </button>
+
+            {/* Buy It Now Button */}
+            <button 
+              onClick={handleBuyNow}
+              disabled={isSoldOut}
+              className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              <Zap size={20} /> Buy It Now
             </button>
           </div>
 
