@@ -2,65 +2,75 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { CheckCircle, ShoppingBag, ArrowRight } from 'lucide-react'
+
+const CheckIcon = ({ size = 56 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+)
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <motion.div 
+    <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white flex items-center justify-center px-6">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl mx-auto text-center"
+        transition={{ duration: 0.5 }}
+        className="max-w-xl w-full text-center"
       >
-        <motion.div 
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="mb-8"
+          transition={{ delay: 0.2, type: 'spring', stiffness: 180 }}
+          className="mb-8 flex justify-center"
         >
-          <CheckCircle className="w-24 h-24 text-green-500 mx-auto" />
+          <div className="w-20 h-20 rounded-full bg-[#e9ece7] flex items-center justify-center text-gray-900">
+            <CheckIcon size={44} />
+          </div>
         </motion.div>
 
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          Order Placed Successfully!
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+          Order placed
         </h1>
-        
-        <p className="text-lg text-gray-600 mb-8">
-          Thank you for your order! We'll process it soon and get back to you.
+        <p className="mt-4 text-[15px] text-gray-700">
+          Thank you for your order. We will confirm via phone/WhatsApp shortly.
         </p>
 
-        <div className="bg-gray-50 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">What's Next?</h2>
-          <ul className="text-left space-y-3 text-gray-700">
-            <li className="flex items-start gap-3">
-              <span className="bg-[#950606] text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">1</span>
-              <span>We'll confirm your order via phone/WhatsApp</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="bg-[#950606] text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">2</span>
-              <span>Our team will contact you within 24 hours</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="bg-[#950606] text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">3</span>
-              <span>Delivery within 3-5 business days</span>
-            </li>
-          </ul>
+        <div className="mt-10 text-left">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-gray-900 mb-5">
+            What&apos;s next
+          </h2>
+          <div className="space-y-3">
+            {[
+              'We will confirm your order via phone/WhatsApp',
+              'Our team will contact you within 24 hours',
+              'Delivery within 3-5 business days across Pakistan',
+            ].map((line, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 bg-[#f4f4f2] rounded-xl px-5 py-4"
+              >
+                <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold shrink-0">
+                  {i + 1}
+                </span>
+                <span className="text-[15px] text-gray-800">{line}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
+        <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
             href="/shop"
-            className="inline-flex items-center justify-center gap-2 bg-[#950606] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#7a0505] transition-colors"
+            className="inline-flex items-center justify-center bg-black text-white px-8 py-3.5 rounded-xl font-medium hover:bg-gray-800 transition-colors"
           >
-            <ShoppingBag size={20} />
-            Continue Shopping
+            Continue shopping
           </Link>
-          <Link 
+          <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center bg-white border-2 border-gray-900 text-gray-900 px-8 py-3.5 rounded-xl font-medium hover:bg-black hover:text-white transition-colors duration-300"
           >
-            Go to Home
-            <ArrowRight size={20} />
+            Back to home
           </Link>
         </div>
       </motion.div>

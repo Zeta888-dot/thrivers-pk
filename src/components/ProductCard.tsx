@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import QuickView from './QuickView'
+import { sanityImg } from '@/lib/sanity'
 
 interface Product {
   _id: string
@@ -14,224 +14,138 @@ interface Product {
   compareAtPrice?: number
   images?: string[]
   colors?: string[]
+  sizes?: string[]
   stock?: string
+  stockQuantity?: number
+  featured?: boolean
+  badges?: string[]
+  unavailableSizes?: string[]
+  category?: { name: string; slug: string }
 }
 
+const fmt = (n: number) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const BagPlusIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
+    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+    <path d="M12 11.5v5M9.5 14h5" />
+  </svg>
+)
+
 export default function ProductCard({ product }: { product: Product }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [touchStart, setTouchStart] = useState(0)
-  const [touchEnd, setTouchEnd] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const hasMultipleImages = product.images && product.images.length > 1
-  const isSoldOut = product.stock === 'out_of_stock' || product.stock === 'sold_out'
+  const [imgIdx, setImgIdx] = useState(0)
+  const [quickOpen, setQuickOpen] = useState(false)
 
-  const nextImage = () => {
-    if (hasMultipleImages) {
-      setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)
+  const images = product.images?.length ? product.images : []
+  const stockStr = (product.stock || '').toLowerCase()
+  const soldOut = stockStr.includes('out') || product.stockQuantity === 0
+  const onSale = !!product.compareAtPrice && product.compareAtPrice > product.price
+
+  // Hover pe next image (northstory jaisa), leave pe wapis first
+  const handleEnter = () => {
+    if (images.length > 1) setImgIdx((i) => (i + 1) % images.length)
+  }
+  const handleLeave = () => setImgIdx(0)
+
+  const prev = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setImgIdx((i) => (i - 1 + images.length) % images.length)
+  }
+  const next = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setImgIdx((i) => (i + 1) % images.length)
+  }
+
+  // Agli image preload karo taake hover pe instant dikhe
+  useEffect(() => {
+    if (images.length > 1) {
+      const nextIdx = (imgIdx + 1) % images.length
+      const pre = new Image()
+      pre.src = sanityImg(images[nextIdx], 800)
     }
-  }
-
-  const prevImage = () => {
-    if (hasMultipleImages) {
-      setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length)
-    }
-  }
-
-  // Touch handlers for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > 50
-    const isRightSwipe = distance < -50
-    
-    if (isLeftSwipe) {
-      nextImage()
-    }
-    if (isRightSwipe) {
-      prevImage()
-    }
-    
-    setTouchStart(0)
-    setTouchEnd(0)
-  }
-
-  if (!product.images || product.images.length === 0) {
-    return (
-      <Link href={`/product/${product.slug}`}>
-        <div className="relative aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-          <span className="text-gray-400 text-sm">No Image</span>
-        </div>
-        <h3 className="font-medium text-gray-900">{product.name}</h3>
-        <p className="font-semibold text-lg text-[#950606] mt-1">
-          PKR {product.price.toLocaleString()}
-        </p>
-      </Link>
-    )
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imgIdx])
 
   return (
-    <Link href={`/product/${product.slug}`} className="block">
-      <motion.div
-        className="group relative"
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.2 }}
-      >
-        {/* Product Image Container */}
-        <div 
-          ref={carouselRef}
-          className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg mb-3 cursor-pointer"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Main Image */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentImageIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full h-full"
-            >
-              <Image
-                src={product.images[currentImageIndex]}
+    <>
+      <div className="group relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+        {/* Image - clean, lazy loading */}
+        <div className="relative aspect-[4/5] overflow-hidden">
+          <Link href={`/product/${product.slug}`} className="block w-full h-full">
+            {images[imgIdx] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={imgIdx}
+                src={sanityImg(images[imgIdx], 800)}
                 alt={product.name}
-                fill
-                className={`object-cover ${isSoldOut ? 'grayscale-[40%]' : ''}`}
-                draggable={false}
+                loading="lazy"
+                decoding="async"
+                className={`w-full h-full object-cover animate-fade transition-transform duration-500 group-hover:scale-[1.02] ${
+                  soldOut ? 'grayscale' : ''
+                }`}
               />
-            </motion.div>
-          </AnimatePresence>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                No Image
+              </div>
+            )}
+          </Link>
 
-          {/* Sold Out Dark Overlay */}
-          {isSoldOut && (
-            <div className="absolute inset-0 bg-black/25 z-10 pointer-events-none" />
-          )}
-
-          {/* Navigation Arrows - Desktop Only, Transparent */}
-          {hasMultipleImages && (
+          {/* Hover arrows - northstory style */}
+          {images.length > 1 && (
             <>
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  prevImage()
-                }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 hidden md:block"
+                onClick={prev}
                 aria-label="Previous image"
+                className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 cursor-pointer"
               >
-                <ChevronLeft size={20} className="text-white" />
+                <ArrowLeft size={36} strokeWidth={1.25} />
               </button>
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  nextImage()
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 hidden md:block"
+                onClick={next}
                 aria-label="Next image"
+                className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 cursor-pointer"
               >
-                <ChevronRight size={20} className="text-white" />
+                <ArrowRight size={36} strokeWidth={1.25} />
               </button>
-
-              {/* Dots Indicator - Clean & Minimal */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-                {product.images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setCurrentImageIndex(index)
-                    }}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                      index === currentImageIndex
-                        ? 'bg-white w-4'
-                        : 'bg-white/50 hover:bg-white/80'
-                    }`}
-                    aria-label={`Go to image ${index + 1}`}
-                  />
-                ))}
-              </div>
             </>
           )}
 
-          {/* Stock Badge - Bottom Left, Compact */}
-          {isSoldOut ? (
-            <div className="absolute bottom-3 left-3 z-20">
-              <span className="inline-flex items-center gap-1 rounded-full bg-black/70 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
-                <span className="w-1 h-1 rounded-full bg-red-500"></span>
-                Sold Out
-              </span>
-            </div>
-          ) : product.stock === 'low_stock' ? (
-            <div className="absolute bottom-3 left-3 z-20">
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-md">
-                <span className="w-1 h-1 rounded-full bg-white animate-pulse"></span>
-                Low Stock
-              </span>
-            </div>
-          ) : null}
-
-          {/* Discount Badge - Top Right */}
-          {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <div className="absolute top-3 right-3 bg-[#950606] text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg">
-              -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
-            </div>
-          )}
+          {/* Cart icon circle - product hover pe appear;
+              icon pe hover karo to Choose pill banta hai */}
+          <button
+            onClick={() => setQuickOpen(true)}
+            aria-label="Quick view"
+            className="group/btn hidden md:flex absolute bottom-4 right-4 items-center bg-[#eef0ea]/95 text-gray-900 rounded-full px-3.5 py-3.5 shadow-lg hover:bg-white hover:scale-[1.03] active:scale-95 transition-all duration-300 opacity-0 group-hover:opacity-100 cursor-pointer"
+          >
+            <BagPlusIcon size={18} />
+            <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-300 group-hover/btn:max-w-[70px] group-hover/btn:opacity-100 group-hover/btn:ml-2">
+              Choose
+            </span>
+          </button>
         </div>
 
-        {/* Product Info */}
-        <div>
-          <h3 className="font-medium text-gray-900 group-hover:text-[#950606] transition-colors">
+        {/* Name + price - northstory jaisa indent */}
+        <Link href={`/product/${product.slug}`} className="block pt-5 md:pt-7 pb-2">
+          <h3 className="pl-4 md:pl-6 text-[15px] md:text-base font-normal text-gray-800 leading-snug">
             {product.name}
           </h3>
-          
-          {/* Price with Discount */}
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <p className="font-semibold text-lg text-[#950606]">
-              PKR {product.price.toLocaleString()}
-            </p>
-            {product.compareAtPrice && product.compareAtPrice > product.price && (
-              <>
-                <p className="text-sm text-gray-400 line-through">
-                  PKR {product.compareAtPrice.toLocaleString()}
-                </p>
-                <span className="text-xs bg-[#950606] text-white px-2 py-0.5 rounded-full font-bold">
-                  -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
-                </span>
-              </>
+          <div className="pl-5 md:pl-[52px] mt-1 flex items-baseline gap-2">
+            <span className="text-[15px] md:text-base text-gray-800">Rs. {fmt(product.price)}</span>
+            {onSale && (
+              <span className="text-[13px] md:text-sm text-gray-500 line-through">
+                Rs. {fmt(product.compareAtPrice!)}
+              </span>
             )}
           </div>
+        </Link>
+      </div>
 
-          {/* Color Variants */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1.5 mt-2">
-              {product.colors.slice(0, 4).map((color, index) => (
-                <div
-                  key={index}
-                  className="w-5 h-5 rounded-full border-2 border-gray-300 shadow-sm"
-                  style={{ backgroundColor: color.toLowerCase() }}
-                  title={color}
-                />
-              ))}
-              {product.colors.length > 4 && (
-                <span className="text-xs text-gray-500 self-center">+{product.colors.length - 4}</span>
-              )}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </Link>
+      <QuickView product={product} open={quickOpen} onClose={() => setQuickOpen(false)} />
+    </>
   )
 }

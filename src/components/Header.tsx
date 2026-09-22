@@ -1,235 +1,355 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingBag, Menu, X, Search, ChevronDown } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
+import { Menu, X, Search, User } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cartStore'
-import { client } from '@/lib/sanity'
-import { categoriesQuery } from '@/lib/queries'
+import { client, sanityImg } from '@/lib/sanity'
+import { productsQuery } from '@/lib/queries'
+import ScribbleLogo from './ScribbleLogo'
 
-interface Category {
+const BANNER_TEXT = '10% OFF On Prepaid Orders | New Drop Live Now'
+
+const fmt = (n: number) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const BagIcon = ({ size = 22 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
+    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+  </svg>
+)
+
+interface Product {
   _id: string
   name: string
   slug: string
+  price: number
+  images?: string[]
 }
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isHover, setIsHover] = useState(false)
+  const [searchProducts, setSearchProducts] = useState<Product[]>([])
+  const [recent, setRecent] = useState<Product[]>([])
+  const pathname = usePathname()
   const { items, toggleCart } = useCartStore()
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
+  const isHome = pathname === '/'
+  const filled = isScrolled || isHover || !isHome
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', handleScroll)
+    const handleScroll = () => setIsScrolled(window.scrollY > 40)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
+    client
+      .fetch(productsQuery)
+      .then((data) =>
+        setSearchProducts(
+          data.map((p: any) => ({ ...p, slug: p.slug?.current || p.slug }))
+        )
+      )
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      try {
+        const raw = localStorage.getItem('thrivers_recent')
+        if (raw) setRecent(JSON.parse(raw))
+      } catch {}
     }
   }, [isSearchOpen])
 
-  // Fetch categories with normalized slugs
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const data = await client.fetch(categoriesQuery)
-        // Normalize slugs - handle both string and object cases
-        const normalized = data.map((cat: any) => ({
-          _id: cat._id,
-          name: cat.name,
-          slug: cat.slug?.current || cat.slug || ''
-        }))
-        setCategories(normalized)
-      } catch (error) {
-        console.error("Failed to fetch categories:", error)
-      }
-    }
-    fetchCategories()
-  }, [])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`
-    }
+  const handleClear = () => {
+    setSearchQuery('')
+    setRecent([])
+    try {
+      localStorage.removeItem('thrivers_recent')
+    } catch {}
   }
+
+  const filtered = searchQuery.trim()
+    ? searchProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : searchProducts
 
   const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
+    { name: 'Catalog', href: '/shop' },
     { name: 'Contact', href: '/contact' },
+    { name: 'Brand Story', href: '/about' },
   ]
 
-  // Color classes based on scroll state
-  const textColor = isScrolled ? 'text-[#950606]' : 'text-white'
-  const hoverBg = isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+  const linkColor = filled
+    ? 'text-gray-700 hover:text-black'
+    : 'text-white drop-shadow-md hover:text-gray-200'
+  const iconColor = filled ? 'text-black' : 'text-white drop-shadow-md'
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white shadow-sm border-b border-gray-100 py-3' 
-          : 'bg-transparent py-5 border-b border-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className={`text-2xl font-theater tracking-wider transition-colors ${
-              isScrolled ? 'text-[#950606]' : 'text-white'
-            }`}>
-              THRIVERS
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              {/* Shop Dropdown */}
-              <div className="relative group">
-                <button className={`flex items-center gap-1 text-sm font-semibold transition-colors ${textColor}`}>
-                  Shop <ChevronDown size={16} />
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 border border-gray-100 max-h-[70vh] overflow-y-auto">
-                  <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 mb-1">
-                    Shop by Category
-                  </div>
-                  {categories.map((category) => (
-                    <Link 
-                      key={category._id}
-                      href={`/shop?category=${encodeURIComponent(category.name)}`}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                  <div className="border-t border-gray-100 mt-1 pt-1">
-                    <Link href="/shop" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">All Products</Link>
-                    <Link href="/shop?badge=New%20Arrival" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">New Arrivals</Link>
-                    <Link href="/shop?badge=Best%20Seller" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#950606]">Best Sellers</Link>
-                    <Link href="/shop?badge=Sale" className="block px-4 py-2 text-sm text-[#950606] font-semibold hover:bg-gray-50">Sale</Link>
-                  </div>
-                </div>
+      {/* STICKY wrapper - scroll pe hamesha pin rahega (fixed ka mobile bug nahi) */}
+      <div
+        className="sticky top-0 left-0 right-0 z-[80]"
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+      >
+        {/* Scrolling marquee banner */}
+        <div className="bg-[#2e3b12] text-white overflow-hidden py-2.5">
+          <div className="flex whitespace-nowrap animate-marquee w-max">
+            {[0, 1].map((half) => (
+              <div key={half} className="flex shrink-0">
+                {[...Array(4)].map((_, i) => (
+                  <span key={i} className="text-xs font-bold tracking-wider px-4">
+                    {BANNER_TEXT} <span className="px-6">•</span>
+                  </span>
+                ))}
               </div>
+            ))}
+          </div>
+        </div>
 
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`text-sm font-semibold transition-colors ${isScrolled ? 'text-gray-800 hover:text-[#950606]' : 'text-white hover:text-gray-200'}`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+        {/* Main header */}
+        <header
+          className={`transition-colors duration-300 ${
+            filled
+              ? 'bg-[#f7f6f2] shadow-sm'
+              : 'bg-gradient-to-b from-black/40 via-black/15 to-transparent'
+          }`}
+        >
+          <div className="px-5 md:px-10 xl:px-16 py-5 grid grid-cols-3 items-center">
+            {/* Left */}
+            <div className="flex items-center gap-4">
+              <button onClick={() => setIsMenuOpen(true)} className={`md:hidden p-1 ${iconColor}`}>
+                <Menu size={24} />
+              </button>
+              <button onClick={() => setIsSearchOpen(true)} className={`md:hidden p-1 ${iconColor}`}>
+                <Search size={22} strokeWidth={1.5} />
+              </button>
+              <nav className="hidden md:flex items-center gap-7">
+                {navItems.map((item) => (
+                  <Link key={item.name} href={item.href} className={`text-[15px] font-semibold transition-colors ${linkColor}`}>
+                    {item.name}
+                  </Link>
+                ))}
+              </nav>
+            </div>
 
-            {/* Icons */}
-            <div className="flex items-center gap-1">
-              {/* Search */}
-              <div className="relative flex items-center">
-                <AnimatePresence>
-                  {isSearchOpen && (
-                    <motion.form
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 220, opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      onSubmit={handleSearch}
-                      className="absolute right-10 flex items-center"
-                    >
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search..."
-                        className={`w-full px-4 py-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#950606]/20 ${isScrolled ? 'bg-white border border-gray-200' : 'bg-white/90 backdrop-blur-sm border border-white/30'}`}
-                      />
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-                <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
-                  <Search size={22} />
-                </button>
-              </div>
+            {/* Center logo - normal bold */}
+            <div className="flex justify-center">
+              <Link
+                href="/"
+                className={`font-archivo-black text-xl md:text-2xl tracking-tight leading-none ${
+                  filled ? 'text-black' : 'text-white drop-shadow-md'
+                }`}
+                aria-label="Thrivers home"
+              >
+                THRIVERS<sup className="text-[10px] ml-0.5">™</sup>
+              </Link>
+            </div>
 
-              {/* Cart */}
-              <button onClick={toggleCart} className={`relative p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
-                <ShoppingBag size={22} />
+            {/* Right icons */}
+            <div className="flex items-center justify-end gap-5">
+              <button onClick={() => setIsSearchOpen(true)} className={`hidden md:block p-1 ${iconColor}`}>
+                <Search size={22} strokeWidth={1.5} />
+              </button>
+              <button className={`p-1 ${iconColor}`}>
+                <User size={22} strokeWidth={1.5} />
+              </button>
+              <button onClick={toggleCart} className={`relative p-1 ${iconColor}`}>
+                <BagIcon size={22} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#950606] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {totalItems}
                   </span>
                 )}
               </button>
-
-              {/* Mobile Menu Trigger */}
-              <button onClick={() => setIsMenuOpen(true)} className={`md:hidden p-2 rounded-full transition-colors ${textColor} ${hoverBg}`}>
-                <Menu size={24} />
-              </button>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
-      {/* Mobile Slide-Up Menu */}
+      {/* Search modal */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[85]"
+              onClick={() => setIsSearchOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
+              className="fixed left-1/2 -translate-x-1/2 top-[10vh] md:top-[16vh] z-[90] w-[92vw] md:w-[52vw] max-w-[1340px] bg-[#e9ece7] rounded-[20px] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center gap-3 px-6 md:px-8 py-5">
+                <Search size={20} strokeWidth={1.5} className="text-gray-700" />
+                <input
+                  autoFocus
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search"
+                  className="flex-1 bg-transparent text-lg text-gray-900 placeholder-gray-600 focus:outline-none"
+                />
+                {(searchQuery || recent.length > 0) && (
+                  <button
+                    onClick={handleClear}
+                    className="text-[14px] text-gray-700 underline underline-offset-4 hover:text-black transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+                <button onClick={() => setIsSearchOpen(false)} className="text-gray-800 p-1">
+                  <X size={22} strokeWidth={1.5} />
+                </button>
+              </div>
+
+              <div className="border-t border-gray-400/40" />
+
+              <div className="px-6 md:px-8 pt-5 pb-8 max-h-[65vh] overflow-y-auto scrollbar-hide">
+                {recent.length > 0 && (
+                  <div className="mb-6">
+                    <div className="text-[15px] font-semibold text-gray-900 mb-3">Recently viewed</div>
+                    <div className="flex gap-4 overflow-x-auto scrollbar-hide -mx-6 md:-mx-8 px-6 md:px-8 pb-1">
+                      {recent.slice(0, 6).map((p) => (
+                        <Link
+                          key={p._id}
+                          href={`/product/${p.slug}`}
+                          onClick={() => setIsSearchOpen(false)}
+                          className="w-28 shrink-0 group"
+                        >
+                          <div className="aspect-square bg-white/70 overflow-hidden">
+                            {p.images?.[0] && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={sanityImg(p.images[0], 300)}
+                                alt={p.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            )}
+                          </div>
+                          <div className="mt-2 text-[13px] text-gray-900 truncate">{p.name}</div>
+                          <div className="text-[13px] text-gray-800">Rs. {fmt(p.price)}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-[15px] font-semibold text-gray-900 mb-3">Products</div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                  {filtered.slice(0, 4).map((p) => (
+                    <Link
+                      key={p._id}
+                      href={`/product/${p.slug}`}
+                      onClick={() => setIsSearchOpen(false)}
+                      className="group"
+                    >
+                      <div className="h-[180px] md:h-[280px] flex items-center justify-center overflow-hidden">
+                        {p.images?.[0] && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={sanityImg(p.images[0], 600)}
+                            alt={p.name}
+                            className="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                          />
+                        )}
+                      </div>
+                      <div className="mt-3 text-[15px] text-gray-900">{p.name}</div>
+                      <div className="text-[15px] text-gray-800">Rs. {fmt(p.price)}</div>
+                    </Link>
+                  ))}
+                </div>
+                {filtered.length === 0 && (
+                  <div className="text-sm text-gray-500 pb-2">
+                    {searchQuery ? 'No products found.' : ''}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile slide-in menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 z-[85]"
               onClick={() => setIsMenuOpen(false)}
             />
-            
-            {/* Slide Up Panel */}
             <motion.div
-              initial={{ y: '100%' }} 
-              animate={{ y: 0 }} 
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-6 pb-10 max-h-[85vh] overflow-y-auto shadow-2xl"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="fixed top-0 left-0 bottom-0 w-[85vw] max-w-sm z-[90] bg-white overflow-y-auto"
             >
-              <div className="flex justify-center mb-6">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-              </div>
-              
-              <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600">
-                <X size={24} />
-              </button>
+              <div className="p-6">
+                <button onClick={() => setIsMenuOpen(false)} className="p-1 text-black mb-8 border border-gray-400 rounded-full" aria-label="Close menu">
+                  <X size={20} />
+                </button>
 
-              <nav className="space-y-5 mt-4">
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  Shop by Category
+                <nav className="space-y-6">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-xl font-bold text-gray-900 hover:text-gray-500 transition-colors"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </nav>
+
+                <div className="border-t border-gray-200 mt-10 pt-6">
+                  <div className="flex gap-4 overflow-x-auto scrollbar-hide -mx-6 px-6 pb-2">
+                    {searchProducts.slice(0, 8).map((p) => (
+                      <Link
+                        key={p._id}
+                        href={`/product/${p.slug}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="w-28 shrink-0"
+                      >
+                        <div className="aspect-square bg-[#f4f4f2] overflow-hidden">
+                          {p.images?.[0] && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={sanityImg(p.images[0], 300)}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="mt-2 text-[13px] text-gray-900 truncate">{p.name}</div>
+                        <div className="text-[13px] text-gray-800">Rs. {fmt(p.price)}</div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-                {categories.map((category) => (
-                  <Link 
-                    key={category._id}
-                    href={`/shop?category=${encodeURIComponent(category.name)}`}
-                    onClick={() => setIsMenuOpen(false)} 
-                    className="block text-base font-medium text-gray-700 hover:text-[#950606]"
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-                <div className="border-t border-gray-100 pt-4 space-y-5">
-                  <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">All Products</Link>
-                  <Link href="/shop?badge=New%20Arrival" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">New Arrivals</Link>
-                  <Link href="/shop?badge=Sale" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-[#950606] font-bold">Sale - Upto 50% OFF</Link>
-                  <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">Home</Link>
-                  <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">About</Link>
-                  <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-gray-700">Contact</Link>
-                </div>
-              </nav>
+              </div>
             </motion.div>
           </>
         )}

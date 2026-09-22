@@ -209,6 +209,41 @@
         "options": {
           "list": [
             {
+              "title": "S",
+              "value": "S"
+            },
+            {
+              "title": "M",
+              "value": "M"
+            },
+            {
+              "title": "L",
+              "value": "L"
+            },
+            {
+              "title": "XL",
+              "value": "XL"
+            },
+            {
+              "title": "XXL",
+              "value": "XXL"
+            }
+          ]
+        },
+        "description": "Jo sizes khatam hain wo yahan select karo - website par line ke sath dikhenge",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "unavailableSizes",
+        "type": "array",
+        "title": "Out of Stock Sizes"
+      },
+      {
+        "options": {
+          "list": [
+            {
               "title": "In Stock",
               "value": "in_stock"
             },

@@ -1,24 +1,22 @@
 import type { Metadata, Viewport } from "next";
-// import { Inter, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
-import { Inter, Archivo_Black, Space_Grotesk } from "next/font/google";
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-});
-
-const inter = Inter({ subsets: ["latin"] });
+import { Archivo_Black, Permanent_Marker } from "next/font/google";
 
 const archivoBlack = Archivo_Black({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-archivo-black",
+});
+
+const permanentMarker = Permanent_Marker({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-marker",
 });
 
 export const metadata: Metadata = {
@@ -91,21 +89,17 @@ export const metadata: Metadata = {
       { url: "/favicon.png", sizes: "180x180", type: "image/png" },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    apple: [
-      { url: "/favicon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/favicon.png", sizes: "180x180", type: "image/png" }],
     shortcut: "/favicon.png",
   },
   manifest: "/manifest.json",
-  themeColor: "#950606",
-  applicationName: "Thrivers PK",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#950606",
+  themeColor: "#000000",
 };
 
 const organizationSchema = {
@@ -143,7 +137,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.className} ${archivoBlack.variable} scroll-smooth`}
+      className={`${archivoBlack.variable} ${permanentMarker.variable} scroll-smooth`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <Script
@@ -162,7 +157,7 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://cdn.sanity.io" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className="antialiased">
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

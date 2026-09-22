@@ -1,39 +1,80 @@
-'use client'
+import Link from 'next/link'
 
-import { motion } from 'framer-motion'
-import { Shirt, Globe, Heart } from 'lucide-react'
+export const metadata = {
+  title: 'Brand Story',
+  description: 'Thrivers PK - premium streetwear brand from Chitral, Pakistan. Not survivors - thrivers.',
+}
 
 export default function AboutPage() {
-  const values = [
-    { icon: Shirt, title: 'Premium Quality', desc: 'Crafted with the finest materials for everyday comfort.' },
-    { icon: Globe, title: 'From Chitral', desc: 'Proudly representing the beauty and culture of the north.' },
-    { icon: Heart, title: 'Made with Love', desc: 'Every stitch tells a story of passion and dedication.' },
-  ]
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-theater font-bold text-[#950606] mb-4">Our Story</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Thrivers was born out of a passion for premium streetwear and a love for our roots.
-        </p>
-      </motion.div>
+    <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white">
+      <div className="px-6 md:px-10 xl:px-16 pb-16 md:pb-24">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
+            Brand Story
+          </span>
+          <h1 className="mt-4 font-archivo-black text-4xl md:text-6xl text-gray-900 leading-tight tracking-tight">
+            NOT SURVIVORS.
+            <br />
+            THRIVERS.
+          </h1>
+          <p className="mt-8 text-[17px] md:text-lg text-gray-700 leading-relaxed">
+            Born in the mountains of Chitral, Thrivers PK is more than clothing - it is a
+            statement. Every piece we make carries the spirit of people who do not just
+            survive their circumstances, they thrive in them.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {values.map((item, index) => (
-          <motion.div 
-            key={index} 
-            initial={{ opacity: 0, y: 20 }} 
-            whileInView={{ opacity: 1, y: 0 }} 
-            viewport={{ once: true }} 
-            transition={{ delay: index * 0.1 }} 
-            className="p-8 bg-gray-50 rounded-xl text-center border border-gray-100 hover:border-[#950606]/20 hover:shadow-lg transition-all"
+        <div className="max-w-2xl mx-auto mt-16 md:mt-24 space-y-6 text-[15px] md:text-base text-gray-700 leading-relaxed">
+          <p>
+            We started with a simple belief: premium streetwear should not be limited to
+            big cities. From oversized tees to handcrafted crochet shirts, every Thrivers
+            piece is designed with intention - heavy fabrics, clean cuts, and details that
+            speak louder than logos.
+          </p>
+          <p>
+            Each drop is limited. Each design tells a story of culture, struggle and
+            ambition. When you wear Thrivers, you wear the proof that where you start
+            does not decide where you finish.
+          </p>
+        </div>
+
+        {/* Values */}
+        <div className="max-w-3xl mx-auto mt-16 md:mt-24 border-t border-gray-200">
+          {[
+            {
+              title: 'Quality First',
+              text: 'Heavyweight fabrics and stitched-to-last construction. No shortcuts, ever.',
+            },
+            {
+              title: 'Culture & Craft',
+              text: 'Designed in Chitral - inspired by the mountains, the people and the hustle.',
+            },
+            {
+              title: 'Limited Drops',
+              text: 'Small batches only. When a drop is gone, it is gone for good.',
+            },
+          ].map((v) => (
+            <div
+              key={v.title}
+              className="py-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center gap-2 md:gap-10"
+            >
+              <h3 className="text-sm font-bold tracking-widest uppercase text-gray-900 md:w-48 shrink-0">
+                {v.title}
+              </h3>
+              <p className="text-[15px] text-gray-600">{v.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-14">
+          <Link
+            href="/shop"
+            className="inline-block bg-black text-white px-10 py-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"
           >
-            <item.icon className="w-12 h-12 mx-auto mb-4 text-[#950606]" />
-            <h3 className="text-xl font-bold mb-3 text-gray-900">{item.title}</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-          </motion.div>
-        ))}
+            Shop the drop
+          </Link>
+        </div>
       </div>
     </div>
   )

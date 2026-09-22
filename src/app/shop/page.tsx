@@ -1,196 +1,288 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import ProductCard from '@/components/ProductCard'
-import { motion } from 'framer-motion'
-import { Filter, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { ChevronDown, Check } from 'lucide-react'
 import { client } from '@/lib/sanity'
-import { productsQuery } from '@/lib/queries'
+import { productsQuery, categoriesQuery } from '@/lib/queries'
+import ProductCard from '@/components/ProductCard'
 
 interface Product {
   _id: string
   name: string
   slug: string
   price: number
+  compareAtPrice?: number
   images?: string[]
   colors?: string[]
+  sizes?: string[]
   stock?: string
-  category?: {
-    name: string
-    slug: string
-  }
-  categorySlug?: string
+  stockQuantity?: number
+  featured?: boolean
   badges?: string[]
+  unavailableSizes?: string[]
+  category?: { name: string; slug: string }
+}
+
+interface Category {
+  _id: string
+  name: string
+  slug: string
+  image?: string
+}
+
+/* Northstory jaisa custom dropdown */
+function Dropdown({
+  label,
+  value,
+  options,
+  onSelect,
+  align = 'left',
+}: {
+  label: string
+  value: string
+  options: { v: string; l: string }[]
+  onSelect: (v: string) => void
+  align?: 'left' | 'right'
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [])
+
+  const current = options.find((o) => o.v === value)
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 text-[15px] text-gray-800 py-2 hover:text-black transition-colors"
+      >
+        {current && value !== '' ? current.l : label}
+        <ChevronDown size={16} strokeWidth={1.5} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div
+          className={`absolute top-full mt-2 w-60 bg-[#e9ece7] rounded-xl shadow-xl py-2 z-30 ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
+        >
+          {options.map((o) => (
+            <button
+              key={o.v}
+              onClick={() => {
+                onSelect(o.v)
+                setOpen(false)
+              }}
+              className="w-full text-left px-4 py-2.5 text-[15px] text-gray-800 hover:bg-black/5 transition-colors flex items-center"
+            >
+              <span className="w-5 shrink-0">
+                {o.v === value && <Check size={14} strokeWidth={2} />}
+              </span>
+              {o.l}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function ShopContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const urlCategory = searchParams.get('category')
-  const urlBadge = searchParams.get('badge')
-  const urlSearch = searchParams.get('search') || ''
+  const params = useSearchParams()
+  const categoryParam = params.get('category')
+  const badgeParam = params.get('badge')
+  const search = params.get('search')
 
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory || 'All')
-  const [selectedBadge, setSelectedBadge] = useState<string>(urlBadge || '')
-  const [activeSearch, setActiveSearch] = useState(urlSearch)
-  const [sortBy, setSortBy] = useState('default')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  const [category, setCategory] = useState(categoryParam || '')
+  const [badge, setBadge] = useState(badgeParam || '')
+  const [availability, setAvailability] = useState('')
+  const [priceRange, setPriceRange] = useState('')
+  const [sort, setSort] = useState('featured')
 
   useEffect(() => {
-    setSelectedCategory(urlCategory || 'All')
-    setSelectedBadge(urlBadge || '')
-    setActiveSearch(urlSearch)
-  }, [urlCategory, urlBadge, urlSearch])
+    setCategory(categoryParam || '')
+    setBadge(badgeParam || '')
+  }, [categoryParam, badgeParam])
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchAll() {
       try {
-        const data = await client.fetch(productsQuery)
-        const normalized = data.map((p: any) => ({
-          ...p,
-          slug: p.slug.current,
-          category: p.category ? {
-            name: p.category.name,
-            slug: p.category.slug.current
-          } : undefined,
-          badges: p.badges || []
-        }))
-        setProducts(normalized)
-      } catch (error) {
-        console.error("Failed to fetch products:", error)
+        const [pData, cData] = await Promise.all([
+          client.fetch(productsQuery),
+          client.fetch(categoriesQuery),
+        ])
+        setProducts(
+          pData.map((p: any) => ({
+            ...p,
+            slug: p.slug?.current || p.slug,
+            category: p.category
+              ? {
+                  name: p.category.name,
+                  slug: p.category.slug?.current || p.category.slug,
+                }
+              : undefined,
+          }))
+        )
+        setCategories(
+          cData.map((c: any) => ({
+            _id: c._id,
+            name: c.name,
+            slug: c.slug?.current || c.slug || '',
+            image: c.image,
+          }))
+        )
+      } catch (e) {
+        console.error('Failed to fetch shop data:', e)
       } finally {
         setLoading(false)
       }
     }
-    fetchProducts()
+    fetchAll()
   }, [])
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category?.name).filter((c): c is string => Boolean(c))))]
-
-  // Filtering Logic
-  let filteredProducts = products
-
-  // 1. Search takes priority (case-insensitive name match)
-  if (activeSearch) {
-    filteredProducts = filteredProducts.filter(p =>
-      p.name.toLowerCase().includes(activeSearch.toLowerCase())
-    )
-  } else {
-    // 2. Category & Badge filters (only when not searching)
-    if (selectedCategory !== 'All') {
-      filteredProducts = filteredProducts.filter(p =>
-        p.category?.name?.toLowerCase() === selectedCategory.toLowerCase()
-      )
+  const filtered = useMemo(() => {
+    const list = products.filter((p) => {
+      if (category && p.category?.name !== category) return false
+      if (badge && !(p.badges || []).includes(badge)) return false
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
+      if (availability === 'in' && (p.stock || '').includes('out')) return false
+      if (availability === 'out' && !(p.stock || '').includes('out')) return false
+      if (priceRange === 'under25' && p.price >= 2500) return false
+      if (priceRange === '25to40' && (p.price < 2500 || p.price > 4000)) return false
+      if (priceRange === 'over40' && p.price <= 4000) return false
+      return true
+    })
+    switch (sort) {
+      case 'price-asc':
+        return [...list].sort((a, b) => a.price - b.price)
+      case 'price-desc':
+        return [...list].sort((a, b) => b.price - a.price)
+      case 'az':
+        return [...list].sort((a, b) => a.name.localeCompare(b.name))
+      case 'za':
+        return [...list].sort((a, b) => b.name.localeCompare(a.name))
+      case 'best':
+        return [...list].sort((a, b) => {
+          const ab = (a.badges || []).includes('Best Seller') ? 0 : 1
+          const bb = (b.badges || []).includes('Best Seller') ? 0 : 1
+          return ab - bb
+        })
+      default:
+        return list
     }
-    if (selectedBadge) {
-      filteredProducts = filteredProducts.filter(p =>
-        p.badges && p.badges.includes(selectedBadge)
-      )
-    }
-  }
+  }, [products, category, badge, search, availability, priceRange, sort])
 
-  // Sorting
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === 'price-low') return a.price - b.price
-    if (sortBy === 'price-high') return b.price - a.price
-    if (sortBy === 'name') return a.name.localeCompare(b.name)
-    return 0
-  })
+  const title = search
+    ? `Search: "${search}"`
+    : badge
+    ? badge
+    : category
+    ? category
+    : 'Products'
 
-  const clearSearch = () => {
-    setActiveSearch('')
-    router.push('/shop')
-  }
-
-  if (loading) return <div className="py-12 text-center text-xl">Loading products...</div>
+  const sortOptions = [
+    { v: 'featured', l: 'Featured' },
+    { v: 'best', l: 'Best selling' },
+    { v: 'az', l: 'Alphabetically, A-Z' },
+    { v: 'za', l: 'Alphabetically, Z-A' },
+    { v: 'price-asc', l: 'Price, low to high' },
+    { v: 'price-desc', l: 'Price, high to low' },
+  ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pt-16 md:pt-20">
-      <motion.div className="mb-4 md:mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          {activeSearch ? `Search: "${activeSearch}"` : selectedBadge ? `${selectedBadge} Collection` : selectedCategory !== 'All' ? selectedCategory : 'Shop All'}
-        </h1>
-        <p className="text-sm md:text-base text-gray-600">
-          {activeSearch ? `Found ${sortedProducts.length} results for "${activeSearch}"` : 'Discover our complete collection'}
-        </p>
-      </motion.div>
+    <div className="pt-[130px] md:pt-[150px] min-h-screen bg-[#f7f7f5]">
+      <div className="px-4 md:px-6 pb-8 md:pb-12">
+        <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
+        <p className="mt-3 text-[15px] font-semibold text-gray-900">Limited Pieces Only</p>
 
-      {/* Filters & Sort */}
-      <div className="flex flex-col md:flex-row gap-3 mb-4 md:mb-6 items-start md:items-center justify-between">
-        <button className="md:hidden flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg" onClick={() => setIsFilterOpen(!isFilterOpen)}>
-          <Filter size={20} /> Filters
-        </button>
+        {/* Toolbar - northstory jaisa */}
+        <div className="mt-10 md:mt-14 flex flex-wrap items-center justify-between gap-4">
+          {/* Left filters */}
+          <div className="flex flex-wrap items-center gap-6 md:gap-8">
+            <Dropdown
+              label="Category"
+              value={category}
+              onSelect={setCategory}
+              options={[
+                { v: '', l: 'All categories' },
+                ...categories.map((c) => ({ v: c.name, l: c.name })),
+              ]}
+            />
+            <Dropdown
+              label="Availability"
+              value={availability}
+              onSelect={setAvailability}
+              options={[
+                { v: '', l: 'All' },
+                { v: 'in', l: 'In stock' },
+                { v: 'out', l: 'Sold out' },
+              ]}
+            />
+            <Dropdown
+              label="Price"
+              value={priceRange}
+              onSelect={setPriceRange}
+              options={[
+                { v: '', l: 'All prices' },
+                { v: 'under25', l: 'Under Rs. 2,500' },
+                { v: '25to40', l: 'Rs. 2,500 - Rs. 4,000' },
+                { v: 'over40', l: 'Over Rs. 4,000' },
+              ]}
+            />
+          </div>
 
-        <div className={`${isFilterOpen ? 'flex' : 'hidden'} md:flex flex-wrap gap-2`}>
-          {!activeSearch && categories.map((cat) => (
-            <button 
-              key={cat} 
-              onClick={() => { setSelectedCategory(cat || 'All'); setSelectedBadge('') }} 
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat && !selectedBadge ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-            >
-              {cat}
-            </button>
-          ))}
-          {!activeSearch && ['New Arrival', 'Best Seller', 'Sale'].map(badge => (
-            <button 
-              key={badge} 
-              onClick={() => { setSelectedBadge(badge); setSelectedCategory('All') }} 
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedBadge === badge ? 'bg-[#950606] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-            >
-              {badge}
-            </button>
-          ))}
+          {/* Right: count + sort */}
+          <div className="flex items-center gap-6">
+            <span className="text-[15px] text-gray-700">
+              {loading ? '…' : `${filtered.length} items`}
+            </span>
+            <Dropdown
+              label="Sort"
+              value={sort}
+              onSelect={setSort}
+              options={sortOptions}
+              align="right"
+            />
+          </div>
         </div>
-
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none">
-          <option value="default">Sort by: Featured</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
-          <option value="name">Name: A-Z</option>
-        </select>
       </div>
 
-      {/* Active Search Pill */}
-      {activeSearch && (
-        <div className="mb-3 md:mb-4 flex items-center gap-2">
-          <span className="text-sm text-gray-600">Searching for:</span>
-          <button onClick={clearSearch} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
-            "{activeSearch}" <X size={14} />
-          </button>
+      {/* Full-bleed grid */}
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
+          ))}
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3 pb-16 md:pb-24">
+          {filtered.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-24 text-gray-500">
+          No products found{search ? ` for "${search}"` : ''}.
         </div>
       )}
-
-      {/* Active Category/Badge Pill */}
-      {!activeSearch && (selectedCategory !== 'All' || selectedBadge) && (
-        <div className="mb-3 md:mb-4 flex items-center gap-2">
-          <span className="text-sm text-gray-600">Active Filter:</span>
-          <button onClick={() => { setSelectedCategory('All'); setSelectedBadge('') }} className="flex items-center gap-1 px-3 py-1 bg-[#950606] text-white text-sm rounded-full">
-            {selectedBadge || selectedCategory} <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        {sortedProducts.map((product, index) => (
-          <motion.div key={product._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }}>
-            <ProductCard product={product} />
-          </motion.div>
-        ))}
-      </div>
-
-      {sortedProducts.length === 0 && <div className="text-center py-12 text-gray-500 text-lg">No products found</div>}
-      <div className="mt-6 text-center text-sm text-gray-600">Showing {sortedProducts.length} products</div>
     </div>
   )
 }
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="py-12 text-center text-xl">Loading...</div>}>
+    <Suspense fallback={<div className="pt-[130px] min-h-screen bg-[#f7f7f5]" />}>
       <ShopContent />
     </Suspense>
   )

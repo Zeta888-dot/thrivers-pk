@@ -1,132 +1,84 @@
-'use client'
+import Link from 'next/link'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { MapPin, Phone, Mail, Send } from 'lucide-react'
-import { FaInstagram, FaTiktok, FaWhatsapp } from 'react-icons/fa'
+export const metadata = {
+  title: 'Contact',
+  description: 'Get in touch with Thrivers PK - Chitral, Pakistan.',
+}
+
+const blocks = [
+  {
+    title: 'Email',
+    lines: ['sheikhinsaan07@gmail.com'],
+    href: 'mailto:sheikhinsaan07@gmail.com',
+    cta: 'Write to us',
+  },
+  {
+    title: 'Phone / WhatsApp',
+    lines: ['+92 343 9766306'],
+    href: 'https://wa.me/923439766306',
+    cta: 'Chat on WhatsApp',
+  },
+  {
+    title: 'Store',
+    lines: ['Hayat Market, New Bazar', 'Chitral, Pakistan'],
+    href: 'https://www.instagram.com/thrivers.pk',
+    cta: 'Instagram',
+  },
+]
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
-  const [isSent, setIsSent] = useState(false)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSent(true)
-    setTimeout(() => setIsSent(false), 3000)
-    setFormData({ name: '', email: '', message: '' })
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Get in Touch</h1>
-        <p className="text-xl text-gray-600">Have a question? We'd love to hear from you.</p>
-      </motion.div>
+    <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white">
+      <div className="px-6 md:px-10 xl:px-16 pb-16 md:pb-24">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-xs font-bold tracking-widest uppercase text-gray-500">
+            Contact
+          </span>
+          <h1 className="mt-4 font-archivo-black text-4xl md:text-5xl text-gray-900 tracking-tight">
+            GET IN TOUCH
+          </h1>
+          <p className="mt-6 text-[15px] md:text-base text-gray-700">
+            Orders, sizing, returns or just saying salami - we reply fast.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Contact Info */}
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-gray-100 rounded-full"><MapPin className="w-6 h-6" /></div>
-            <div>
-              <h3 className="font-bold text-lg">Visit Us</h3>
-              <p className="text-gray-600">Hayat Market, New Bazar, Chitral, Pakistan</p>
+        <div className="max-w-5xl mx-auto mt-14 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {blocks.map((b) => (
+            <div key={b.title} className="bg-[#e9ece7] rounded-[20px] p-8 flex flex-col">
+              <h3 className="text-xs font-bold tracking-widest uppercase text-gray-900">
+                {b.title}
+              </h3>
+              <div className="mt-4 space-y-1">
+                {b.lines.map((l) => (
+                  <p key={l} className="text-[15px] text-gray-800">
+                    {l}
+                  </p>
+                ))}
+              </div>
+              <div className="flex-1" />
+              <a
+                href={b.href}
+                target={b.href.startsWith('http') ? '_blank' : undefined}
+                rel="noreferrer"
+                className="mt-8 inline-block bg-white border-2 border-gray-900 rounded-xl py-3 text-center text-sm font-medium text-gray-900 hover:bg-black hover:text-white transition-colors duration-300"
+              >
+                {b.cta}
+              </a>
             </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-gray-100 rounded-full"><Phone className="w-6 h-6" /></div>
-            <div>
-              <h3 className="font-bold text-lg">Call Us</h3>
-              <p className="text-gray-600">+92 343 9766306</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-gray-100 rounded-full"><Mail className="w-6 h-6" /></div>
-            <div>
-              <h3 className="font-bold text-lg">Email Us</h3>
-              <p className="text-gray-600">sheikhinsaan07@gmail.com</p>
-            </div>
-          </div>
+          ))}
+        </div>
 
-         {/* Social Media Links */}
-<div className="pt-8 border-t border-gray-200">
-  <h3 className="font-bold text-lg mb-4">Follow Us on Social Media</h3>
-  <div className="flex flex-wrap gap-3">
-    <a 
-      href="https://www.instagram.com/thrivers.pk" 
-      target="_blank" 
-      rel="noopener noreferrer" 
-      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-    >
-      <FaInstagram size={20} />
-      <span>Instagram</span>
-    </a>
-    <a 
-      href="https://www.tiktok.com/@thrivers.pkk" 
-      target="_blank" 
-      rel="noopener noreferrer" 
-      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-    >
-      <FaTiktok size={20} />
-      <span>TikTok</span>
-    </a>
-    <a 
-      href="https://wa.me/923439766306" 
-      target="_blank" 
-      rel="noopener noreferrer" 
-      className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-    >
-      <FaWhatsapp size={20} />
-      <span>WhatsApp</span>
-    </a>
-  </div>
-</div>
-        </motion.div>
-
-        {/* Contact Form */}
-        <motion.form 
-          initial={{ opacity: 0, x: 20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          onSubmit={handleSubmit} 
-          className="space-y-6 bg-gray-50 p-8 rounded-xl"
-        >
-          <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <input 
-              type="text" 
-              required 
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input 
-              type="email" 
-              required 
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Message</label>
-            <textarea 
-              required 
-              rows={4}
-              value={formData.message}
-              onChange={(e) => setFormData({...formData, message: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#950606] focus:border-transparent outline-none" 
-            />
-          </div>
-          <button 
-            type="submit" 
-            className="w-full flex items-center justify-center gap-2 bg-[#950606] text-white py-3 rounded-lg font-semibold hover:bg-[#7a0505] transition-colors"
+        <div className="max-w-3xl mx-auto mt-14 text-center">
+          <p className="text-sm text-gray-600">
+            Order updates aur tracking ke liye WhatsApp sab se tez hai.
+          </p>
+          <Link
+            href="/shop"
+            className="inline-block mt-6 bg-black text-white px-10 py-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"
           >
-            {isSent ? 'Message Sent!' : <><Send size={18} /> Send Message</>}
-          </button>
-        </motion.form>
+            Continue shopping
+          </Link>
+        </div>
       </div>
     </div>
   )
