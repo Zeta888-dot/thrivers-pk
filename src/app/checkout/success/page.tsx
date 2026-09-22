@@ -11,7 +11,7 @@ const CheckIcon = ({ size = 56 }: { size?: number }) => (
 
 export default function SuccessPage() {
   return (
-    <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="pt-6 md:pt-10 min-h-screen bg-white flex items-center justify-center px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -201,7 +201,7 @@ function ShopContent() {
   ]
 
   return (
-    <div className="pt-[130px] md:pt-[150px] min-h-screen bg-[#f7f7f5]">
+    <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
       <div className="px-4 md:px-6 pb-8 md:pb-12">
         <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
         <p className="mt-3 text-[15px] font-semibold text-gray-900">Limited Pieces Only</p>

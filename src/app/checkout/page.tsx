@@ -73,7 +73,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white flex items-center justify-center">
+      <div className="pt-6 md:pt-10 min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Cart is empty</h1>
           <Link
@@ -91,7 +91,7 @@ export default function CheckoutPage() {
     'w-full bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-[15px] text-gray-900 placeholder-gray-500 focus:outline-none focus:border-black transition-colors'
 
   return (
-    <div className="pt-[150px] md:pt-[170px] min-h-screen bg-white">
+    <div className="pt-6 md:pt-10 min-h-screen bg-white">
       <div className="px-6 md:px-10 xl:px-16 pb-16 md:pb-24">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-10">
           Checkout

@@ -56,7 +56,7 @@ export default function CartDrawer() {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/40 z-50"
+           className="fixed inset-0 bg-black/40 z-[95]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -65,7 +65,7 @@ export default function CartDrawer() {
 
           {/* Drawer - northstory sage style */}
           <motion.div
-            className="fixed top-0 right-0 h-full w-full max-w-[480px] bg-[#e9ece7] z-50 shadow-xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-[480px] bg-[#e9ece7] z-[100] shadow-xl flex flex-col"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

@@ -163,7 +163,7 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="pt-[130px] md:pt-[150px] min-h-screen bg-[#f7f7f5]">
+      <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
         <div className="px-4 md:px-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
           <div className="grid grid-cols-2 gap-1.5 md:gap-2">
             <div className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
@@ -180,7 +180,7 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="pt-[130px] md:pt-[150px] min-h-screen bg-[#f7f7f5] flex items-center justify-center">
+      <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5] flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Product not found</h1>
           <p className="text-gray-600">The product you are looking for does not exist.</p>
@@ -194,7 +194,7 @@ export default function ProductPage() {
   const stockLabel = isSoldOut ? 'Sold out' : isLowStock ? 'Low stock' : 'In stock'
 
   return (
-    <div className="pt-[130px] md:pt-[150px] min-h-screen bg-[#f7f7f5]">
+    <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
       <div className="px-4 md:px-6 pb-16 md:pb-24 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
         {/* Left: 2-column image grid */}
         <div className="grid grid-cols-2 gap-1.5 md:gap-2 self-start">
