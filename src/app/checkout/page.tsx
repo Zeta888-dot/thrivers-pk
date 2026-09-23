@@ -92,8 +92,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="pt-6 md:pt-10 min-h-screen bg-white">
-      <div className="px-6 md:px-10 xl:px-16 pb-16 md:pb-24">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-10">
+      <div className="px-4 md:px-10 xl:px-16 pb-16 md:pb-24">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-8 md:mb-10">
           Checkout
         </h1>
 
@@ -234,13 +234,13 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* RIGHT - summary (sage bg, sticky) */}
+          {/* RIGHT - summary */}
           <aside className="lg:sticky lg:top-[180px] self-start bg-[#e9ece7] rounded-[20px] p-6 md:p-7">
             <h2 className="text-sm font-semibold tracking-widest uppercase text-gray-900 mb-5">
               Order Summary
             </h2>
 
-            <div className="space-y-4 pb-5 border-b border-gray-400/40">
+            <div className="space-y-3 pb-4 border-b border-gray-400/40">
               {items.map((item, index) => (
                 <div key={item.id || index} className="flex gap-4">
                   <div className="w-16 h-20 bg-white/70 overflow-hidden shrink-0">

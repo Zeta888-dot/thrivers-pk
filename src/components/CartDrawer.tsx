@@ -10,7 +10,7 @@ import { useState } from 'react'
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-/* Trash bin - sirf LID rotate hoti hai hover pe, body static */
+/* Trash bin - sirf LID rotate hoti hai hover pe */
 const TrashIcon = ({ size = 18 }: { size?: number }) => (
   <svg
     width={size}
@@ -23,12 +23,10 @@ const TrashIcon = ({ size = 18 }: { size?: number }) => (
     strokeLinejoin="round"
     className="trash-icon"
   >
-    {/* Lid = handle + top bar (ye rotate hogi) */}
     <g className="trash-lid">
       <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <path d="M3 6h18" />
     </g>
-    {/* Body = static */}
     <path d="M19 8v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8" />
     <line x1="10" y1="11" x2="10" y2="17" />
     <line x1="14" y1="11" x2="14" y2="17" />
@@ -54,16 +52,14 @@ export default function CartDrawer() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
-           className="fixed inset-0 bg-black/40 z-[95]"
+            className="fixed inset-0 bg-black/40 z-[95]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
           />
 
-          {/* Drawer - northstory sage style */}
           <motion.div
             className="fixed top-0 right-0 h-full w-full max-w-[480px] bg-[#e9ece7] z-[100] shadow-xl flex flex-col"
             initial={{ x: '100%' }}
@@ -71,7 +67,6 @@ export default function CartDrawer() {
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
           >
-            {/* Top bar */}
             <div className="flex items-center justify-end p-5">
               <button onClick={toggleCart} className="p-1 text-gray-800 hover:text-black transition-colors">
                 <X size={22} strokeWidth={1.5} />
@@ -79,7 +74,7 @@ export default function CartDrawer() {
             </div>
 
             {items.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center px-8 pb-24 text-center">
+              <div className="flex flex-col items-center justify-center px-8 py-24 text-center">
                 <h2 className="text-2xl md:text-[28px] font-bold text-gray-900">Your cart is empty</h2>
                 <p className="mt-3 text-[15px] text-gray-700">
                   Have an account?{' '}
@@ -94,14 +89,16 @@ export default function CartDrawer() {
                 </button>
               </div>
             ) : (
-              <>
-                <div className="flex-1 overflow-y-auto px-6 space-y-6">
+              /* Ek hi scroll container - summary items ke foran neeche, koi gap nahi */
+              <div className="flex-1 overflow-y-auto">
+                {/* Items - zero gap */}
+                <div className="px-6">
                   {items.map((item) => {
                     const productImages = item.images || []
                     const currentIndex = currentImages[item.id] || 0
                     const hasMultipleImages = productImages.length > 1
                     return (
-                      <div key={item.id} className="flex gap-4">
+                      <div key={item.id} className="flex gap-3">
                         <div className="relative w-24 h-24 bg-white/70 flex-shrink-0 overflow-hidden">
                           {productImages.length > 0 ? (
                             <>
@@ -165,7 +162,6 @@ export default function CartDrawer() {
                           </div>
                         </div>
 
-                        {/* Trash - hover pe lid khulti hai */}
                         <button
                           onClick={() => removeItem(item.id)}
                           className="text-gray-600 hover:text-black transition-colors self-start p-1"
@@ -178,7 +174,8 @@ export default function CartDrawer() {
                   })}
                 </div>
 
-                <div className="border-t border-gray-400/40 p-6 space-y-4">
+                {/* Summary - items ke foran neeche (pinned nahi) */}
+                <div className="border-t border-gray-400/40 mt-4 p-6 space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm text-gray-700">
                       <span>Subtotal</span>
@@ -207,7 +204,7 @@ export default function CartDrawer() {
                     Continue shopping
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </motion.div>
         </>

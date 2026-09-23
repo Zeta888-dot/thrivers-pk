@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { client, sanityImg } from '@/lib/sanity'
 import { categoriesQuery, productsQuery, productsByBadgeQuery, heroQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
-import ScribbleLogo from '@/components/ScribbleLogo'
+// import ScribbleLogo from '@/components/ScribbleLogo'
 
 interface Hero {
   title: string
@@ -44,7 +44,6 @@ interface Product {
   category?: { name: string; slug: string }
 }
 
-/* Module level - HomePage ke bahar, warna har re-render pe remount hoga */
 function ProductSection({
   title,
   products,
@@ -57,10 +56,9 @@ function ProductSection({
   loading: boolean
 }) {
   return (
-    <section className="py-10 md:py-20">
-      {/* Section heading - thora indent jaisa northstory text */}
-      <div className="px-3 md:px-6 mb-6 md:mb-10 flex items-end justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">{title}</h2>
+    <section className="pt-0 pb-3 md:pb-6">
+      <div className="px-3 md:px-6 mb-2 md:mb-3 flex items-end justify-between">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">{title}</h2>
         {products.length > 4 && (
           <Link
             href={viewAllHref}
@@ -72,15 +70,14 @@ function ProductSection({
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
           ))}
         </div>
       ) : (
         <>
-          {/* Full-bleed grid - northstory jaisa, koi gap nahi */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0">
             {products.slice(0, 8).map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -187,8 +184,8 @@ export default function HomePage() {
   }
 
   return (
-      <div className="bg-[#f7f7f5] -mt-[105px]">
-      {/* Full-bleed hero - northstory style */}
+    <div className="bg-[#f7f7f5] -mt-[105px]">
+      {/* Full-bleed hero */}
       {hero ? (
         <section
           className="relative w-full h-[92vh] md:h-screen overflow-hidden bg-[#111]"
@@ -216,30 +213,58 @@ export default function HomePage() {
             </AnimatePresence>
           )}
 
-          {/* Scribble brand mark overlay - northstory jaisa */}
-          <div className="absolute top-24 left-6 md:left-10 xl:left-16 z-10">
+          {/* <div className="absolute top-24 left-6 md:left-10 xl:left-16 z-10">
             <ScribbleLogo className="h-16 md:h-24 w-auto text-white drop-shadow-lg" />
-          </div>
+          </div> */}
         </section>
       ) : (
         <section className="w-full h-[92vh] md:h-screen bg-[#111]" />
       )}
 
-      {/* Minimal category strip */}
+      {/* Shop by Category - horizontal swipe, attached, See all last */}
       {categories.length > 0 && (
-        <div className="border-b border-gray-200 py-4 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-8 md:gap-12 px-4 md:px-10 xl:px-16 w-max">
+        <section className="pt-1 md:pt-2 pb-3 md:pb-5">
+          <div className="px-3 md:px-6 mb-2 md:mb-3">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">
+              Shop by Category
+            </h2>
+          </div>
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
             {categories.map((c) => (
               <Link
                 key={c._id}
                 href={`/shop?category=${encodeURIComponent(c.name)}`}
-                className="text-xs md:text-sm font-semibold tracking-widest uppercase text-gray-900 hover:text-gray-500 whitespace-nowrap transition-colors"
+                className="w-[46vw] md:w-[24vw] shrink-0 group"
               >
-                {c.name}
+                <div className="aspect-[4/5] overflow-hidden bg-[#e4e4e2]">
+                  {c.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={sanityImg(c.image, 600)}
+                      alt={c.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                      {c.name}
+                    </div>
+                  )}
+                </div>
+                <div className="pt-2 pl-3 text-[15px] md:text-base text-gray-800">{c.name}</div>
               </Link>
             ))}
+            <Link href="/shop" className="w-[46vw] md:w-[24vw] shrink-0">
+              <div className="aspect-[4/5] bg-[#e4e4e2] flex items-center justify-center hover:bg-[#dcdcd9] transition-colors">
+                <span className="text-[15px] md:text-base font-semibold text-gray-900 underline underline-offset-4">
+                  See all →
+                </span>
+              </div>
+              <div className="pt-2" />
+            </Link>
           </div>
-        </div>
+        </section>
       )}
 
       {/* New Drops */}

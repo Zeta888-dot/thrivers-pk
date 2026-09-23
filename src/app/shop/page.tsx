@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown, Check, SlidersHorizontal, LayoutGrid, Square } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { client } from '@/lib/sanity'
 import { productsQuery, categoriesQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
@@ -31,7 +32,6 @@ interface Category {
   image?: string
 }
 
-/* Northstory jaisa custom dropdown */
 function Dropdown({
   label,
   value,
@@ -109,6 +109,8 @@ function ShopContent() {
   const [availability, setAvailability] = useState('')
   const [priceRange, setPriceRange] = useState('')
   const [sort, setSort] = useState('featured')
+  const [cols, setCols] = useState<1 | 2>(2)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     setCategory(categoryParam || '')
@@ -200,16 +202,95 @@ function ShopContent() {
     { v: 'price-desc', l: 'Price, high to low' },
   ]
 
-  return (
-    <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
-      <div className="px-4 md:px-6 pb-8 md:pb-12">
-        <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
-        <p className="mt-3 text-[15px] font-semibold text-gray-900">Limited Pieces Only</p>
+  const gridCols =
+    cols === 1
+      ? 'grid-cols-1 md:grid-cols-2'
+      : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
 
-        {/* Toolbar - northstory jaisa */}
-        <div className="mt-10 md:mt-14 flex flex-wrap items-center justify-between gap-4">
-          {/* Left filters */}
-          <div className="flex flex-wrap items-center gap-6 md:gap-8">
+  return (
+    <div className="pt-4 md:pt-8 min-h-screen bg-[#f7f7f5]">
+      <div className="px-3 md:px-6 pb-6 md:pb-10">
+        <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
+        <p className="mt-2 text-[13px] md:text-[15px] font-semibold text-gray-900">
+          Limited Pieces Only
+        </p>
+
+        {/* Toolbar - northstory mobile jaisa */}
+        <div className="mt-6 md:mt-10 flex items-center justify-between">
+          {/* Left: mobile Filter button / desktop dropdowns */}
+          <div className="flex items-center gap-6 md:gap-8">
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="md:hidden flex items-center gap-2 text-[15px] text-gray-800"
+            >
+              <SlidersHorizontal size={16} strokeWidth={1.5} />
+              Filter
+            </button>
+            <div className="hidden md:flex items-center gap-6 md:gap-8">
+              <Dropdown
+                label="Category"
+                value={category}
+                onSelect={setCategory}
+                options={[
+                  { v: '', l: 'All categories' },
+                  ...categories.map((c) => ({ v: c.name, l: c.name })),
+                ]}
+              />
+              <Dropdown
+                label="Availability"
+                value={availability}
+                onSelect={setAvailability}
+                options={[
+                  { v: '', l: 'All' },
+                  { v: 'in', l: 'In stock' },
+                  { v: 'out', l: 'Sold out' },
+                ]}
+              />
+              <Dropdown
+                label="Price"
+                value={priceRange}
+                onSelect={setPriceRange}
+                options={[
+                  { v: '', l: 'All prices' },
+                  { v: 'under25', l: 'Under Rs. 2,500' },
+                  { v: '25to40', l: 'Rs. 2,500 - Rs. 4,000' },
+                  { v: 'over40', l: 'Over Rs. 4,000' },
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* Right: count + sort (desktop) + view toggle */}
+          <div className="flex items-center gap-4 md:gap-6">
+            <span className="hidden md:inline text-[15px] text-gray-700">
+              {loading ? '…' : `${filtered.length} items`}
+            </span>
+            <div className="hidden md:block">
+              <Dropdown label="Sort" value={sort} onSelect={setSort} options={sortOptions} align="right" />
+            </div>
+            {/* View toggle */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCols(1)}
+                aria-label="Single column view"
+                className={`p-2 rounded-md transition-colors ${cols === 1 ? 'bg-gray-200 text-black' : 'text-gray-500 hover:text-black'}`}
+              >
+                <Square size={16} strokeWidth={1.5} />
+              </button>
+              <button
+                onClick={() => setCols(2)}
+                aria-label="Grid view"
+                className={`p-2 rounded-md transition-colors ${cols === 2 ? 'bg-gray-200 text-black' : 'text-gray-500 hover:text-black'}`}
+              >
+                <LayoutGrid size={16} strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile filter panel */}
+        {filtersOpen && (
+          <div className="md:hidden mt-4 bg-[#e9ece7] rounded-xl p-4 space-y-1">
             <Dropdown
               label="Category"
               value={category}
@@ -240,35 +321,28 @@ function ShopContent() {
                 { v: 'over40', l: 'Over Rs. 4,000' },
               ]}
             />
+            <Dropdown label="Sort" value={sort} onSelect={setSort} options={sortOptions} />
           </div>
-
-          {/* Right: count + sort */}
-          <div className="flex items-center gap-6">
-            <span className="text-[15px] text-gray-700">
-              {loading ? '…' : `${filtered.length} items`}
-            </span>
-            <Dropdown
-              label="Sort"
-              value={sort}
-              onSelect={setSort}
-              options={sortOptions}
-              align="right"
-            />
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Full-bleed grid */}
+      {/* Zero-gap grid with layout animation */}
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3">
+        <div className={`grid ${gridCols} gap-0`}>
           {[...Array(8)].map((_, i) => (
             <div key={i} className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
           ))}
         </div>
       ) : filtered.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3 pb-16 md:pb-24">
+        <div className={`grid ${gridCols} gap-0 pb-10 md:pb-16`}>
           {filtered.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <motion.div
+              key={product._id}
+              layout
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+            >
+              <ProductCard product={product} />
+            </motion.div>
           ))}
         </div>
       ) : (
@@ -282,7 +356,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="pt-[130px] min-h-screen bg-[#f7f7f5]" />}>
+    <Suspense fallback={<div className="pt-4 min-h-screen bg-[#f7f7f5]" />}>
       <ShopContent />
     </Suspense>
   )

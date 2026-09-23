@@ -83,7 +83,7 @@ export default function ProductPage() {
             setSelectedSize(firstAvailable || data.sizes[0])
           }
 
-          // Recently viewed save karo (search modal ke liye)
+          // Recently viewed save (search modal ke liye)
           try {
             const entry = {
               _id: data._id,
@@ -163,9 +163,9 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
+      <div className="pt-2 md:pt-4 min-h-screen bg-[#f7f7f5]">
         <div className="px-4 md:px-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
-          <div className="grid grid-cols-2 gap-1.5 md:gap-2">
+          <div className="grid grid-cols-2 gap-0">
             <div className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
             <div className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
           </div>
@@ -180,7 +180,7 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5] flex items-center justify-center">
+      <div className="pt-2 md:pt-4 min-h-screen bg-[#f7f7f5] flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Product not found</h1>
           <p className="text-gray-600">The product you are looking for does not exist.</p>
@@ -194,10 +194,10 @@ export default function ProductPage() {
   const stockLabel = isSoldOut ? 'Sold out' : isLowStock ? 'Low stock' : 'In stock'
 
   return (
-    <div className="pt-6 md:pt-10 min-h-screen bg-[#f7f7f5]">
-      <div className="px-4 md:px-6 pb-16 md:pb-24 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
-        {/* Left: 2-column image grid */}
-        <div className="grid grid-cols-2 gap-1.5 md:gap-2 self-start">
+    <div className="pt-2 md:pt-4 min-h-screen bg-[#f7f7f5]">
+      <div className="px-4 md:px-6 pb-10 md:pb-16 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
+        {/* Left: 2-column image grid - ZERO gap */}
+        <div className="grid grid-cols-2 gap-0 self-start">
           {images.length > 0 ? (
             images.map((src, i) => (
               <button
@@ -210,9 +210,7 @@ export default function ProductPage() {
                 <img
                   src={sanityImg(src, 900)}
                   alt={`${product.name} ${i + 1}`}
-                  className={`w-full h-auto object-cover transition-transform duration-500 hover:scale-[1.02] ${
-                    isSoldOut ? 'opacity-80 grayscale' : ''
-                  }`}
+                  className="w-full h-auto object-cover transition-transform duration-500 hover:scale-[1.02]"
                 />
               </button>
             ))
@@ -257,7 +255,7 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Size - full width, northstory jaisa evenly spread */}
+          {/* Size - full width evenly spread */}
           {product.sizes && product.sizes.length > 0 && (
             <div className="mt-6">
               <div className="text-sm text-gray-800 mb-2.5 text-center">Size</div>
@@ -342,15 +340,15 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* You may also like */}
+      {/* You may also like - zero gap */}
       {related.length > 0 && (
-        <section className="pb-16 md:pb-24">
-          <div className="px-4 md:px-6 mb-6 md:mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
+        <section className="pb-10 md:pb-16">
+          <div className="px-3 md:px-6 mb-2 md:mb-3">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">
               You may also like
             </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-1.5 gap-y-10 md:gap-x-2 md:gap-y-16 px-1.5 md:px-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
             {related.map((p) => (
               <ProductCard key={p._id} product={p} />
             ))}

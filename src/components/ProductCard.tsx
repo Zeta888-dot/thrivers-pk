@@ -43,7 +43,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const soldOut = stockStr.includes('out') || product.stockQuantity === 0
   const onSale = !!product.compareAtPrice && product.compareAtPrice > product.price
 
-  // Hover pe next image (northstory jaisa), leave pe wapis first
   const handleEnter = () => {
     if (images.length > 1) setImgIdx((i) => (i + 1) % images.length)
   }
@@ -60,7 +59,6 @@ export default function ProductCard({ product }: { product: Product }) {
     setImgIdx((i) => (i + 1) % images.length)
   }
 
-  // Agli image preload karo taake hover pe instant dikhe
   useEffect(() => {
     if (images.length > 1) {
       const nextIdx = (imgIdx + 1) % images.length
@@ -73,7 +71,6 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <>
       <div className="group relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-        {/* Image - clean, lazy loading */}
         <div className="relative aspect-[4/5] overflow-hidden">
           <Link href={`/product/${product.slug}`} className="block w-full h-full">
             {images[imgIdx] ? (
@@ -84,9 +81,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className={`w-full h-full object-cover animate-fade transition-transform duration-500 group-hover:scale-[1.02] ${
-                  soldOut ? 'grayscale' : ''
-                }`}
+                className="w-full h-full object-cover animate-fade transition-transform duration-500 group-hover:scale-[1.02]"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
@@ -95,7 +90,14 @@ export default function ProductCard({ product }: { product: Product }) {
             )}
           </Link>
 
-          {/* Hover arrows - northstory style */}
+          {/* Sold out pill - northstory jaisa top right */}
+          {soldOut && (
+            <span className="absolute top-3 right-3 bg-[#e9ece7]/95 text-gray-800 text-xs font-medium px-3.5 py-1.5 rounded-full pointer-events-none">
+              Sold out
+            </span>
+          )}
+
+          {/* Hover arrows */}
           {images.length > 1 && (
             <>
               <button
@@ -115,8 +117,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </>
           )}
 
-          {/* Cart icon circle - product hover pe appear;
-              icon pe hover karo to Choose pill banta hai */}
+          {/* Cart icon circle → Choose pill on hover */}
           <button
             onClick={() => setQuickOpen(true)}
             aria-label="Quick view"
@@ -129,15 +130,15 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
         </div>
 
-        {/* Name + price - northstory jaisa indent */}
-        <Link href={`/product/${product.slug}`} className="block pt-5 md:pt-7 pb-2">
-          <h3 className="pl-4 md:pl-6 text-[15px] md:text-base font-normal text-gray-800 leading-snug">
+        {/* Name + price - northstory jaisa chhota */}
+        <Link href={`/product/${product.slug}`} className="block pt-2 md:pt-3 pb-0">
+          <h3 className="pl-4 md:pl-6 text-[13px] md:text-[15px] font-normal text-gray-800 leading-snug">
             {product.name}
           </h3>
-          <div className="pl-5 md:pl-[52px] mt-1 flex items-baseline gap-2">
-            <span className="text-[15px] md:text-base text-gray-800">Rs. {fmt(product.price)}</span>
+          <div className="pl-5 md:pl-[52px] mt-0.5 flex items-baseline gap-2">
+            <span className="text-[13px] md:text-[15px] text-gray-800">Rs. {fmt(product.price)}</span>
             {onSale && (
-              <span className="text-[13px] md:text-sm text-gray-500 line-through">
+              <span className="text-[11px] md:text-[13px] text-gray-500 line-through">
                 Rs. {fmt(product.compareAtPrice!)}
               </span>
             )}
