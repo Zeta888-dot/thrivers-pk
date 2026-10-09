@@ -1,4 +1,40 @@
-import { defineField, defineType } from 'sanity'
+﻿import { defineField, defineType } from 'sanity'
+
+const tileFields = (defaults: { title: string; tagline: string; link: string }) => [
+  defineField({
+    name: 'title',
+    title: 'Title',
+    type: 'string',
+    initialValue: defaults.title,
+  }),
+  defineField({
+    name: 'tagline',
+    title: 'Tagline',
+    type: 'string',
+    description: 'Chhoti line title ke neeche, e.g. "Everyday essentials"',
+    initialValue: defaults.tagline,
+  }),
+  defineField({
+    name: 'image',
+    title: 'Image (Desktop)',
+    type: 'image',
+    options: { hotspot: true },
+    description: 'Wide crop, recommended: 1200x600px',
+  }),
+  defineField({
+    name: 'mobileImage',
+    title: 'Image (Mobile)',
+    type: 'image',
+    options: { hotspot: true },
+    description: 'Optional. Agar khali ho to desktop image use hogi',
+  }),
+  defineField({
+    name: 'link',
+    title: 'Link',
+    type: 'string',
+    initialValue: defaults.link,
+  }),
+]
 
 export const hero = defineType({
   name: 'hero',
@@ -94,6 +130,26 @@ export const hero = defineType({
       type: 'number',
       initialValue: 0.4,
       validation: (rule) => rule.min(0).max(1),
+    }),
+    defineField({
+      name: 'originalsTile',
+      title: 'Bottom Tile (Left): Thrivers Originals',
+      type: 'object',
+      fields: tileFields({
+        title: 'Thrivers Originals',
+        tagline: 'Built for the ones who go further',
+        link: '/shop?origin=thrivers',
+      }),
+    }),
+    defineField({
+      name: 'chitralTile',
+      title: 'Bottom Tile (Right): Chitral Special',
+      type: 'object',
+      fields: tileFields({
+        title: 'Chitral Special',
+        tagline: 'Handcrafted in the valley',
+        link: '/shop?origin=chitral-special',
+      }),
     }),
   ],
   preview: {

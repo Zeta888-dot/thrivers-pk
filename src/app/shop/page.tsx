@@ -22,6 +22,7 @@ interface Product {
   featured?: boolean
   badges?: string[]
   unavailableSizes?: string[]
+  origin?: string
   category?: { name: string; slug: string }
 }
 
@@ -31,6 +32,24 @@ interface Category {
   slug: string
   image?: string
 }
+
+// URL ?origin=chitral-special  ->  Sanity value chitral_special
+const originFromParam = (v: string | null) => {
+  if (v === 'chitral-special' || v === 'chitral_special') return 'chitral_special'
+  if (v === 'thrivers') return 'thrivers'
+  return ''
+}
+
+const ORIGIN_LABEL: Record<string, string> = {
+  thrivers: 'Thrivers Originals',
+  chitral_special: 'Chitral Special',
+}
+
+const originOptions = [
+  { v: '', l: 'All collections' },
+  { v: 'thrivers', l: 'Thrivers Originals' },
+  { v: 'chitral_special', l: 'Chitral Special' },
+]
 
 function Dropdown({
   label,
@@ -98,6 +117,7 @@ function ShopContent() {
   const params = useSearchParams()
   const categoryParam = params.get('category')
   const badgeParam = params.get('badge')
+  const originParam = originFromParam(params.get('origin'))
   const search = params.get('search')
 
   const [products, setProducts] = useState<Product[]>([])
@@ -106,6 +126,7 @@ function ShopContent() {
 
   const [category, setCategory] = useState(categoryParam || '')
   const [badge, setBadge] = useState(badgeParam || '')
+  const [origin, setOrigin] = useState(originParam)
   const [availability, setAvailability] = useState('')
   const [priceRange, setPriceRange] = useState('')
   const [sort, setSort] = useState('featured')
@@ -115,7 +136,8 @@ function ShopContent() {
   useEffect(() => {
     setCategory(categoryParam || '')
     setBadge(badgeParam || '')
-  }, [categoryParam, badgeParam])
+    setOrigin(originParam)
+  }, [categoryParam, badgeParam, originParam])
 
   useEffect(() => {
     async function fetchAll() {
@@ -155,6 +177,7 @@ function ShopContent() {
 
   const filtered = useMemo(() => {
     const list = products.filter((p) => {
+      if (origin && (p.origin || 'thrivers') !== origin) return false
       if (category && p.category?.name !== category) return false
       if (badge && !(p.badges || []).includes(badge)) return false
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
@@ -183,12 +206,18 @@ function ShopContent() {
       default:
         return list
     }
-  }, [products, category, badge, search, availability, priceRange, sort])
+  }, [products, origin, category, badge, search, availability, priceRange, sort])
+
+  const originLabel = origin ? ORIGIN_LABEL[origin] : ''
 
   const title = search
     ? `Search: "${search}"`
     : badge
     ? badge
+    : originLabel && category
+    ? `${originLabel} · ${category}`
+    : originLabel
+    ? originLabel
     : category
     ? category
     : 'Products'
@@ -227,6 +256,12 @@ function ShopContent() {
               Filter
             </button>
             <div className="hidden md:flex items-center gap-6 md:gap-8">
+              <Dropdown
+                label="Collection"
+                value={origin}
+                onSelect={setOrigin}
+                options={originOptions}
+              />
               <Dropdown
                 label="Category"
                 value={category}
@@ -292,6 +327,12 @@ function ShopContent() {
         {filtersOpen && (
           <div className="md:hidden mt-4 bg-[#e9ece7] rounded-xl p-4 space-y-1">
             <Dropdown
+              label="Collection"
+              value={origin}
+              onSelect={setOrigin}
+              options={originOptions}
+            />
+            <Dropdown
               label="Category"
               value={category}
               onSelect={setCategory}
@@ -347,7 +388,7 @@ function ShopContent() {
         </div>
       ) : (
         <div className="text-center py-24 text-gray-500">
-          No products found{search ? ` for "${search}"` : ''}.
+          {originLabel && !search ? `No ${originLabel} products yet.` : `No products found${search ? ` for "${search}"` : ''}.`}
         </div>
       )}
     </div>

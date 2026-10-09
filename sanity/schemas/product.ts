@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+﻿import { defineField, defineType } from 'sanity'
 
 export const product = defineType({
   name: 'product',
@@ -19,6 +19,21 @@ export const product = defineType({
         source: 'name',
         maxLength: 96,
       },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'origin',
+      title: 'Product Line',
+      description: 'Ye product Thrivers Originals mein jayega ya Chitral Special mein',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Thrivers Originals', value: 'thrivers' },
+          { title: 'Chitral Special', value: 'chitral_special' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'thrivers',
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -172,4 +187,18 @@ export const product = defineType({
       },
     }),
   ],
+  preview: {
+    select: {
+      title: 'name',
+      origin: 'origin',
+      media: 'images.0',
+    },
+    prepare({ title, origin, media }) {
+      return {
+        title,
+        subtitle: origin === 'chitral_special' ? 'Chitral Special' : 'Thrivers Originals',
+        media,
+      }
+    },
+  },
 })
