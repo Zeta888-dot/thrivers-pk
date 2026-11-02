@@ -3,11 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-const CheckIcon = ({ size = 56 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6 9 17l-5-5" />
-  </svg>
-)
+import { CheckCircle } from '@phosphor-icons/react'
 
 export default function SuccessPage() {
   return (
@@ -25,7 +21,7 @@ export default function SuccessPage() {
           className="mb-8 flex justify-center"
         >
           <div className="w-20 h-20 rounded-full bg-[#e9ece7] flex items-center justify-center text-gray-900">
-            <CheckIcon size={44} />
+            <CheckCircle size={44} weight="light" />
           </div>
         </motion.div>
 

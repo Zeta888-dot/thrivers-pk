@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronDown, X } from 'lucide-react'
+import { CaretDown, MagnifyingGlass, ShoppingCartSimpleIcon, X } from '@phosphor-icons/react'
 import { useRouter, useParams } from 'next/navigation'
 import { client, sanityImg } from '@/lib/sanity'
 import { productBySlugQuery, productsQuery } from '@/lib/queries'
@@ -11,14 +11,6 @@ import ProductCard from '@/components/ProductCard'
 
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-const BagPlusIcon = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
-    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
-    <path d="M12 11.5v5M9.5 14h5" />
-  </svg>
-)
 
 function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -31,9 +23,9 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
         <span className="text-[12px] font-semibold tracking-widest uppercase text-gray-900">
           {title}
         </span>
-        <ChevronDown
+        <CaretDown
           size={16}
-          strokeWidth={1.5}
+          weight="light"
           className={`text-gray-800 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         />
       </button>
@@ -182,6 +174,7 @@ export default function ProductPage() {
     return (
       <div className="pt-2 md:pt-4 min-h-screen bg-[#f7f7f5] flex items-center justify-center">
         <div className="text-center">
+          <MagnifyingGlass size={48} weight="light" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Product not found</h1>
           <p className="text-gray-600">The product you are looking for does not exist.</p>
         </div>
@@ -290,7 +283,7 @@ export default function ProductPage() {
               disabled={isSoldOut}
               className="w-full bg-white border-2 border-gray-900 rounded-xl py-3.5 flex items-center justify-center gap-2 text-gray-900 font-medium hover:bg-black hover:text-white transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-900"
             >
-              <BagPlusIcon size={18} /> Add to cart
+              <ShoppingCartSimpleIcon size={18} weight="light" /> Add to cart
             </button>
             <button
               onClick={buyNow}
@@ -364,7 +357,7 @@ export default function ProductPage() {
             className="absolute top-6 right-6 z-10 p-2 text-white hover:text-gray-300 transition-colors"
             aria-label="Close"
           >
-            <X size={28} strokeWidth={1.5} />
+            <X size={28} weight="light" />
           </button>
 
           <div className="w-full h-full flex items-center justify-center p-6 md:p-16 md:pr-32">

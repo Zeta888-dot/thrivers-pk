@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ChevronDown, Check, SlidersHorizontal, LayoutGrid, Square } from 'lucide-react'
+import { CaretDown, Check, FadersHorizontal, MagnifyingGlass, SquaresFour, Square } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { client } from '@/lib/sanity'
 import { productsQuery, categoriesQuery } from '@/lib/queries'
@@ -30,6 +30,7 @@ interface Category {
   _id: string
   name: string
   slug: string
+  origin?: string
   image?: string
 }
 
@@ -84,7 +85,7 @@ function Dropdown({
         className="flex items-center gap-2 text-[15px] text-gray-800 py-2 hover:text-black transition-colors"
       >
         {current && value !== '' ? current.l : label}
-        <ChevronDown size={16} strokeWidth={1.5} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <CaretDown size={16} weight="light" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div
@@ -102,7 +103,7 @@ function Dropdown({
               className="w-full text-left px-4 py-2.5 text-[15px] text-gray-800 hover:bg-black/5 transition-colors flex items-center"
             >
               <span className="w-5 shrink-0">
-                {o.v === value && <Check size={14} strokeWidth={2} />}
+                {o.v === value && <Check size={14} weight="light" />}
               </span>
               {o.l}
             </button>
@@ -163,6 +164,7 @@ function ShopContent() {
             _id: c._id,
             name: c.name,
             slug: c.slug?.current || c.slug || '',
+            origin: c.origin || 'thrivers',
             image: c.image,
           }))
         )
@@ -178,7 +180,7 @@ function ShopContent() {
   const filtered = useMemo(() => {
     const list = products.filter((p) => {
       if (origin && (p.origin || 'thrivers') !== origin) return false
-      if (category && p.category?.name !== category) return false
+      if (category && p.category?.slug !== category && p.category?.name !== category) return false
       if (badge && !(p.badges || []).includes(badge)) return false
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
       if (availability === 'in' && (p.stock || '').includes('out')) return false
@@ -208,18 +210,45 @@ function ShopContent() {
     }
   }, [products, origin, category, badge, search, availability, priceRange, sort])
 
+  const visibleCategories = origin
+    ? categories.filter((c) => (c.origin || 'thrivers') === origin)
+    : categories
+
+  const categoryOptions = [
+    { v: '', l: 'All categories' },
+    ...visibleCategories.map((c) => ({ v: c.slug, l: c.name })),
+  ]
+
+  const currentCategory = categories.find(
+    (c) =>
+      (c.slug === category || c.name === category) &&
+      (!origin || (c.origin || 'thrivers') === origin)
+  )
+  const categoryLabel = currentCategory?.name || category
+
+  const handleOriginChange = (next: string) => {
+    setOrigin(next)
+    if (!category) return
+    const match = categories.find(
+      (c) =>
+        (c.slug === category || c.name === category) &&
+        (!next || (c.origin || 'thrivers') === next)
+    )
+    if (!match) setCategory('')
+  }
+
   const originLabel = origin ? ORIGIN_LABEL[origin] : ''
 
   const title = search
     ? `Search: "${search}"`
     : badge
     ? badge
-    : originLabel && category
-    ? `${originLabel} · ${category}`
+    : originLabel && categoryLabel
+    ? `${originLabel} · ${categoryLabel}`
     : originLabel
     ? originLabel
-    : category
-    ? category
+    : categoryLabel
+    ? categoryLabel
     : 'Products'
 
   const sortOptions = [
@@ -252,24 +281,21 @@ function ShopContent() {
               onClick={() => setFiltersOpen(!filtersOpen)}
               className="md:hidden flex items-center gap-2 text-[15px] text-gray-800"
             >
-              <SlidersHorizontal size={16} strokeWidth={1.5} />
+              <FadersHorizontal size={16} weight="light" />
               Filter
             </button>
             <div className="hidden md:flex items-center gap-6 md:gap-8">
               <Dropdown
                 label="Collection"
                 value={origin}
-                onSelect={setOrigin}
+                onSelect={handleOriginChange}
                 options={originOptions}
               />
               <Dropdown
                 label="Category"
-                value={category}
+                value={currentCategory?.slug || category}
                 onSelect={setCategory}
-                options={[
-                  { v: '', l: 'All categories' },
-                  ...categories.map((c) => ({ v: c.name, l: c.name })),
-                ]}
+                options={categoryOptions}
               />
               <Dropdown
                 label="Availability"
@@ -310,14 +336,14 @@ function ShopContent() {
                 aria-label="Single column view"
                 className={`p-2 rounded-md transition-colors ${cols === 1 ? 'bg-gray-200 text-black' : 'text-gray-500 hover:text-black'}`}
               >
-                <Square size={16} strokeWidth={1.5} />
+                <Square size={16} weight="light" />
               </button>
               <button
                 onClick={() => setCols(2)}
                 aria-label="Grid view"
                 className={`p-2 rounded-md transition-colors ${cols === 2 ? 'bg-gray-200 text-black' : 'text-gray-500 hover:text-black'}`}
               >
-                <LayoutGrid size={16} strokeWidth={1.5} />
+                <SquaresFour size={16} weight="light" />
               </button>
             </div>
           </div>
@@ -329,17 +355,14 @@ function ShopContent() {
             <Dropdown
               label="Collection"
               value={origin}
-              onSelect={setOrigin}
+              onSelect={handleOriginChange}
               options={originOptions}
             />
             <Dropdown
               label="Category"
-              value={category}
+              value={currentCategory?.slug || category}
               onSelect={setCategory}
-              options={[
-                { v: '', l: 'All categories' },
-                ...categories.map((c) => ({ v: c.name, l: c.name })),
-              ]}
+              options={categoryOptions}
             />
             <Dropdown
               label="Availability"
@@ -388,6 +411,7 @@ function ShopContent() {
         </div>
       ) : (
         <div className="text-center py-24 text-gray-500">
+          <MagnifyingGlass size={44} weight="light" className="mx-auto mb-4" />
           {originLabel && !search ? `No ${originLabel} products yet.` : `No products found${search ? ` for "${search}"` : ''}.`}
         </div>
       )}

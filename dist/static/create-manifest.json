@@ -1,6 +1,6 @@
 {
-  "createdAt": "2026-08-16T16:26:01.974Z",
-  "studioVersion": "5.31.1",
+  "createdAt": "2026-11-02T12:10:44.483Z",
+  "studioVersion": "5.31.2",
   "version": 3,
   "workspaces": [
     {
@@ -13,7 +13,7 @@
       },
       "name": "default",
       "projectId": "l9jivley",
-      "schema": "bff45f36.create-schema.json",
+      "schema": "48b1934d.create-schema.json",
       "title": "Thrivers PK",
       "tools": "ef87c8fe.create-tools.json"
     }

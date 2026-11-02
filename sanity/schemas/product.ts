@@ -28,7 +28,7 @@ export const product = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Thrivers Originals', value: 'thrivers' },
+          { title: 'Thrivers', value: 'thrivers' },
           { title: 'Chitral Special', value: 'chitral_special' },
         ],
         layout: 'radio',
@@ -86,6 +86,12 @@ export const product = defineType({
       title: 'Category',
       type: 'reference',
       to: [{ type: 'category' }],
+      options: {
+        filter: ({ document }) => ({
+          filter: 'coalesce(origin, "thrivers") == $origin',
+          params: { origin: (document?.origin as string | undefined) || 'thrivers' },
+        }),
+      },
     }),
     defineField({
       name: 'colors',

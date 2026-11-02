@@ -1,20 +1,30 @@
 ﻿'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Check, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
 import { client, sanityImg } from '@/lib/sanity'
+import { urlFor } from '@/sanity/lib/sanity'
 import { categoriesQuery, productsQuery, productsByBadgeQuery, heroQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
 // import ScribbleLogo from '@/components/ScribbleLogo'
 
+interface HeroTileImage {
+  alt?: string
+  asset?: { _ref?: string }
+  hotspot?: { x: number; y: number; width: number; height: number }
+  crop?: { top: number; bottom: number; left: number; right: number }
+}
+
 interface HeroTile {
   title?: string
   tagline?: string
-  imageUrl?: string
-  mobileImageUrl?: string
+  body?: string
+  image?: HeroTileImage | null
   link?: string
+  overlayOpacity?: number
 }
 
 interface Hero {
@@ -36,6 +46,7 @@ interface Category {
   _id: string
   name: string
   slug: string
+  origin?: string
   image?: string
 }
 
@@ -67,41 +78,137 @@ function HeroTileCard({
   fallbackLink: string
   isMobile: boolean
 }) {
-  const img = (isMobile && tile?.mobileImageUrl) || tile?.imageUrl
-  const title = tile?.title || fallbackTitle
+  const title = tile?.title?.trim() || fallbackTitle
+  const tagline = tile?.tagline?.trim()
+  const body = tile?.body?.trim()
   const href = tile?.link || fallbackLink
+  const image = tile?.image
+  const overlayOpacity = Math.min(100, Math.max(0, tile?.overlayOpacity ?? 70)) / 100
+  const imageSrc = image?.asset?._ref
+    ? urlFor(image)
+        .width(isMobile ? 900 : 1600)
+        .height(isMobile ? 675 : 900)
+        .fit('crop')
+        .auto('format')
+        .quality(80)
+        .url()
+    : null
 
   return (
-    <Link href={href} className="group relative block h-full w-full overflow-hidden bg-[#1a1a1a]">
-      {img && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={sanityImg(img, 1000)}
-          alt={title}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+    <Link
+      href={href}
+      className="group relative block aspect-[4/3] min-h-[220px] w-full overflow-hidden bg-[#151515] md:aspect-auto md:h-[38vh] md:min-h-[280px]"
+    >
+      {imageSrc && (
+        <Image
+          src={imageSrc}
+          alt={image?.alt || title}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
         />
       )}
 
-      {/* readability gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
+      {/* readability gradient - bottom to top */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `linear-gradient(to top, rgba(0,0,0,${overlayOpacity}) 0%, rgba(0,0,0,${Math.min(
+            0.9,
+            overlayOpacity * 0.7
+          )}) 45%, rgba(0,0,0,0.05) 100%)`,
+        }}
+      />
 
-      <div className="absolute inset-0 flex flex-col justify-end p-3 sm:p-5 md:p-8 lg:p-10">
-        <h3 className="text-white text-base sm:text-xl md:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight">
-          {title}
-        </h3>
-        {tile?.tagline && (
-          <p className="mt-0.5 md:mt-1 text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.18em] text-white/80">
-            {tile.tagline}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-start p-5 sm:p-6 md:p-8 lg:p-10">
+        {tagline && (
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/80 md:text-xs">
+            {tagline}
           </p>
         )}
-        <span className="mt-2 md:mt-3 inline-flex w-fit items-center gap-1.5 border border-white/70 px-2.5 py-1 md:px-4 md:py-2 text-[10px] md:text-xs font-medium uppercase tracking-[0.18em] text-white transition-colors group-hover:bg-white group-hover:text-black">
+        <h3 className="max-w-[92%] text-2xl font-semibold leading-[1.05] tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
+          {title}
+        </h3>
+        {body && (
+          <p className="mt-2 line-clamp-3 max-w-[92%] text-xs leading-relaxed text-white/70 md:mt-3 md:text-sm">
+            {body}
+          </p>
+        )}
+        <span className="mt-4 inline-flex w-fit items-center gap-2 border border-white/70 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black md:mt-5 md:px-4 md:py-2 md:text-xs">
           Explore
-          <ArrowRight size={12} className="md:w-[14px] md:h-[14px]" />
+          <ArrowRight size={14} weight="light" />
         </span>
       </div>
     </Link>
+  )
+}
+
+function LineSelectorCard({
+  title,
+  image,
+  selected,
+  comingSoon,
+  onClick,
+}: {
+  title: string
+  image: { src: string; alt: string } | null
+  selected: boolean
+  comingSoon: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`group relative block w-full overflow-hidden text-left transition-all duration-300 ${
+        selected
+          ? 'ring-2 ring-black ring-offset-2 ring-offset-[#f7f7f5]'
+          : 'ring-1 ring-black/10 hover:ring-black/30'
+      }`}
+    >
+      <div className="relative aspect-[4/3] w-full bg-[#1a1a1a] md:aspect-[2.2/1]">
+        {image ? (
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="(max-width: 768px) 50vw, 50vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2b2b2b] to-[#111]" />
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+        {comingSoon && (
+          <span className="absolute right-2 top-2 border border-white/30 bg-black/30 px-1.5 py-1 text-[8px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm md:right-3 md:top-3 md:px-2 md:text-[10px]">
+            Coming soon
+          </span>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4 md:p-6">
+          <div className="min-w-0">
+            <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/65 md:text-[10px]">
+              Collection
+            </p>
+            <h3 className="mt-1 text-sm font-semibold leading-tight tracking-tight text-white sm:text-base md:text-2xl">
+              {title}
+            </h3>
+          </div>
+          <span
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors md:h-9 md:w-9 ${
+              selected
+                ? 'border-white bg-white text-black'
+                : 'border-white/50 text-white group-hover:border-white'
+            }`}
+          >
+            {selected ? <Check size={13} weight="light" /> : <ArrowRight size={13} weight="light" />}
+          </span>
+        </div>
+      </div>
+    </button>
   )
 }
 
@@ -144,7 +251,10 @@ function ProductSection({
             ))}
           </div>
           {products.length === 0 && (
-            <div className="text-center py-12 text-gray-500">No products in this section yet.</div>
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <ShoppingCartSimpleIcon size={40} weight="light" className="mb-3" />
+              <span>No products in this section yet.</span>
+            </div>
           )}
         </>
       )}
@@ -158,7 +268,10 @@ export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState<Product[]>([])
   const [bestSellers, setBestSellers] = useState<Product[]>([])
   const [saleProducts, setSaleProducts] = useState<Product[]>([])
+  const [thriversProducts, setThriversProducts] = useState<Product[]>([])
+  const [chitralProducts, setChitralProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedLine, setSelectedLine] = useState<'thrivers' | 'chitral_special'>('thrivers')
   const [currentSlide, setCurrentSlide] = useState(0)
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
@@ -185,22 +298,13 @@ export default function HomePage() {
 
         setHero(heroData)
 
-        const CATEGORY_ORDER = ['T-Shirts', 'Crochet Shirts', 'Trousers', 'Formals']
-
         const normalizedCategories = catsData.map((cat: any) => ({
           _id: cat._id,
           name: cat.name,
           slug: cat.slug?.current || cat.slug || '',
+          origin: cat.origin || 'thrivers',
           image: cat.image,
         }))
-
-        normalizedCategories.sort((a: Category, b: Category) => {
-          const aIndex = CATEGORY_ORDER.findIndex((o) => o.toLowerCase() === a.name.toLowerCase())
-          const bIndex = CATEGORY_ORDER.findIndex((o) => o.toLowerCase() === b.name.toLowerCase())
-          const aRank = aIndex === -1 ? CATEGORY_ORDER.length : aIndex
-          const bRank = bIndex === -1 ? CATEGORY_ORDER.length : bIndex
-          return aRank - bRank
-        })
 
         setCategories(normalizedCategories)
 
@@ -215,6 +319,16 @@ export default function HomePage() {
         setNewArrivals(newArrivalsData.map(normalize))
         setBestSellers(bestSellersData.map(normalize))
         setSaleProducts(saleData.map(normalize))
+        setThriversProducts(
+          productsData
+            .filter((p: { origin?: string }) => p.origin === 'thrivers')
+            .map(normalize)
+        )
+        setChitralProducts(
+          productsData
+            .filter((p: { origin?: string }) => p.origin === 'chitral_special')
+            .map(normalize)
+        )
       } catch (error) {
         console.error('Failed to fetch data:', error)
       } finally {
@@ -226,13 +340,6 @@ export default function HomePage() {
 
   const activeImages = isMobile ? hero?.mobileImages : hero?.desktopImages
   const maxSlides = activeImages?.length || 1
-
-  // Autoplay: currentSlide dependency => manual next/prev ke baad timer dobara 5s se start
-  useEffect(() => {
-    if (maxSlides <= 1) return
-    const t = setInterval(() => setCurrentSlide((p) => (p + 1) % maxSlides), 5000)
-    return () => clearInterval(t)
-  }, [maxSlides, currentSlide])
 
   const goNext = () => setCurrentSlide((p) => (p + 1) % maxSlides)
   const goPrev = () => setCurrentSlide((p) => (p - 1 + maxSlides) % maxSlides)
@@ -248,13 +355,57 @@ export default function HomePage() {
     setTouchEndX(0)
   }
 
+  const thriversCategories = categories.filter(
+    (category) => (category.origin || 'thrivers') === 'thrivers'
+  )
+  const chitralCategories = categories.filter(
+    (category) => (category.origin || 'thrivers') === 'chitral_special'
+  )
+  const selectedCategories =
+    selectedLine === 'chitral_special' ? chitralCategories : thriversCategories
+  const chitralComingSoon =
+    !loading && (chitralProducts.length === 0 || chitralCategories.length === 0)
+
+  const lineImage = (line: 'thrivers' | 'chitral_special') => {
+    const lineCategories = line === 'chitral_special' ? chitralCategories : thriversCategories
+    const categoryWithImage = lineCategories.find((category) => category.image)
+
+    if (categoryWithImage?.image) {
+      return {
+        src: sanityImg(categoryWithImage.image, 1200),
+        alt: categoryWithImage.name,
+      }
+    }
+
+    const tile = line === 'chitral_special' ? hero?.chitralTile : hero?.originalsTile
+    const tileImage = tile?.image
+
+    if (tileImage?.asset?._ref) {
+      return {
+        src: urlFor(tileImage)
+          .width(1200)
+          .height(800)
+          .fit('crop')
+          .auto('format')
+          .quality(80)
+          .url(),
+        alt:
+          tileImage.alt ||
+          tile?.title ||
+          (line === 'chitral_special' ? 'Chitral Special' : 'Thrivers Products'),
+      }
+    }
+
+    return null
+  }
+
   return (
     <div className="bg-[#f7f7f5] -mt-[105px]">
-      {/* Hero: 75% slider on top, 25% split 50/50 (Thrivers Originals | Chitral Special) */}
-      <section className="flex flex-col w-full h-[92vh] md:h-screen bg-[#111]">
-        {/* Top 75%: main hero slider */}
+      {/* Hero: slider on top, two tiles below (Thrivers Originals | Chitral Special) */}
+      <section className="w-full bg-[#111]">
+        {/* Main hero slider */}
         <div
-          className="relative basis-3/4 min-h-0 overflow-hidden"
+          className="relative h-[52vh] min-h-[360px] overflow-hidden md:h-[60vh] md:min-h-[440px]"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -287,14 +438,14 @@ export default function HomePage() {
                 aria-label="Previous slide"
                 className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 p-2 text-white drop-shadow-lg opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
               >
-                <ArrowLeft className="w-7 h-7 md:w-9 md:h-9" strokeWidth={1.25} />
+                <ArrowLeft weight="light" className="w-7 h-7 md:w-9 md:h-9" />
               </button>
               <button
                 onClick={goNext}
                 aria-label="Next slide"
                 className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 p-2 text-white drop-shadow-lg opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
               >
-                <ArrowRight className="w-7 h-7 md:w-9 md:h-9" strokeWidth={1.25} />
+                <ArrowRight weight="light" className="w-7 h-7 md:w-9 md:h-9" />
               </button>
 
               {/* Dots */}
@@ -318,68 +469,153 @@ export default function HomePage() {
           </div> */}
         </div>
 
-        {/* Bottom 25%: two tiles, 50/50 */}
-        <div className="basis-1/4 min-h-0 grid grid-cols-2 gap-px bg-white/90">
+        {/* Bottom tiles: side by side on desktop, stacked on mobile */}
+        <div className="grid grid-cols-1 gap-px bg-white/90 md:grid-cols-2">
           <HeroTileCard
             tile={hero?.originalsTile}
             fallbackTitle="Thrivers Originals"
-            fallbackLink="/shop?origin=thrivers"
+            fallbackLink="/shop"
             isMobile={isMobile}
           />
           <HeroTileCard
             tile={hero?.chitralTile}
             fallbackTitle="Chitral Special"
-            fallbackLink="/shop?origin=chitral-special"
+            fallbackLink="/shop?origin=chitral_special"
             isMobile={isMobile}
           />
         </div>
       </section>
 
-      {/* Shop by Category - horizontal swipe, attached, See all last */}
-      {categories.length > 0 && (
-        <section className="pt-1 md:pt-2 pb-3 md:pb-5">
-          <div className="px-3 md:px-6 mb-2 md:mb-3">
+      {/* Product Lines */}
+      <ProductSection
+        title="Thrivers Products"
+        products={thriversProducts}
+        viewAllHref="/shop?origin=thrivers"
+        loading={loading}
+      />
+
+      {chitralProducts.length > 0 && (
+        <ProductSection
+          title="Chitral Special"
+          products={chitralProducts}
+          viewAllHref="/shop?origin=chitral-special"
+          loading={loading}
+        />
+      )}
+
+      {/* Shop by Category - line selector + categories */}
+      <section className="pt-4 md:pt-6 pb-5 md:pb-8">
+        <div className="px-3 md:px-6 mb-3 md:mb-4 flex items-end justify-between gap-4">
+          <div>
             <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">
               Shop by Category
             </h2>
+            <p className="mt-1 text-xs text-gray-500 md:text-sm">
+              Choose a collection, then explore its categories.
+            </p>
           </div>
-          <div className="flex gap-0 overflow-x-auto scrollbar-hide">
-            {categories.map((c) => (
-              <Link
-                key={c._id}
-                href={`/shop?category=${encodeURIComponent(c.name)}`}
-                className="w-[46vw] md:w-[24vw] shrink-0 group"
-              >
-                <div className="aspect-[4/5] overflow-hidden bg-[#e4e4e2]">
-                  {c.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={sanityImg(c.image, 600)}
-                      alt={c.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          <Link
+            href={`/shop?origin=${selectedLine}`}
+            className="shrink-0 text-xs font-medium text-gray-900 underline underline-offset-4 transition-colors hover:text-gray-500 md:text-sm"
+          >
+            View all
+          </Link>
+        </div>
+
+        <div className="px-3 md:px-6 grid grid-cols-2 gap-2 md:gap-4">
+          <LineSelectorCard
+            title="Thrivers Products"
+            image={lineImage('thrivers')}
+            selected={selectedLine === 'thrivers'}
+            comingSoon={false}
+            onClick={() => setSelectedLine('thrivers')}
+          />
+          <LineSelectorCard
+            title="Chitral Special"
+            image={lineImage('chitral_special')}
+            selected={selectedLine === 'chitral_special'}
+            comingSoon={chitralComingSoon}
+            onClick={() => setSelectedLine('chitral_special')}
+          />
+        </div>
+
+        <div className="px-3 md:px-6 mt-5 md:mt-7">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h3 className="text-sm font-medium text-gray-900 md:text-base">
+              {selectedLine === 'chitral_special'
+                ? 'Chitral Special Categories'
+                : 'Thrivers Categories'}
+            </h3>
+            {!loading && !(selectedLine === 'chitral_special' && chitralComingSoon) && (
+              <span className="text-xs text-gray-500">{selectedCategories.length} categories</span>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:grid-cols-4 md:gap-x-4 md:gap-y-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
+              ))}
+            </div>
+          ) : selectedLine === 'chitral_special' && chitralComingSoon ? (
+            <div className="border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center md:py-10">
+              <p className="text-sm font-medium text-gray-900 md:text-base">
+                Chitral Special categories are coming soon.
+              </p>
+              <p className="mt-1 text-xs text-gray-500 md:text-sm">
+                New categories will appear here as the collection grows.
+              </p>
+              {chitralProducts.length > 0 && (
+                <Link
+                  href="/shop?origin=chitral_special"
+                  className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-gray-900 underline underline-offset-4 transition-colors hover:text-gray-500 md:text-sm"
+                >
+                  Browse Chitral Special
+                  <ArrowRight size={13} weight="light" />
+                </Link>
+              )}
+            </div>
+          ) : selectedCategories.length > 0 ? (
+            <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:grid-cols-4 md:gap-x-4 md:gap-y-6">
+              {selectedCategories.map((category) => (
+                <Link
+                  key={category._id}
+                  href={`/shop?origin=${selectedLine}&category=${encodeURIComponent(category.slug)}`}
+                  className="group min-w-0"
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[#e4e4e2]">
+                    {category.image ? (
+                      <Image
+                        src={sanityImg(category.image, 700)}
+                        alt={category.name}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-3 text-center text-sm text-gray-500">
+                        {category.name}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 pt-2">
+                    <span className="truncate text-sm text-gray-800 md:text-[15px]">{category.name}</span>
+                    <ArrowRight
+                      size={13}
+                      weight="light"
+                      className="shrink-0 text-gray-500 transition-transform duration-300 group-hover:translate-x-0.5"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
-                      {c.name}
-                    </div>
-                  )}
-                </div>
-                <div className="pt-2 pl-3 text-[15px] md:text-base text-gray-800">{c.name}</div>
-              </Link>
-            ))}
-            <Link href="/shop" className="w-[46vw] md:w-[24vw] shrink-0">
-              <div className="aspect-[4/5] bg-[#e4e4e2] flex items-center justify-center hover:bg-[#dcdcd9] transition-colors">
-                <span className="text-[15px] md:text-base font-semibold text-gray-900 underline underline-offset-4">
-                  See all →
-                </span>
-              </div>
-              <div className="pt-2" />
-            </Link>
-          </div>
-        </section>
-      )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center text-sm text-gray-500">
+              No categories yet.
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* New Drops */}
       <ProductSection

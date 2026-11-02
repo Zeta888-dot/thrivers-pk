@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
-import { MessageCircle, Truck } from 'lucide-react'
+import { WhatsappLogo, Truck } from '@phosphor-icons/react'
 import { sanityImg } from '@/lib/sanity'
 
 const fmt = (n: number) =>
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
                   >
                     {paymentMethod === 'cod' && <span className="w-2 h-2 rounded-full bg-black" />}
                   </div>
-                  <Truck size={18} className="text-gray-800" />
+                  <Truck size={18} weight="light" />
                   <div>
                     <div className="text-sm font-semibold text-gray-900">Cash on Delivery</div>
                     <div className="text-xs text-gray-600">Pay when you receive</div>
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
                   >
                     {paymentMethod === 'whatsapp' && <span className="w-2 h-2 rounded-full bg-black" />}
                   </div>
-                  <MessageCircle size={18} className="text-gray-800" />
+                  <WhatsappLogo size={18} weight="light" />
                   <div>
                     <div className="text-sm font-semibold text-gray-900">Order via WhatsApp</div>
                     <div className="text-xs text-gray-600">Confirm order on chat</div>

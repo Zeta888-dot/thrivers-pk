@@ -24,10 +24,12 @@ const productFields = `
 `
 
 export const categoriesQuery = groq`
-  *[_type == "category"] {
+  *[_type == "category"] | order(coalesce(order, 999999999) asc, name asc) {
     _id,
     name,
     slug,
+    "origin": coalesce(origin, "thrivers"),
+    "order": order,
     "image": image.asset->url
   }
 `
@@ -85,16 +87,28 @@ export const heroQuery = groq`
     "originalsTile": originalsTile {
       title,
       tagline,
-      "imageUrl": image.asset->url,
-      "mobileImageUrl": mobileImage.asset->url,
-      link
+      body,
+      "image": image {
+        asset,
+        hotspot,
+        crop,
+        alt
+      },
+      link,
+      overlayOpacity
     },
     "chitralTile": chitralTile {
       title,
       tagline,
-      "imageUrl": image.asset->url,
-      "mobileImageUrl": mobileImage.asset->url,
-      link
+      body,
+      "image": image {
+        asset,
+        hotspot,
+        crop,
+        alt
+      },
+      link,
+      overlayOpacity
     }
   }
 `

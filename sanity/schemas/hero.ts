@@ -11,28 +11,45 @@ const tileFields = (defaults: { title: string; tagline: string; link: string }) 
     name: 'tagline',
     title: 'Tagline',
     type: 'string',
-    description: 'Chhoti line title ke neeche, e.g. "Everyday essentials"',
+    description: 'Chhoti line title ke upar, e.g. "Everyday essentials"',
     initialValue: defaults.tagline,
   }),
   defineField({
-    name: 'image',
-    title: 'Image (Desktop)',
-    type: 'image',
-    options: { hotspot: true },
-    description: 'Wide crop, recommended: 1200x600px',
+    name: 'body',
+    title: 'Body',
+    type: 'text',
+    rows: 3,
+    description: 'Optional. 2–3 short lines shown under the title.',
   }),
   defineField({
-    name: 'mobileImage',
-    title: 'Image (Mobile)',
+    name: 'image',
+    title: 'Image',
     type: 'image',
     options: { hotspot: true },
-    description: 'Optional. Agar khali ho to desktop image use hogi',
+    description: 'Tile image. Hotspot crop will be used on desktop and mobile.',
+    fields: [
+      defineField({
+        name: 'alt',
+        title: 'Alt Text',
+        type: 'string',
+        description: 'Describe the image for accessibility.',
+      }),
+    ],
+    validation: (rule) => rule.required(),
   }),
   defineField({
     name: 'link',
     title: 'Link',
     type: 'string',
     initialValue: defaults.link,
+  }),
+  defineField({
+    name: 'overlayOpacity',
+    title: 'Overlay Opacity (%)',
+    type: 'number',
+    description: '0 = no dark overlay, 100 = solid black. Default: 70.',
+    initialValue: 70,
+    validation: (rule) => rule.min(0).max(100),
   }),
 ]
 
@@ -138,7 +155,7 @@ export const hero = defineType({
       fields: tileFields({
         title: 'Thrivers Originals',
         tagline: 'Built for the ones who go further',
-        link: '/shop?origin=thrivers',
+        link: '/shop',
       }),
     }),
     defineField({
@@ -148,7 +165,7 @@ export const hero = defineType({
       fields: tileFields({
         title: 'Chitral Special',
         tagline: 'Handcrafted in the valley',
-        link: '/shop?origin=chitral-special',
+        link: '/shop?origin=chitral_special',
       }),
     }),
   ],

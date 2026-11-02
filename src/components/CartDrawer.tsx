@@ -2,7 +2,7 @@
 
 import { useCartStore } from '@/store/cartStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, CaretLeft, CaretRight, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -69,12 +69,13 @@ export default function CartDrawer() {
           >
             <div className="flex items-center justify-end p-5">
               <button onClick={toggleCart} className="p-1 text-gray-800 hover:text-black transition-colors">
-                <X size={22} strokeWidth={1.5} />
+                <X size={22} weight="light" />
               </button>
             </div>
 
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center px-8 py-24 text-center">
+                <ShoppingCartSimpleIcon size={48} weight="light" className="mb-5" />
                 <h2 className="text-2xl md:text-[28px] font-bold text-gray-900">Your cart is empty</h2>
                 <p className="mt-3 text-[15px] text-gray-700">
                   Have an account?{' '}
@@ -115,13 +116,13 @@ export default function CartDrawer() {
                                     onClick={(e) => { e.stopPropagation(); handlePrevImage(item.id, productImages.length) }}
                                     className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-black/60 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                   >
-                                    <ChevronLeft size={12} />
+                                    <CaretLeft size={12} weight="light" />
                                   </button>
                                   <button
                                     onClick={(e) => { e.stopPropagation(); handleNextImage(item.id, productImages.length) }}
                                     className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-black/60 text-white rounded-full opacity-0 hover:opacity-100 transition-opacity"
                                   >
-                                    <ChevronRight size={12} />
+                                    <CaretRight size={12} weight="light" />
                                   </button>
                                   <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
                                     {currentIndex + 1}/{productImages.length}

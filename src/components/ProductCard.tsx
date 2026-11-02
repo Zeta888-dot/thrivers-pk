@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
 import QuickView from './QuickView'
 import { sanityImg } from '@/lib/sanity'
 
@@ -26,14 +26,6 @@ interface Product {
 
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-const BagPlusIcon = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
-    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
-    <path d="M12 11.5v5M9.5 14h5" />
-  </svg>
-)
 
 export default function ProductCard({ product }: { product: Product }) {
   const [imgIdx, setImgIdx] = useState(0)
@@ -114,14 +106,14 @@ export default function ProductCard({ product }: { product: Product }) {
                 aria-label="Previous image"
                 className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 cursor-pointer"
               >
-                <ArrowLeft size={36} strokeWidth={1.25} />
+                <ArrowLeft size={36} weight="light" />
               </button>
               <button
                 onClick={next}
                 aria-label="Next image"
                 className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 cursor-pointer"
               >
-                <ArrowRight size={36} strokeWidth={1.25} />
+                <ArrowRight size={36} weight="light" />
               </button>
             </>
           )}
@@ -132,7 +124,7 @@ export default function ProductCard({ product }: { product: Product }) {
             aria-label="Quick view"
             className="group/btn hidden md:flex absolute bottom-4 right-4 items-center bg-[#eef0ea]/95 text-gray-900 rounded-full px-3.5 py-3.5 shadow-lg hover:bg-white hover:scale-[1.03] active:scale-95 transition-all duration-300 opacity-0 group-hover:opacity-100 cursor-pointer"
           >
-            <BagPlusIcon size={18} />
+            <ShoppingCartSimpleIcon size={20} weight="light" />
             <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-300 group-hover/btn:max-w-[70px] group-hover/btn:opacity-100 group-hover/btn:ml-2">
               Choose
             </span>

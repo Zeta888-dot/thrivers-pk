@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@phosphor-icons/react'
 
 export default function Hero() {
   return (
@@ -36,7 +36,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#950606] text-white font-semibold rounded-full hover:bg-[#7a0505] transition-all hover:scale-105"
             >
               Shop Now
-              <ArrowRight size={20} />
+              <ArrowRight size={20} weight="light" />
             </Link>
             
             <Link

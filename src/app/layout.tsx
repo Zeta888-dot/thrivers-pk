@@ -5,7 +5,14 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
-import { Archivo_Black, Permanent_Marker } from "next/font/google";
+import { Archivo_Black, Permanent_Marker, Poppins } from "next/font/google";
+
+const poppins = Poppins({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-poppins",
+});
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -137,7 +144,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivoBlack.variable} ${permanentMarker.variable} scroll-smooth`}
+      className={`${poppins.variable} ${archivoBlack.variable} ${permanentMarker.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <head>
@@ -157,7 +164,7 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://cdn.sanity.io" />
       </head>
-      <body className="antialiased">
+      <body className="font-sans antialiased">
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

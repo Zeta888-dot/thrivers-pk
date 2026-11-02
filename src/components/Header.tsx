@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { X, Search, User, ChevronDown } from 'lucide-react'
+import { X, MagnifyingGlass, User, CaretDown, EqualsIcon, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '@/store/cartStore'
@@ -13,21 +13,6 @@ const BANNER_TEXT = '10% OFF On Prepaid Orders | New Drop Live Now'
 
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-const BagIcon = ({ size = 22 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
-    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
-  </svg>
-)
-
-/* 2-line hamburger */
-const MenuIcon = ({ size = 24 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-    <line x1="3" y1="9" x2="21" y2="9" />
-    <line x1="3" y1="15" x2="21" y2="15" />
-  </svg>
-)
 
 interface Product {
   _id: string
@@ -46,6 +31,7 @@ interface Category {
   _id: string
   name: string
   slug: string
+  origin?: string
 }
 
 /* Search card - same size, hover pe next image */
@@ -127,6 +113,7 @@ export default function Header() {
             _id: c._id,
             name: c.name,
             slug: c.slug?.current || c.slug || '',
+            origin: c.origin || 'thrivers',
           }))
         )
       )
@@ -195,10 +182,10 @@ export default function Header() {
             {/* Left */}
             <div className="flex items-center gap-4">
               <button onClick={() => setIsMenuOpen(true)} className={`md:hidden p-1 ${iconColor}`}>
-                <MenuIcon />
+                <EqualsIcon size={24} weight="light" />
               </button>
               <button onClick={() => setIsSearchOpen(true)} className={`md:hidden p-1 ${iconColor}`}>
-                <Search size={22} strokeWidth={1.5} />
+                <MagnifyingGlass size={22} weight="light" />
               </button>
               {/* Desktop nav - Shop dropdown */}
               <nav className="hidden md:flex items-center gap-7">
@@ -212,9 +199,9 @@ export default function Header() {
                 >
                   <button className={`flex items-center gap-1.5 text-[15px] font-semibold transition-colors ${linkColor}`}>
                     Shop
-                    <ChevronDown
+                    <CaretDown
                       size={14}
-                      strokeWidth={2}
+                      weight="light"
                       className={`transition-transform duration-200 ${shopOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
@@ -224,7 +211,7 @@ export default function Header() {
                         {categories.map((c) => (
                           <Link
                             key={c._id}
-                            href={`/shop?category=${encodeURIComponent(c.name)}`}
+                            href={`/shop?origin=${c.origin || 'thrivers'}&category=${encodeURIComponent(c.slug || c.name)}`}
                             className="text-[15px] text-gray-700 hover:text-black transition-colors"
                           >
                             {c.name}
@@ -265,13 +252,13 @@ export default function Header() {
             {/* Right icons */}
             <div className="flex items-center justify-end gap-4 md:gap-5">
               <button onClick={() => setIsSearchOpen(true)} className={`hidden md:block p-1 ${iconColor}`}>
-                <Search size={22} strokeWidth={1.5} />
+                <MagnifyingGlass size={22} weight="light" />
               </button>
               <button className={`p-1 ${iconColor}`}>
-                <User size={22} strokeWidth={1.5} />
+                <User size={22} weight="light" />
               </button>
               <button onClick={toggleCart} className={`relative p-1 ${iconColor}`}>
-                <BagIcon size={22} />
+                <ShoppingCartSimpleIcon size={24} weight="light" />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {totalItems}
@@ -302,7 +289,7 @@ export default function Header() {
               className="fixed left-1/2 -translate-x-1/2 top-[10vh] md:top-[16vh] z-[90] w-[92vw] md:w-[52vw] max-w-[1340px] bg-[#e9ece7] rounded-[20px] shadow-2xl overflow-hidden"
             >
               <div className="flex items-center gap-3 px-6 md:px-8 py-5">
-                <Search size={20} strokeWidth={1.5} className="text-gray-700" />
+                <MagnifyingGlass size={20} weight="light" className="text-gray-700" />
                 <input
                   autoFocus
                   type="text"
@@ -320,7 +307,7 @@ export default function Header() {
                   </button>
                 )}
                 <button onClick={() => setIsSearchOpen(false)} className="text-gray-800 p-1">
-                  <X size={22} strokeWidth={1.5} />
+                  <X size={22} weight="light" />
                 </button>
               </div>
 
@@ -354,9 +341,10 @@ export default function Header() {
                     />
                   ))}
                 </div>
-                {filtered.length === 0 && (
-                  <div className="text-sm text-gray-500 pb-2">
-                    {searchQuery ? 'No products found.' : ''}
+                {filtered.length === 0 && searchQuery && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500 pb-2">
+                    <MagnifyingGlass size={16} weight="light" />
+                    No products found.
                   </div>
                 )}
               </div>
@@ -385,7 +373,7 @@ export default function Header() {
             >
               <div className="p-6">
                 <button onClick={() => setIsMenuOpen(false)} className="p-1 text-black mb-8 border border-gray-400 rounded-full" aria-label="Close menu">
-                  <X size={20} />
+                  <X size={20} weight="light" />
                 </button>
 
                 <nav className="space-y-6">
@@ -404,9 +392,9 @@ export default function Header() {
                       className="flex items-center justify-between w-full text-xl font-bold text-gray-900 hover:text-gray-500 transition-colors"
                     >
                       Shop by Category
-                      <ChevronDown
+                      <CaretDown
                         size={18}
-                        strokeWidth={2}
+                        weight="light"
                         className={`transition-transform duration-200 ${mobileCatOpen ? 'rotate-180' : ''}`}
                       />
                     </button>
@@ -415,7 +403,7 @@ export default function Header() {
                         {categories.map((c) => (
                           <Link
                             key={c._id}
-                            href={`/shop?category=${encodeURIComponent(c.name)}`}
+                            href={`/shop?origin=${c.origin || 'thrivers'}&category=${encodeURIComponent(c.slug || c.name)}`}
                             onClick={() => setIsMenuOpen(false)}
                             className="block text-[15px] text-gray-600 hover:text-black transition-colors"
                           >

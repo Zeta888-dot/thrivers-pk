@@ -1,23 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail } from 'lucide-react'
+import { EnvelopeSimple, InstagramLogo } from '@phosphor-icons/react'
 
 const InstagramIcon = ({ size = 18 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-  </svg>
+  <InstagramLogo size={size} weight="light" />
 )
 
 export default function Footer() {
@@ -78,7 +65,7 @@ export default function Footer() {
                   className="p-2 border border-gray-500/50 rounded-full hover:bg-black hover:text-white transition-colors"
                   aria-label="Email"
                 >
-                  <Mail size={18} strokeWidth={1.5} />
+                  <EnvelopeSimple size={18} weight="light" />
                 </a>
               </div>
             </div>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Check } from 'lucide-react'
+import { ShoppingCartSimpleIcon, X, Check } from '@phosphor-icons/react'
 import { useCartStore } from '@/store/cartStore'
 import { sanityImg } from '@/lib/sanity'
 
@@ -23,14 +23,6 @@ interface Product {
 
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-const BagPlusIcon = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5.5 8h13l-.9 11.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5.5 8Z" />
-    <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
-    <path d="M12 11.5v5M9.5 14h5" />
-  </svg>
-)
 
 export default function QuickView({
   product,
@@ -173,7 +165,7 @@ export default function QuickView({
             {/* Right: sage panel */}
             <div className="w-full md:w-1/2 h-1/2 md:h-full bg-[#e9ece7] p-7 md:p-9 flex flex-col relative overflow-y-auto">
               <button onClick={onClose} className="absolute top-5 right-5 p-1 text-gray-800 hover:text-black transition-colors">
-                <X size={22} strokeWidth={1.5} />
+                <X size={22} weight="light" />
               </button>
 
               <h2 className="text-xl md:text-2xl font-medium text-gray-900 pr-8">{product.name}</h2>
@@ -228,7 +220,7 @@ export default function QuickView({
                       exit={{ scale: 0 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
-                      <Check size={20} strokeWidth={2.5} />
+                      <Check size={20} weight="light" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -238,7 +230,7 @@ export default function QuickView({
                       exit={{ opacity: 0 }}
                       className="flex items-center gap-2"
                     >
-                      <BagPlusIcon size={18} /> Add to cart
+                      <ShoppingCartSimpleIcon size={18} weight="light" /> Add to cart
                     </motion.div>
                   )}
                 </AnimatePresence>
