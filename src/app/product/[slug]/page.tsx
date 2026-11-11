@@ -8,6 +8,7 @@ import { productBySlugQuery, productsQuery } from '@/lib/queries'
 import { useCartStore } from '@/store/cartStore'
 import { PortableText } from 'next-sanity'
 import ProductCard from '@/components/ProductCard'
+import Breadcrumb, { type BreadcrumbItem } from '@/components/Breadcrumb'
 
 const fmt = (n: number) =>
   n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -190,8 +191,35 @@ export default function ProductPage() {
   const stockColor = isSoldOut ? '#9ca3af' : isLowStock ? '#f59e0b' : '#22c55e'
   const stockLabel = isSoldOut ? 'Sold out' : isLowStock ? 'Low stock' : 'In stock'
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Home', href: '/' },
+    { label: 'Shop', href: '/shop' },
+    ...(product.origin
+      ? [
+          {
+            label: product.origin === 'chitral_special' ? 'Chitral Special' : 'Thrivers',
+            href: `/shop?origin=${product.origin}`,
+          } as BreadcrumbItem,
+        ]
+      : []),
+    ...(product.category
+      ? [
+          {
+            label: product.category.name,
+            href: `/shop?${product.origin ? `origin=${product.origin}&` : ''}category=${encodeURIComponent(
+              product.category.slug
+            )}`,
+          } as BreadcrumbItem,
+        ]
+      : []),
+    { label: product.name },
+  ]
+
   return (
     <div className="pt-2 md:pt-4 min-h-screen bg-[#f7f7f5]">
+      <div className="px-4 md:px-6 pb-3">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
       <div className="px-4 md:px-6 pb-10 md:pb-16 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 xl:gap-12">
         {/* Left: 2-column image grid - ZERO gap */}
         <div className="grid grid-cols-2 gap-0 self-start">

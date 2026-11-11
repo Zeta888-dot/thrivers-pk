@@ -169,7 +169,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <Header />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen overflow-x-clip">{children}</main>
         <Footer />
         <CartDrawer />
         <FloatingWhatsApp />

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { client } from '@/lib/sanity'
 import { productsQuery, categoriesQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
+import Breadcrumb, { type BreadcrumbItem } from '@/components/Breadcrumb'
 
 interface Product {
   _id: string
@@ -284,9 +285,28 @@ function ShopContent() {
       ? 'grid-cols-1 md:grid-cols-2'
       : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Home', href: '/' },
+    { label: 'Shop', href: '/shop' },
+    ...(origin
+      ? [{ label: ORIGIN_LABEL[origin], href: `/shop?origin=${origin}` } as BreadcrumbItem]
+      : []),
+    ...(currentCategory
+      ? [
+          {
+            label: currentCategory.name,
+            href: `/shop?${origin ? `origin=${origin}&` : ''}category=${encodeURIComponent(
+              currentCategory.slug
+            )}`,
+          } as BreadcrumbItem,
+        ]
+      : []),
+  ]
+
   return (
     <div className="pt-4 md:pt-8 min-h-screen bg-[#f7f7f5]">
       <div className="px-3 md:px-6 pb-6 md:pb-10">
+        <Breadcrumb items={breadcrumbItems} className="mb-3 md:mb-4" />
         <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
         {currentCategory?.description && !search && !badge && (
           <p className="mt-2 max-w-2xl text-[13px] md:text-[15px] text-gray-600">
@@ -298,7 +318,7 @@ function ShopContent() {
         </p>
 
         {/* Toolbar - northstory mobile jaisa */}
-        <div className="mt-6 md:mt-10 flex items-center justify-between">
+        <div className="mt-6 md:mt-10 flex flex-wrap items-center justify-between gap-4">
           {/* Left: mobile Filter button / desktop dropdowns */}
           <div className="flex items-center gap-6 md:gap-8">
             <button
@@ -308,7 +328,7 @@ function ShopContent() {
               <FadersHorizontal size={16} weight="light" />
               Filter
             </button>
-            <div className="hidden md:flex items-center gap-6 md:gap-8">
+            <div className="hidden md:flex flex-wrap items-center gap-4 md:gap-6">
               <Dropdown
                 label="Collection"
                 value={origin}

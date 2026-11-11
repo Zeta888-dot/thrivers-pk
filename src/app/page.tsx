@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, CaretLeft, CaretRight, Check, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
+import { ArrowRight, CaretLeft, CaretRight, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
 import { useState, useEffect, useRef } from 'react'
 import { client, freshClient, sanityImg } from '@/lib/sanity'
 import { urlFor } from '@/sanity/lib/sanity'
@@ -198,26 +198,29 @@ function LineSelectorCard({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`group relative block w-full overflow-hidden text-left transition-all duration-300 ${
-        selected
-          ? 'ring-2 ring-black ring-offset-2 ring-offset-[#f7f7f5]'
-          : 'ring-1 ring-black/10 hover:ring-black/30'
+      className={`group relative block w-full text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-[#f7f7f5] ${
+        selected ? 'opacity-100' : 'opacity-80 hover:opacity-100'
       }`}
     >
-      <div className="relative aspect-[4/3] w-full bg-[#1a1a1a] md:aspect-[2.2/1]">
+      <div
+        className={`relative aspect-[4/5] w-full overflow-hidden bg-[#1a1a1a] transition-all duration-300 md:aspect-[16/9] md:max-h-[420px] ${
+          selected ? 'ring-2 ring-inset ring-white/90' : 'ring-0'
+        }`}
+      >
         {image ? (
           <Image
             src={image.src}
             alt={image.alt}
             fill
             sizes="(max-width: 768px) 50vw, 50vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-700 ease-out md:group-hover:scale-[1.03]"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#2b2b2b] to-[#111]" />
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        {/* Bottom gradient only */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
 
         {badge && (
           <span className="absolute right-2 top-2 border border-white/30 bg-black/30 px-1.5 py-1 text-[8px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm md:right-3 md:top-3 md:px-2 md:text-[10px]">
@@ -225,23 +228,17 @@ function LineSelectorCard({
           </span>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4 md:p-6">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4 md:p-6">
           <div className="min-w-0">
-            <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/65 md:text-[10px]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">
               {subtitle?.trim() || 'Collection'}
             </p>
-            <h3 className="mt-1 text-sm font-semibold leading-tight tracking-tight text-white sm:text-base md:text-2xl">
+            <h3 className="mt-1 text-lg font-semibold leading-tight tracking-tight text-white md:text-2xl">
               {title}
             </h3>
           </div>
-          <span
-            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors md:h-9 md:w-9 ${
-              selected
-                ? 'border-white bg-white text-black'
-                : 'border-white/50 text-white group-hover:border-white'
-            }`}
-          >
-            {selected ? <Check size={13} weight="light" /> : <ArrowRight size={13} weight="light" />}
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/60 text-white transition-colors duration-300 group-hover:border-white group-hover:bg-white group-hover:text-black md:h-10 md:w-10">
+            <ArrowRight size={14} weight="light" />
           </span>
         </div>
       </div>
@@ -261,7 +258,7 @@ function ProductSection({
   loading: boolean
 }) {
   return (
-    <section className="pt-0 pb-3 md:pb-6">
+    <section className="py-12 md:py-20">
       <div className="px-3 md:px-6 mb-2 md:mb-3 flex items-end justify-between">
         <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">{title}</h2>
         {products.length > 4 && (
@@ -618,29 +615,34 @@ export default function HomePage() {
               <button
                 onClick={goPrev}
                 aria-label="Previous slide"
-                className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 p-2 text-white drop-shadow-lg opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
+                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/40 md:left-6"
               >
-                <ArrowLeft weight="light" className="w-7 h-7 md:w-9 md:h-9" />
+                <CaretLeft size={18} weight="light" />
               </button>
               <button
                 onClick={goNext}
                 aria-label="Next slide"
-                className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 p-2 text-white drop-shadow-lg opacity-80 hover:opacity-100 hover:scale-110 transition-all cursor-pointer"
+                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/40 md:right-6"
               >
-                <ArrowRight weight="light" className="w-7 h-7 md:w-9 md:h-9" />
+                <CaretRight size={18} weight="light" />
               </button>
 
-              {/* Dots */}
-              <div className="absolute bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
+              {/* Line indicators */}
+              <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 md:bottom-6">
                 {Array.from({ length: maxSlides }).map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentSlide(i)}
                     aria-label={`Go to slide ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === currentSlide ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
-                    }`}
-                  />
+                    aria-current={i === currentSlide}
+                    className="flex h-6 items-center justify-center px-1"
+                  >
+                    <span
+                      className={`block h-[2px] rounded-full transition-all duration-300 ${
+                        i === currentSlide ? 'w-8 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
             </>
@@ -669,7 +671,7 @@ export default function HomePage() {
       </section>
 
       {/* Shop by Category - line selector + categories */}
-      <section className="pt-4 md:pt-6 pb-5 md:pb-8">
+      <section className="py-12 md:py-20">
         <div className="px-3 md:px-6 mb-3 md:mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-lg md:text-xl font-semibold text-gray-900 tracking-tight">
@@ -681,7 +683,7 @@ export default function HomePage() {
           </div>
           <Link
             href={`/shop?origin=${selectedLine}`}
-            className="shrink-0 text-xs font-medium text-gray-900 underline underline-offset-4 transition-colors hover:text-gray-500 md:text-sm"
+            className="shrink-0 text-sm font-semibold text-gray-900 underline underline-offset-4 transition-colors hover:text-gray-500"
           >
             View all
           </Link>
