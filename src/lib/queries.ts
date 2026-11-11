@@ -3,6 +3,7 @@
 // Shared projection: product ke saare fields ek jagah, taake queries sync rahein
 const productFields = `
   _id,
+  _createdAt,
   name,
   slug,
   description,
@@ -20,6 +21,8 @@ const productFields = `
   stockQuantity,
   featured,
   badges,
+  collections,
+  tags,
   "origin": coalesce(origin, "thrivers")
 `
 
@@ -28,9 +31,11 @@ export const categoriesQuery = groq`
     _id,
     name,
     slug,
+    description,
     "origin": coalesce(origin, "thrivers"),
     "order": order,
-    "image": image.asset->url
+    "image": image.asset->url,
+    "imageAlt": image.alt
   }
 `
 
@@ -109,6 +114,34 @@ export const heroQuery = groq`
       },
       link,
       overlayOpacity
+    },
+    "collectionCards": collectionCards {
+      "thrivers": thrivers {
+        title,
+        subtitle,
+        link,
+        comingSoon,
+        badgeText,
+        "image": image {
+          asset,
+          hotspot,
+          crop,
+          alt
+        }
+      },
+      "chitral_special": chitral_special {
+        title,
+        subtitle,
+        link,
+        comingSoon,
+        badgeText,
+        "image": image {
+          asset,
+          hotspot,
+          crop,
+          alt
+        }
+      }
     }
   }
 `

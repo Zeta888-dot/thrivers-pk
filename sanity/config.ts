@@ -4,11 +4,17 @@ import { visionTool } from '@sanity/vision'
 import { BasketIcon, EarthGlobeIcon, HomeIcon, PackageIcon, TagIcon, ThLargeIcon } from '@sanity/icons'
 import { schemaTypes } from './schemas'
 
-const originFilter = (origin: 'thrivers' | 'chitral_special') =>
-  `coalesce(origin, "thrivers") == "${origin}"`
+const originFilter = (
+  type: 'product' | 'category',
+  origin: 'thrivers' | 'chitral_special'
+) => `_type == "${type}" && coalesce(origin, "thrivers") == "${origin}"`
 
 const categoryOrdering = [
   { field: 'order', direction: 'asc' as const },
+  { field: 'name', direction: 'asc' as const },
+]
+
+const productOrdering = [
   { field: 'name', direction: 'asc' as const },
 ]
 
@@ -30,16 +36,19 @@ const lineGroup = (
             .icon(PackageIcon)
             .child(
               S.documentTypeList('product')
+                .schemaType('product')
                 .title(`${title} · Products`)
-                .filter(originFilter(origin))
+                .filter(originFilter('product', origin))
+                .defaultOrdering(productOrdering)
             ),
           S.listItem()
             .title('Categories')
             .icon(TagIcon)
             .child(
               S.documentTypeList('category')
+                .schemaType('category')
                 .title(`${title} · Categories`)
-                .filter(originFilter(origin))
+                .filter(originFilter('category', origin))
                 .defaultOrdering(categoryOrdering)
             ),
         ])
@@ -64,12 +73,18 @@ const structure: StructureResolver = (S) =>
       S.listItem()
         .title('All Products')
         .icon(ThLargeIcon)
-        .child(S.documentTypeList('product').title('All Products')),
+        .child(
+          S.documentTypeList('product')
+            .schemaType('product')
+            .title('All Products')
+            .defaultOrdering(productOrdering)
+        ),
       S.listItem()
         .title('All Categories')
         .icon(TagIcon)
         .child(
           S.documentTypeList('category')
+            .schemaType('category')
             .title('All Categories')
             .defaultOrdering(categoryOrdering)
         ),

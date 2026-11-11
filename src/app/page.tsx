@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Check, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
-import { useState, useEffect } from 'react'
-import { client, sanityImg } from '@/lib/sanity'
+import { ArrowRight, ArrowLeft, CaretLeft, CaretRight, Check, ShoppingCartSimpleIcon } from '@phosphor-icons/react'
+import { useState, useEffect, useRef } from 'react'
+import { client, freshClient, sanityImg } from '@/lib/sanity'
 import { urlFor } from '@/sanity/lib/sanity'
-import { categoriesQuery, productsQuery, productsByBadgeQuery, heroQuery } from '@/lib/queries'
+import { categoriesQuery, productsQuery, heroQuery } from '@/lib/queries'
 import ProductCard from '@/components/ProductCard'
 // import ScribbleLogo from '@/components/ScribbleLogo'
 
@@ -27,6 +27,12 @@ interface HeroTile {
   overlayOpacity?: number
 }
 
+interface HeroCollectionCard extends HeroTile {
+  subtitle?: string
+  comingSoon?: boolean
+  badgeText?: string
+}
+
 interface Hero {
   title: string
   subtitle: string
@@ -40,6 +46,10 @@ interface Hero {
   overlayOpacity: number
   originalsTile?: HeroTile | null
   chitralTile?: HeroTile | null
+  collectionCards?: {
+    thrivers?: HeroCollectionCard | null
+    chitral_special?: HeroCollectionCard | null
+  } | null
 }
 
 interface Category {
@@ -48,10 +58,12 @@ interface Category {
   slug: string
   origin?: string
   image?: string
+  imageAlt?: string
 }
 
 interface Product {
   _id: string
+  _createdAt?: string
   name: string
   slug: string
   price: number
@@ -59,12 +71,29 @@ interface Product {
   images?: string[]
   colors?: string[]
   sizes?: string[]
+  unavailableSizes?: string[]
   stock?: string
   stockQuantity?: number
   featured?: boolean
   badges?: string[]
+  collections?: string[]
+  tags?: string[]
   origin?: string
   category?: { name: string; slug: string }
+}
+
+function hexToRgba(hex: string | undefined, alpha: number) {
+  const clean = (hex || '').replace('#', '').trim()
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean
+  const value = parseInt(full, 16)
+  if (full.length !== 6 || Number.isNaN(value)) return `rgba(0, 0, 0, ${alpha})`
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`
 }
 
 function HeroTileCard({
@@ -83,11 +112,14 @@ function HeroTileCard({
   const body = tile?.body?.trim()
   const href = tile?.link || fallbackLink
   const image = tile?.image
-  const overlayOpacity = Math.min(100, Math.max(0, tile?.overlayOpacity ?? 70)) / 100
+  const strength = Math.min(0.9, Math.max(0.35, (tile?.overlayOpacity ?? 70) / 100))
+  const objectPosition = image?.hotspot
+    ? `${Math.round(image.hotspot.x * 100)}% ${Math.round(image.hotspot.y * 100)}%`
+    : '50% 25%'
   const imageSrc = image?.asset?._ref
     ? urlFor(image)
         .width(isMobile ? 900 : 1600)
-        .height(isMobile ? 675 : 900)
+        .height(isMobile ? 1125 : 900)
         .fit('crop')
         .auto('format')
         .quality(80)
@@ -97,7 +129,7 @@ function HeroTileCard({
   return (
     <Link
       href={href}
-      className="group relative block aspect-[4/3] min-h-[220px] w-full overflow-hidden bg-[#151515] md:aspect-auto md:h-[38vh] md:min-h-[280px]"
+      className="group relative block aspect-[4/5] min-h-[300px] w-full overflow-hidden bg-[#151515] md:aspect-auto md:h-[42vh] md:min-h-[320px]"
     >
       {imageSrc && (
         <Image
@@ -105,36 +137,36 @@ function HeroTileCard({
           alt={image?.alt || title}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+          style={{ objectPosition }}
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
       )}
 
-      {/* readability gradient - bottom to top */}
+      {/* Bottom-only gradient (top/faces clean) */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-x-0 bottom-0 h-[55%]"
         style={{
-          backgroundImage: `linear-gradient(to top, rgba(0,0,0,${overlayOpacity}) 0%, rgba(0,0,0,${Math.min(
-            0.9,
-            overlayOpacity * 0.7
-          )}) 45%, rgba(0,0,0,0.05) 100%)`,
+          backgroundImage: `linear-gradient(to top, rgba(0,0,0,${strength}) 0%, rgba(0,0,0,${
+            strength * 0.3
+          }) 45%, rgba(0,0,0,0) 100%)`,
         }}
       />
 
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-start p-5 sm:p-6 md:p-8 lg:p-10">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-start p-5 md:p-8">
         {tagline && (
-          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/80 md:text-xs">
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-white/80">
             {tagline}
           </p>
         )}
-        <h3 className="max-w-[92%] text-2xl font-semibold leading-[1.05] tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
+        <h3 className="max-w-[92%] text-2xl font-semibold leading-tight tracking-tight text-white md:text-3xl lg:text-4xl">
           {title}
         </h3>
         {body && (
-          <p className="mt-2 line-clamp-3 max-w-[92%] text-xs leading-relaxed text-white/70 md:mt-3 md:text-sm">
+          <p className="mt-2 line-clamp-2 max-w-xs text-sm leading-relaxed text-white/75">
             {body}
           </p>
         )}
-        <span className="mt-4 inline-flex w-fit items-center gap-2 border border-white/70 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black md:mt-5 md:px-4 md:py-2 md:text-xs">
+        <span className="mt-4 inline-flex h-10 w-fit items-center gap-2 border border-white/70 px-4 text-[10px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black md:text-xs">
           Explore
           <ArrowRight size={14} weight="light" />
         </span>
@@ -145,17 +177,22 @@ function HeroTileCard({
 
 function LineSelectorCard({
   title,
+  subtitle,
   image,
   selected,
   comingSoon,
+  badgeText,
   onClick,
 }: {
   title: string
+  subtitle?: string
   image: { src: string; alt: string } | null
   selected: boolean
   comingSoon: boolean
+  badgeText?: string
   onClick: () => void
 }) {
+  const badge = badgeText?.trim() || (comingSoon ? 'Coming soon' : '')
   return (
     <button
       type="button"
@@ -182,16 +219,16 @@ function LineSelectorCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        {comingSoon && (
+        {badge && (
           <span className="absolute right-2 top-2 border border-white/30 bg-black/30 px-1.5 py-1 text-[8px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm md:right-3 md:top-3 md:px-2 md:text-[10px]">
-            Coming soon
+            {badge}
           </span>
         )}
 
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4 md:p-6">
           <div className="min-w-0">
             <p className="text-[8px] font-medium uppercase tracking-[0.2em] text-white/65 md:text-[10px]">
-              Collection
+              {subtitle?.trim() || 'Collection'}
             </p>
             <h3 className="mt-1 text-sm font-semibold leading-tight tracking-tight text-white sm:text-base md:text-2xl">
               {title}
@@ -276,6 +313,11 @@ export default function HomePage() {
   const [touchStartX, setTouchStartX] = useState(0)
   const [touchEndX, setTouchEndX] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const categoryScrollerRef = useRef<HTMLDivElement>(null)
+  const categoryDrag = useRef({ active: false, startX: 0, startLeft: 0, moved: false })
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+  const [categoryProgress, setCategoryProgress] = useState(0)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -287,13 +329,10 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [heroData, catsData, productsData, newArrivalsData, bestSellersData, saleData] = await Promise.all([
-          client.fetch(heroQuery),
+        const [heroData, catsData, productsData] = await Promise.all([
+          freshClient.fetch(heroQuery),
           client.fetch(categoriesQuery),
           client.fetch(productsQuery),
-          client.fetch(productsByBadgeQuery, { badge: 'New Arrival' }),
-          client.fetch(productsByBadgeQuery, { badge: 'Best Seller' }),
-          client.fetch(productsByBadgeQuery, { badge: 'Sale' }),
         ])
 
         setHero(heroData)
@@ -304,31 +343,41 @@ export default function HomePage() {
           slug: cat.slug?.current || cat.slug || '',
           origin: cat.origin || 'thrivers',
           image: cat.image,
+          imageAlt: cat.imageAlt,
         }))
 
         setCategories(normalizedCategories)
 
-        const normalize = (p: any) => ({
+        const normalize = (p: any): Product => ({
           ...p,
-          slug: p.slug.current,
+          slug: p.slug?.current || p.slug,
           category: p.category
-            ? { name: p.category.name, slug: p.category.slug.current }
+            ? { name: p.category.name, slug: p.category.slug?.current || p.category.slug }
             : undefined,
         })
 
-        setNewArrivals(newArrivalsData.map(normalize))
-        setBestSellers(bestSellersData.map(normalize))
-        setSaleProducts(saleData.map(normalize))
-        setThriversProducts(
-          productsData
-            .filter((p: { origin?: string }) => p.origin === 'thrivers')
-            .map(normalize)
+        const all: Product[] = (productsData as any[]).map(normalize)
+        const newestFirst = [...all].sort(
+          (a, b) => new Date(b._createdAt || 0).getTime() - new Date(a._createdAt || 0).getTime()
         )
-        setChitralProducts(
-          productsData
-            .filter((p: { origin?: string }) => p.origin === 'chitral_special')
-            .map(normalize)
-        )
+        const isNewBadge = (p: Product) =>
+          (p.badges || []).some((b) => b.trim().toLowerCase().startsWith('new'))
+        const onSale = (p: Product) => !!p.compareAtPrice && p.compareAtPrice > p.price
+
+        setThriversProducts(all.filter((p) => p.origin === 'thrivers'))
+        setChitralProducts(all.filter((p) => p.origin === 'chitral_special'))
+
+        // New Drops: "New Arrival"-type badge first, fallback to newest products
+        const flaggedNew = newestFirst.filter(isNewBadge)
+        setNewArrivals((flaggedNew.length > 0 ? flaggedNew : newestFirst).slice(0, 8))
+
+        // Best Sellers: featured products first, newest products fill the rest
+        const featured = newestFirst.filter((p) => p.featured)
+        const bestList = featured.length > 0 ? [...featured, ...newestFirst.filter((p) => !p.featured)] : newestFirst
+        setBestSellers(bestList.slice(0, 8))
+
+        // On Sale: compareAtPrice > price
+        setSaleProducts(newestFirst.filter(onSale).slice(0, 8))
       } catch (error) {
         console.error('Failed to fetch data:', error)
       } finally {
@@ -340,6 +389,9 @@ export default function HomePage() {
 
   const activeImages = isMobile ? hero?.mobileImages : hero?.desktopImages
   const maxSlides = activeImages?.length || 1
+  const overlayHex = (hero?.overlayColor || '').trim()
+  const overlayAlpha = Math.min(1, Math.max(0, hero?.overlayOpacity ?? 0))
+  const hasColorOverlay = overlayHex.length > 0 && overlayAlpha > 0
 
   const goNext = () => setCurrentSlide((p) => (p + 1) % maxSlides)
   const goPrev = () => setCurrentSlide((p) => (p - 1 + maxSlides) % maxSlides)
@@ -366,14 +418,27 @@ export default function HomePage() {
   const chitralComingSoon =
     !loading && (chitralProducts.length === 0 || chitralCategories.length === 0)
 
-  const lineImage = (line: 'thrivers' | 'chitral_special') => {
-    const lineCategories = line === 'chitral_special' ? chitralCategories : thriversCategories
-    const categoryWithImage = lineCategories.find((category) => category.image)
+  const thriversCard = hero?.collectionCards?.thrivers
+  const chitralCard = hero?.collectionCards?.chitral_special
 
-    if (categoryWithImage?.image) {
+  // Image priority: collectionCards image -> hero bottom tile image -> neutral dark block
+  const lineImage = (line: 'thrivers' | 'chitral_special') => {
+    const card = line === 'chitral_special' ? chitralCard : thriversCard
+    const cardImage = card?.image
+
+    if (cardImage?.asset?._ref) {
       return {
-        src: sanityImg(categoryWithImage.image, 1200),
-        alt: categoryWithImage.name,
+        src: urlFor(cardImage)
+          .width(1200)
+          .height(800)
+          .fit('crop')
+          .auto('format')
+          .quality(80)
+          .url(),
+        alt:
+          cardImage.alt ||
+          card?.title ||
+          (line === 'chitral_special' ? 'Chitral Special' : 'Thrivers Originals'),
       }
     }
 
@@ -392,15 +457,75 @@ export default function HomePage() {
         alt:
           tileImage.alt ||
           tile?.title ||
-          (line === 'chitral_special' ? 'Chitral Special' : 'Thrivers Products'),
+          (line === 'chitral_special' ? 'Chitral Special' : 'Thrivers Originals'),
       }
     }
 
     return null
   }
 
+  const updateCategoryScroll = () => {
+    const el = categoryScrollerRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft < max - 4)
+    setCategoryProgress(max > 0 ? Math.min(1, el.scrollLeft / max) : 0)
+  }
+
+  const scrollCategories = (dir: 1 | -1) => {
+    const el = categoryScrollerRef.current
+    if (!el) return
+    const first = el.firstElementChild as HTMLElement | null
+    const step = first ? first.offsetWidth + 16 : el.clientWidth * 0.8
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+
+  const onCategoryPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (typeof window === 'undefined' || window.innerWidth < 768 || e.button !== 0) return
+    const el = categoryScrollerRef.current
+    if (!el) return
+    categoryDrag.current = { active: true, startX: e.clientX, startLeft: el.scrollLeft, moved: false }
+  }
+
+  const onCategoryPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = categoryScrollerRef.current
+    const drag = categoryDrag.current
+    if (!el || !drag.active) return
+    const dx = e.clientX - drag.startX
+    if (Math.abs(dx) > 5) {
+      drag.moved = true
+      el.scrollLeft = drag.startLeft - dx
+    }
+  }
+
+  const endCategoryDrag = () => {
+    categoryDrag.current.active = false
+  }
+
+  const blockClickAfterDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (categoryDrag.current.moved) {
+      e.preventDefault()
+      e.stopPropagation()
+      categoryDrag.current.moved = false
+    }
+  }
+
+  useEffect(() => {
+    updateCategoryScroll()
+    const onResize = () => updateCategoryScroll()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, selectedLine, categories.length, thriversProducts.length, chitralProducts.length])
+
+  const countForCategory = (slug: string) =>
+    (selectedLine === 'chitral_special' ? chitralProducts : thriversProducts).filter(
+      (p) => p.category?.slug === slug
+    ).length
+
   return (
-    <div className="bg-[#f7f7f5] -mt-[105px]">
+    <div className="bg-[#f7f7f5] -mt-[105px] pb-20 md:pb-6">
       {/* Hero: slider on top, two tiles below (Thrivers Originals | Chitral Special) */}
       <section className="w-full bg-[#111]">
         {/* Main hero slider */}
@@ -428,6 +553,63 @@ export default function HomePage() {
                 />
               </motion.div>
             </AnimatePresence>
+          )}
+
+          {/* Overlay: sirf jab Sanity mein colour + opacity set ho, warna koi tint nahi */}
+          {hasColorOverlay ? (
+            <div
+              className="pointer-events-none absolute inset-0 z-[5]"
+              style={{
+                backgroundImage: `linear-gradient(to top, ${hexToRgba(
+                  overlayHex,
+                  overlayAlpha
+                )} 0%, ${hexToRgba(
+                  overlayHex,
+                  overlayAlpha * 0.45
+                )} 45%, rgba(0,0,0,0) 100%)`,
+              }}
+            />
+          ) : (
+            /* Neutral readability gradient - sirf neeche, image ke upar nahi */
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-1/2 bg-gradient-to-t from-black/35 to-transparent" />
+          )}
+
+          {(hero?.title || hero?.subtitle || hero?.primaryButtonText) && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-end">
+              <div className="w-[90%] px-6 pb-16 sm:w-[85%] md:w-auto md:max-w-xl md:px-12 md:pb-20 lg:px-16">
+                {hero?.title && (
+                  <h1 className="text-3xl font-semibold leading-[1.02] tracking-tight text-white drop-shadow-md sm:text-4xl md:text-5xl lg:text-6xl">
+                    {hero.title}
+                  </h1>
+                )}
+                {hero?.subtitle && (
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-white/85 drop-shadow-sm md:mt-3 md:text-base">
+                    {hero.subtitle}
+                  </p>
+                )}
+                {(hero?.primaryButtonText || hero?.secondaryButtonText) && (
+                  <div className="mt-5 flex flex-wrap items-center gap-3 md:mt-7">
+                    {hero?.primaryButtonText && (
+                      <Link
+                        href={hero?.primaryButtonLink || '/shop'}
+                        className="pointer-events-auto inline-flex h-11 items-center justify-center gap-2 bg-white px-6 text-xs font-medium uppercase tracking-[0.18em] text-black transition-colors hover:bg-black hover:text-white"
+                      >
+                        {hero.primaryButtonText}
+                        <ArrowRight size={14} weight="light" />
+                      </Link>
+                    )}
+                    {hero?.secondaryButtonText && (
+                      <Link
+                        href={hero?.secondaryButtonLink || '/about'}
+                        className="pointer-events-auto inline-flex h-11 items-center justify-center gap-2 border border-white/80 px-6 text-xs font-medium uppercase tracking-[0.18em] text-white transition-colors hover:bg-white hover:text-black"
+                      >
+                        {hero.secondaryButtonText}
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Prev / Next arrows */}
@@ -486,23 +668,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Product Lines */}
-      <ProductSection
-        title="Thrivers Products"
-        products={thriversProducts}
-        viewAllHref="/shop?origin=thrivers"
-        loading={loading}
-      />
-
-      {chitralProducts.length > 0 && (
-        <ProductSection
-          title="Chitral Special"
-          products={chitralProducts}
-          viewAllHref="/shop?origin=chitral-special"
-          loading={loading}
-        />
-      )}
-
       {/* Shop by Category - line selector + categories */}
       <section className="pt-4 md:pt-6 pb-5 md:pb-8">
         <div className="px-3 md:px-6 mb-3 md:mb-4 flex items-end justify-between gap-4">
@@ -524,17 +689,21 @@ export default function HomePage() {
 
         <div className="px-3 md:px-6 grid grid-cols-2 gap-2 md:gap-4">
           <LineSelectorCard
-            title="Thrivers Products"
+            title={thriversCard?.title?.trim() || 'Thrivers Originals'}
+            subtitle={thriversCard?.subtitle}
             image={lineImage('thrivers')}
             selected={selectedLine === 'thrivers'}
-            comingSoon={false}
+            comingSoon={!!thriversCard?.comingSoon}
+            badgeText={thriversCard?.badgeText}
             onClick={() => setSelectedLine('thrivers')}
           />
           <LineSelectorCard
-            title="Chitral Special"
+            title={chitralCard?.title?.trim() || 'Chitral Special'}
+            subtitle={chitralCard?.subtitle}
             image={lineImage('chitral_special')}
             selected={selectedLine === 'chitral_special'}
-            comingSoon={chitralComingSoon}
+            comingSoon={!!chitralCard?.comingSoon || chitralComingSoon}
+            badgeText={chitralCard?.badgeText}
             onClick={() => setSelectedLine('chitral_special')}
           />
         </div>
@@ -552,13 +721,16 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:grid-cols-4 md:gap-x-4 md:gap-y-6">
+            <div className="flex gap-4 overflow-hidden px-3 md:px-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[4/5] bg-gray-200/70 animate-pulse" />
+                <div
+                  key={i}
+                  className="aspect-[4/5] w-[72%] shrink-0 animate-pulse bg-gray-200/70 sm:w-[45%] md:w-[32%] lg:w-[24%]"
+                />
               ))}
             </div>
           ) : selectedLine === 'chitral_special' && chitralComingSoon ? (
-            <div className="border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center md:py-10">
+            <div className="mx-3 border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center md:mx-6 md:py-10">
               <p className="text-sm font-medium text-gray-900 md:text-base">
                 Chitral Special categories are coming soon.
               </p>
@@ -576,46 +748,120 @@ export default function HomePage() {
               )}
             </div>
           ) : selectedCategories.length > 0 ? (
-            <div className="grid grid-cols-2 gap-x-2 gap-y-5 md:grid-cols-4 md:gap-x-4 md:gap-y-6">
-              {selectedCategories.map((category) => (
-                <Link
-                  key={category._id}
-                  href={`/shop?origin=${selectedLine}&category=${encodeURIComponent(category.slug)}`}
-                  className="group min-w-0"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-[#e4e4e2]">
-                    {category.image ? (
-                      <Image
-                        src={sanityImg(category.image, 700)}
-                        alt={category.name}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center px-3 text-center text-sm text-gray-500">
-                        {category.name}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => scrollCategories(-1)}
+                aria-label="Previous categories"
+                disabled={!canScrollLeft}
+                className="absolute left-2 top-[40%] z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/85 text-gray-900 shadow-sm backdrop-blur transition-opacity hover:bg-white disabled:pointer-events-none disabled:opacity-0 md:flex"
+              >
+                <CaretLeft size={18} weight="light" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCategories(1)}
+                aria-label="Next categories"
+                disabled={!canScrollRight}
+                className="absolute right-2 top-[40%] z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/85 text-gray-900 shadow-sm backdrop-blur transition-opacity hover:bg-white disabled:pointer-events-none disabled:opacity-0 md:flex"
+              >
+                <CaretRight size={18} weight="light" />
+              </button>
+
+              <div
+                ref={categoryScrollerRef}
+                key={selectedLine}
+                role="region"
+                aria-roledescription="carousel"
+                aria-label={
+                  selectedLine === 'chitral_special'
+                    ? 'Chitral Special categories'
+                    : 'Thrivers categories'
+                }
+                tabIndex={0}
+                onScroll={updateCategoryScroll}
+                onPointerDown={onCategoryPointerDown}
+                onPointerMove={onCategoryPointerMove}
+                onPointerUp={endCategoryDrag}
+                onPointerCancel={endCategoryDrag}
+                onPointerLeave={endCategoryDrag}
+                onClickCapture={blockClickAfterDrag}
+                className="animate-fade scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto px-3 pb-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40 md:cursor-grab md:active:cursor-grabbing md:px-6"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                {selectedCategories.map((category) => (
+                  <Link
+                    key={category._id}
+                    href={`/shop?origin=${selectedLine}&category=${encodeURIComponent(category.slug)}`}
+                    className="group relative w-[72%] shrink-0 snap-start focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 sm:w-[45%] md:w-[32%] lg:w-[24%]"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#e4e4e2]">
+                      {category.image ? (
+                        <Image
+                          src={sanityImg(category.image, 800)}
+                          alt={category.imageAlt || category.name}
+                          fill
+                          sizes="(max-width: 768px) 72vw, (max-width: 1024px) 40vw, 24vw"
+                          draggable={false}
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#dcdcd8] to-[#b9b9b3]" />
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-white md:text-[15px]">
+                            {category.name}
+                          </p>
+                          {countForCategory(category.slug) > 0 && (
+                            <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-white/70">
+                              {countForCategory(category.slug)} items
+                            </p>
+                          )}
+                        </div>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/50 text-white transition-colors group-hover:border-white group-hover:bg-white group-hover:text-black">
+                          <ArrowRight size={13} weight="light" />
+                        </span>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between gap-2 pt-2">
-                    <span className="truncate text-sm text-gray-800 md:text-[15px]">{category.name}</span>
-                    <ArrowRight
-                      size={13}
-                      weight="light"
-                      className="shrink-0 text-gray-500 transition-transform duration-300 group-hover:translate-x-0.5"
-                    />
-                  </div>
-                </Link>
-              ))}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-3 px-3 md:px-6">
+                <div className="h-px w-full bg-black/10">
+                  <div
+                    className="h-px bg-gray-900 transition-[margin] duration-150"
+                    style={{ width: '25%', marginLeft: `${categoryProgress * 75}%` }}
+                  />
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center text-sm text-gray-500">
+            <div className="mx-3 border border-dashed border-black/10 bg-white/40 px-4 py-8 text-center text-sm text-gray-500 md:mx-6">
               No categories yet.
             </div>
           )}
         </div>
       </section>
+
+      {/* Product Lines */}
+      <ProductSection
+        title="Thrivers Products"
+        products={thriversProducts}
+        viewAllHref="/shop?origin=thrivers"
+        loading={loading}
+      />
+
+      {!loading && chitralProducts.length > 0 && (
+        <ProductSection
+          title="Chitral Special"
+          products={chitralProducts}
+          viewAllHref="/shop?origin=chitral_special"
+          loading={loading}
+        />
+      )}
 
       {/* New Drops */}
       <ProductSection

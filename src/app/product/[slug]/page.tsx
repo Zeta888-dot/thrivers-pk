@@ -58,9 +58,13 @@ export default function ProductPage() {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   const { addItem, toggleCart } = useCartStore()
-  const isSoldOut = product?.stock === 'out_of_stock' || product?.stock === 'sold_out'
+  const isSoldOut =
+    product?.stock === 'out_of_stock' ||
+    product?.stock === 'sold_out' ||
+    product?.stockQuantity === 0
   const isLowStock = product?.stock === 'low_stock'
   const unavailableSizes: string[] = product?.unavailableSizes || []
+  const onSale = !!product?.compareAtPrice && product.compareAtPrice > product.price
 
   useEffect(() => {
     async function fetchProduct() {
@@ -217,7 +221,17 @@ export default function ProductPage() {
         {/* Right: details */}
         <div className="lg:sticky lg:top-[160px] self-start px-2 md:px-0">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{product.name}</h1>
-          <p className="mt-3 text-base text-gray-900">Rs. {fmt(product.price)}</p>
+          <div className="mt-3 flex flex-wrap items-baseline gap-2">
+            <p className="text-base text-gray-900">Rs. {fmt(product.price)}</p>
+            {onSale && (
+              <>
+                <p className="text-sm text-gray-500 line-through">Rs. {fmt(product.compareAtPrice)}</p>
+                <span className="bg-[#2e3b12] text-white text-[10px] font-medium tracking-wide px-2.5 py-1 rounded-full">
+                  Sale
+                </span>
+              </>
+            )}
+          </div>
 
           {/* Stock */}
           <div className="mt-4 flex items-center gap-2.5">
@@ -255,13 +269,14 @@ export default function ProductPage() {
               <div className="flex w-full items-center justify-between gap-1">
                 {product.sizes.map((size: string) => {
                   const unavailable = unavailableSizes.map(String).includes(String(size))
+                  const disabled = unavailable || isSoldOut
                   return (
                     <button
                       key={size}
-                      onClick={() => !unavailable && setSelectedSize(String(size))}
-                      disabled={unavailable}
+                      onClick={() => !disabled && setSelectedSize(String(size))}
+                      disabled={disabled}
                       className={`flex-1 px-2 py-3.5 rounded-full text-sm font-medium transition-all duration-300 ease-out active:scale-95 ${
-                        unavailable
+                        disabled
                           ? 'text-gray-400 line-through cursor-not-allowed'
                           : selectedSize === String(size)
                           ? 'bg-black text-white shadow-md'

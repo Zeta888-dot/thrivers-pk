@@ -36,6 +36,9 @@ export default function ProductCard({ product }: { product: Product }) {
   const soldOut = stockStr.includes('out') || product.stockQuantity === 0
   const onSale = !!product.compareAtPrice && product.compareAtPrice > product.price
   const isChitral = product.origin === 'chitral_special'
+  const badgeList = Array.from(
+    new Set([onSale ? 'Sale' : null, ...(product.badges || [])].filter(Boolean) as string[])
+  )
 
   const handleEnter = () => {
     if (images.length > 1) setImgIdx((i) => (i + 1) % images.length)
@@ -84,11 +87,23 @@ export default function ProductCard({ product }: { product: Product }) {
             )}
           </Link>
 
-          {/* Chitral Special tag - top left */}
-          {isChitral && (
-            <span className="absolute top-3 left-3 bg-[#2e3b12]/90 text-white text-[10px] md:text-[11px] font-medium tracking-wide px-3 py-1 rounded-full pointer-events-none">
-              Chitral Special
-            </span>
+          {/* Chitral Special tag + Sanity badges - top left */}
+          {(isChitral || badgeList.length > 0) && (
+            <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5 pointer-events-none">
+              {isChitral && (
+                <span className="bg-[#2e3b12]/90 text-white text-[10px] md:text-[11px] font-medium tracking-wide px-3 py-1 rounded-full">
+                  Chitral Special
+                </span>
+              )}
+              {badgeList.slice(0, 3).map((badge) => (
+                <span
+                  key={badge}
+                  className="bg-white/95 text-gray-900 text-[10px] md:text-[11px] font-medium tracking-wide px-3 py-1 rounded-full"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
           )}
 
           {/* Sold out pill - northstory jaisa top right */}

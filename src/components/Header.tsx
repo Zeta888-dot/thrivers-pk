@@ -25,6 +25,7 @@ interface Product {
   stock?: string
   stockQuantity?: number
   unavailableSizes?: string[]
+  tags?: string[]
 }
 
 interface Category {
@@ -138,7 +139,13 @@ export default function Header() {
   }
 
   const filtered = searchQuery.trim()
-    ? searchProducts.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? searchProducts.filter((p) => {
+        const q = searchQuery.toLowerCase()
+        return (
+          p.name.toLowerCase().includes(q) ||
+          (p.tags || []).some((t) => t.toLowerCase().includes(q))
+        )
+      })
     : searchProducts
 
   const linkColor = filled

@@ -7,6 +7,9 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Script from "next/script";
 import { Archivo_Black, Permanent_Marker, Poppins } from "next/font/google";
 
+// Sanity hero content ~60s ke andar refresh ho jaye
+export const revalidate = 60;
+
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],

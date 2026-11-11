@@ -10,7 +10,7 @@ export default function FloatingWhatsApp() {
   const message = 'Hi Thrivers PK! I have a question about my order.'
 
   return (
-    <div className="fixed bottom-5 right-5 z-[70]">
+    <div className="fixed bottom-4 right-4 z-[70] md:bottom-5 md:right-5">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -48,7 +48,7 @@ export default function FloatingWhatsApp() {
 
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all hover:scale-105 hover:bg-[#1ebe5b] active:scale-95 md:h-14 md:w-14"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all hover:scale-105 hover:bg-[#1ebe5b] active:scale-95 md:h-14 md:w-14"
         aria-label="Chat on WhatsApp"
       >
         <FaWhatsapp size={28} aria-hidden="true" />

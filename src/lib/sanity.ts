@@ -7,6 +7,14 @@ export const client = createClient({
   useCdn: true,
 })
 
+// Hero jaise content publish hote hi dikhne chahiye — CDN cache bypass
+export const freshClient = createClient({
+  projectId: 'l9jivley',
+  dataset: 'production',
+  apiVersion: '2026-06-28',
+  useCdn: false,
+})
+
 // Sanity CDN image optimizer:
 // - w = width (jitni zaroorat hai utni hi, bari file nahi)
 // - q = quality 65 (webp mein kaafi clean)

@@ -21,6 +21,8 @@ interface Product {
   stockQuantity?: number
   featured?: boolean
   badges?: string[]
+  collections?: string[]
+  tags?: string[]
   unavailableSizes?: string[]
   origin?: string
   category?: { name: string; slug: string }
@@ -32,6 +34,7 @@ interface Category {
   slug: string
   origin?: string
   image?: string
+  description?: string
 }
 
 // URL ?origin=chitral-special  ->  Sanity value chitral_special
@@ -118,6 +121,7 @@ function ShopContent() {
   const params = useSearchParams()
   const categoryParam = params.get('category')
   const badgeParam = params.get('badge')
+  const collectionParam = params.get('collection')
   const originParam = originFromParam(params.get('origin'))
   const search = params.get('search')
 
@@ -127,6 +131,7 @@ function ShopContent() {
 
   const [category, setCategory] = useState(categoryParam || '')
   const [badge, setBadge] = useState(badgeParam || '')
+  const [collection, setCollection] = useState(collectionParam || '')
   const [origin, setOrigin] = useState(originParam)
   const [availability, setAvailability] = useState('')
   const [priceRange, setPriceRange] = useState('')
@@ -137,8 +142,9 @@ function ShopContent() {
   useEffect(() => {
     setCategory(categoryParam || '')
     setBadge(badgeParam || '')
+    setCollection(collectionParam || '')
     setOrigin(originParam)
-  }, [categoryParam, badgeParam, originParam])
+  }, [categoryParam, badgeParam, collectionParam, originParam])
 
   useEffect(() => {
     async function fetchAll() {
@@ -166,6 +172,7 @@ function ShopContent() {
             slug: c.slug?.current || c.slug || '',
             origin: c.origin || 'thrivers',
             image: c.image,
+            description: c.description,
           }))
         )
       } catch (e) {
@@ -182,7 +189,12 @@ function ShopContent() {
       if (origin && (p.origin || 'thrivers') !== origin) return false
       if (category && p.category?.slug !== category && p.category?.name !== category) return false
       if (badge && !(p.badges || []).includes(badge)) return false
-      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
+      if (collection && !(p.collections || []).includes(collection)) return false
+      if (search) {
+        const q = search.toLowerCase()
+        const haystack = [p.name, ...(p.tags || []), ...(p.badges || [])].join(' ').toLowerCase()
+        if (!haystack.includes(q)) return false
+      }
       if (availability === 'in' && (p.stock || '').includes('out')) return false
       if (availability === 'out' && !(p.stock || '').includes('out')) return false
       if (priceRange === 'under25' && p.price >= 2500) return false
@@ -208,7 +220,14 @@ function ShopContent() {
       default:
         return list
     }
-  }, [products, origin, category, badge, search, availability, priceRange, sort])
+  }, [products, origin, category, badge, collection, search, availability, priceRange, sort])
+
+  const collectionOptions = [
+    { v: '', l: 'All collections' },
+    ...[...new Set(products.flatMap((p) => p.collections || []))]
+      .sort((a, b) => a.localeCompare(b))
+      .map((c) => ({ v: c, l: c })),
+  ]
 
   const visibleCategories = origin
     ? categories.filter((c) => (c.origin || 'thrivers') === origin)
@@ -269,6 +288,11 @@ function ShopContent() {
     <div className="pt-4 md:pt-8 min-h-screen bg-[#f7f7f5]">
       <div className="px-3 md:px-6 pb-6 md:pb-10">
         <h1 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">{title}</h1>
+        {currentCategory?.description && !search && !badge && (
+          <p className="mt-2 max-w-2xl text-[13px] md:text-[15px] text-gray-600">
+            {currentCategory.description}
+          </p>
+        )}
         <p className="mt-2 text-[13px] md:text-[15px] font-semibold text-gray-900">
           Limited Pieces Only
         </p>
@@ -296,6 +320,12 @@ function ShopContent() {
                 value={currentCategory?.slug || category}
                 onSelect={setCategory}
                 options={categoryOptions}
+              />
+              <Dropdown
+                label="Collections"
+                value={collection}
+                onSelect={setCollection}
+                options={collectionOptions}
               />
               <Dropdown
                 label="Availability"
@@ -363,6 +393,12 @@ function ShopContent() {
               value={currentCategory?.slug || category}
               onSelect={setCategory}
               options={categoryOptions}
+            />
+            <Dropdown
+              label="Collections"
+              value={collection}
+              onSelect={setCollection}
+              options={collectionOptions}
             />
             <Dropdown
               label="Availability"
